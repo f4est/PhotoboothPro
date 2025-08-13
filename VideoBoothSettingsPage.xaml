@@ -1,0 +1,110 @@
+<Page x:Class="UnifiedPhotoBooth.VideoBoothSettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:UnifiedPhotoBooth"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="800"
+      Title="Видеобудка">
+
+    <Grid Background="#212121" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Заголовок -->
+        <TextBlock Text="Настройки видеобудки" Grid.Row="0" 
+                   FontSize="28" FontWeight="Bold" Foreground="White"
+                   HorizontalAlignment="Left" Margin="0,0,0,20"/>
+        
+        <!-- Содержимое настроек -->
+        <StackPanel Grid.Row="1" MaxWidth="600" HorizontalAlignment="Left">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Длительность записи -->
+                <TextBlock Text="Длительность записи (сек):" Grid.Row="0" Grid.Column="0" 
+                          Foreground="White" FontSize="16"
+                          VerticalAlignment="Center" Margin="0,0,20,20"/>
+                <ComboBox x:Name="cbRecordingDuration" Grid.Row="0" Grid.Column="1" 
+                          Margin="0,0,0,20" Height="35" VerticalContentAlignment="Center"
+                          SelectionChanged="CbRecordingDuration_SelectionChanged">
+                    <ComboBoxItem Content="10"/>
+                    <ComboBoxItem Content="15" IsSelected="True"/>
+                    <ComboBoxItem Content="20"/>
+                    <ComboBoxItem Content="30"/>
+                    <ComboBoxItem Content="60"/>
+                </ComboBox>
+                
+                <!-- Время отсчета -->
+                <TextBlock Text="Время отсчета (сек):" Grid.Row="1" Grid.Column="0" 
+                          Foreground="White" FontSize="16"
+                          VerticalAlignment="Center" Margin="0,0,20,20"/>
+                <ComboBox x:Name="cbVideoCountdownTime" Grid.Row="1" Grid.Column="1" 
+                          Margin="0,0,0,20" Height="35" VerticalContentAlignment="Center"
+                          SelectionChanged="CbVideoCountdownTime_SelectionChanged">
+                    <ComboBoxItem Content="3" IsSelected="True"/>
+                    <ComboBoxItem Content="5"/>
+                    <ComboBoxItem Content="7"/>
+                    <ComboBoxItem Content="10"/>
+                </ComboBox>
+                
+                <!-- Микрофон -->
+                <TextBlock Text="Микрофон:" Grid.Row="2" Grid.Column="0" 
+                          Foreground="White" FontSize="16"
+                          VerticalAlignment="Center" Margin="0,0,20,20"/>
+                <ComboBox x:Name="cbMicrophones" Grid.Row="2" Grid.Column="1" 
+                          Margin="0,0,0,20" Height="35" VerticalContentAlignment="Center"
+                          SelectionChanged="CbMicrophones_SelectionChanged"/>
+                
+                <!-- Оверлей -->
+                <TextBlock Text="Оверлей:" Grid.Row="3" Grid.Column="0" 
+                          Foreground="White" FontSize="16"
+                          VerticalAlignment="Center" Margin="0,0,20,20"/>
+                <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Vertical" Margin="0,0,0,20">
+                    <TextBlock x:Name="txtOverlayPath" Text="Не выбрано" Foreground="White" 
+                               Margin="0,0,0,10" TextTrimming="CharacterEllipsis"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="btnLoadOverlay" Content="Загрузить оверлей" 
+                                Height="35" Width="150" Margin="0,0,10,0"
+                                Click="BtnLoadOverlay_Click">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="5"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <Button x:Name="btnClearOverlay" Content="Очистить оверлей" 
+                                Height="35" Width="150"
+                                Click="BtnClearOverlay_Click">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="5"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+            
+            <!-- Предпросмотр оверлея -->
+            <TextBlock Text="Предпросмотр оверлея:" Foreground="White" FontSize="16" 
+                       Margin="0,20,0,10" FontWeight="SemiBold"/>
+            <Border x:Name="previewOverlayBorder" Width="400" Height="300" BorderBrush="#444444" 
+                    BorderThickness="1" HorizontalAlignment="Left" Background="#111111">
+                <Image x:Name="imgOverlayPreview" Stretch="Uniform"/>
+            </Border>
+        </StackPanel>
+    </Grid>
+</Page>

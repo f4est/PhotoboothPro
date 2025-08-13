@@ -1,0 +1,287 @@
+<Page x:Class="UnifiedPhotoBooth.EventsSettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:UnifiedPhotoBooth"
+      mc:Ignorable="d" 
+      d:DesignHeight="800" d:DesignWidth="1000"
+      Title="Event Management">
+
+    <Grid Background="White">
+        <!-- Заголовок страницы -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Заголовок с иконкой -->
+        <Border Grid.Row="0" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Padding="40,30">
+            <StackPanel Orientation="Horizontal">
+                <Border Background="#00BFFF" Width="60" Height="60" CornerRadius="12" Margin="0,0,20,0">
+                    <TextBlock Text="🎪" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Event Management" 
+                              FontSize="32" 
+                              FontWeight="Bold" 
+                              Foreground="#2C2C2C"/>
+                    <TextBlock Text="Create a new event or edit your existing events or re use your events on your archive." 
+                              FontSize="14" 
+                              Foreground="#888888"
+                              Margin="0,5,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        
+        <!-- Содержимое настроек -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="40">
+            <StackPanel MaxWidth="800" HorizontalAlignment="Left">
+                
+                <!-- Текущее событие -->
+                <Border Background="White" 
+                        BorderBrush="#E0E0E0" 
+                        BorderThickness="1" 
+                        CornerRadius="12" 
+                        Padding="30" 
+                        Margin="0,0,0,30">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Заголовок секции -->
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+                            <TextBlock Text="Current Event" 
+                                      FontSize="24" 
+                                      FontWeight="Bold" 
+                                      Foreground="#2C2C2C"/>
+                            <Border Background="#00BFFF" 
+                                   CornerRadius="8"
+                                   Margin="20,0,0,0">
+                                <Button Content="Export All Media" 
+                                       Background="Transparent" 
+                                       Foreground="White"
+                                       BorderThickness="0"
+                                       Padding="15,8"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Border>
+                            <Border Background="Transparent" 
+                                   BorderBrush="#00BFFF"
+                                   BorderThickness="2"
+                                   CornerRadius="8"
+                                   Margin="10,0,0,0">
+                                <Button Content="View Medias" 
+                                       Background="Transparent" 
+                                       Foreground="#00BFFF"
+                                       BorderThickness="0"
+                                       Padding="15,8"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Border>
+                        </StackPanel>
+                        
+                        <!-- Выбор события -->
+                        <StackPanel Grid.Row="1" Margin="0,0,0,20">
+                            <TextBlock Text="Выберите событие:" 
+                                      FontSize="16" 
+                                      FontWeight="SemiBold"
+                                      Foreground="#2C2C2C" 
+                                      Margin="0,0,0,10"/>
+                            <ComboBox x:Name="cbEvents" 
+                                     Height="45" 
+                                     FontSize="16" 
+                                     VerticalContentAlignment="Center"
+                                     Background="White"
+                                     BorderBrush="#E0E0E0"
+                                     BorderThickness="2"
+                                     Foreground="#2C2C2C"
+                                     SelectionChanged="CbEvents_SelectionChanged">
+                                <ComboBox.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="8"/>
+                                    </Style>
+                                </ComboBox.Resources>
+                            </ComboBox>
+                        </StackPanel>
+                        
+                        <!-- Статистика события -->
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Media Collect -->
+                            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="📊" FontSize="20" Margin="0,0,8,0"/>
+                                    <TextBlock x:Name="txtMediaCount" Text="355" 
+                                              FontSize="24" 
+                                              FontWeight="Bold" 
+                                              Foreground="#2C2C2C"/>
+                                </StackPanel>
+                                <TextBlock Text="Media Collect" 
+                                          FontSize="12" 
+                                          Foreground="#888888" 
+                                          HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <!-- Media Shared -->
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="📤" FontSize="20" Margin="0,0,8,0"/>
+                                    <TextBlock x:Name="txtSharedCount" Text="0" 
+                                              FontSize="24" 
+                                              FontWeight="Bold" 
+                                              Foreground="#2C2C2C"/>
+                                </StackPanel>
+                                <TextBlock Text="Media Shared" 
+                                          FontSize="12" 
+                                          Foreground="#888888" 
+                                          HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <!-- Media Printed -->
+                            <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="🖨️" FontSize="20" Margin="0,0,8,0"/>
+                                    <TextBlock x:Name="txtPrintedCount" Text="385" 
+                                              FontSize="24" 
+                                              FontWeight="Bold" 
+                                              Foreground="#2C2C2C"/>
+                                </StackPanel>
+                                <TextBlock Text="Media Printed" 
+                                          FontSize="12" 
+                                          Foreground="#888888" 
+                                          HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Border>
+                
+                <!-- Управление событиями -->
+                <Border Background="White" 
+                        BorderBrush="#E0E0E0" 
+                        BorderThickness="1" 
+                        CornerRadius="12" 
+                        Padding="30" 
+                        Margin="0,0,0,30">
+                    <StackPanel>
+                        <!-- Заголовок секции -->
+                        <TextBlock Text="Event Archive" 
+                                  FontSize="24" 
+                                  FontWeight="Bold" 
+                                  Foreground="#2C2C2C"
+                                  Margin="0,0,0,20"/>
+                        
+                        <!-- Кнопки управления -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                            <Border Background="#FF6B6B" 
+                                    CornerRadius="10"
+                                    Margin="0,0,15,0">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#FF6B6B" 
+                                                      Direction="270" 
+                                                      ShadowDepth="0" 
+                                                      BlurRadius="8" 
+                                                      Opacity="0.3"/>
+                                </Border.Effect>
+                                <Button x:Name="btnNewEvent" 
+                                        Content="Close and Start New Event" 
+                                        Background="Transparent" 
+                                        Foreground="White"
+                                        BorderThickness="0"
+                                        Padding="20,12"
+                                        FontSize="14"
+                                        FontWeight="Bold"
+                                        Click="BtnNewEvent_Click"
+                                        Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Border>
+                            
+                            <Border Background="#FFD93D" 
+                                    CornerRadius="10"
+                                    Margin="0,0,15,0">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#FFD93D" 
+                                                      Direction="270" 
+                                                      ShadowDepth="0" 
+                                                      BlurRadius="8" 
+                                                      Opacity="0.3"/>
+                                </Border.Effect>
+                                <Button Content="Edit Event" 
+                                        Background="Transparent" 
+                                        Foreground="White"
+                                        BorderThickness="0"
+                                        Padding="20,12"
+                                        FontSize="14"
+                                        FontWeight="Bold"
+                                        Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Border>
+                            
+                            <Border Background="#6BCF7F" 
+                                    CornerRadius="10">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#6BCF7F" 
+                                                      Direction="270" 
+                                                      ShadowDepth="0" 
+                                                      BlurRadius="8" 
+                                                      Opacity="0.3"/>
+                                </Border.Effect>
+                                <Button Content="Copy Event" 
+                                        Background="Transparent" 
+                                        Foreground="White"
+                                        BorderThickness="0"
+                                        Padding="20,12"
+                                        FontSize="14"
+                                        FontWeight="Bold"
+                                        Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Border>
+                        </StackPanel>
+                        
+                        <!-- Описание -->
+                        <TextBlock Text="You can not delete events from the Event Archive." 
+                                  FontSize="12" 
+                                  Foreground="#888888"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

@@ -6,108 +6,137 @@
       xmlns:local="clr-namespace:UnifiedPhotoBooth"
       xmlns:sys="clr-namespace:System;assembly=mscorlib"
       mc:Ignorable="d" 
-      d:DesignHeight="600" d:DesignWidth="800"
+      d:DesignHeight="1080" d:DesignWidth="1920"
       Title="Фотобудка">
 
-    <Grid Background="#212121">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <Grid Background="Black">
+        <!-- Полноэкранный предпросмотр камеры -->
+        <Image x:Name="imgPreview" Stretch="UniformToFill"/>
         
-        <!-- Область предпросмотра и фотографий -->
-        <Border Grid.Row="0" BorderBrush="#444444" BorderThickness="2" Margin="20" CornerRadius="10" Background="#111111">
-            <Grid>
-                <Image x:Name="imgPreview" Stretch="Uniform" Margin="5"/>
-                <Image x:Name="imgResult" Stretch="Uniform" Visibility="Collapsed" Margin="5"/>
-                <TextBlock x:Name="txtCountdown" HorizontalAlignment="Center" VerticalAlignment="Center"
-                           FontSize="140" FontWeight="Bold" Foreground="White" Visibility="Collapsed">
+        <!-- Результирующая фотография (показывается после съемки) -->
+        <Image x:Name="imgResult" Stretch="UniformToFill" Visibility="Collapsed"/>
+        
+        <!-- Таймер обратного отсчета -->
+        <Grid x:Name="gridCountdown" Visibility="Collapsed">
+            <Ellipse Width="300" Height="300" 
+                     Fill="Black" 
+                     Opacity="0.7"
+                     HorizontalAlignment="Center" 
+                     VerticalAlignment="Center"/>
+            <Border Width="250" Height="250" 
+                    BorderBrush="#00BFFF" 
+                    BorderThickness="8" 
+                    CornerRadius="125"
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center">
+                <TextBlock x:Name="txtCountdown" 
+                          HorizontalAlignment="Center" 
+                          VerticalAlignment="Center"
+                          FontSize="120" 
+                          FontWeight="Bold" 
+                          Foreground="White"
+                          Text="3"/>
+            </Border>
+        </Grid>
+        
+        <!-- QR-код (показывается после всех фотографий) -->
+        <Grid x:Name="gridQrCode" Visibility="Collapsed">
+            <Rectangle Fill="Black" Opacity="0.8"/>
+            <Border Background="White" 
+                    CornerRadius="20" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    Padding="40">
+                <StackPanel>
+                    <TextBlock Text="Отсканируйте QR-код для получения фотографий" 
+                              FontSize="24" 
+                              FontWeight="Bold"
+                              Foreground="Black"
+                              HorizontalAlignment="Center"
+                              Margin="0,0,0,20"/>
+                    <Image x:Name="imgQrCode" 
+                           Width="300" 
+                           Height="300" 
+                           HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="txtQrCodeUrl" 
+                              FontSize="16" 
+                              Margin="0,20,0,0" 
+                              Foreground="#666666"
+                              HorizontalAlignment="Center"
+                              TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+        
+        <!-- Скрытая кнопка для начала съемки (на весь экран) -->
+        <Button x:Name="btnStartShooting" 
+                Background="Transparent" 
+                BorderThickness="0"
+                Click="BtnStartShooting_Click"
+                Cursor="Hand"
+                Visibility="Visible">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="Transparent">
+                        <!-- Индикатор "нажмите для начала" -->
+                        <StackPanel HorizontalAlignment="Center" 
+                                   VerticalAlignment="Bottom" 
+                                   Margin="0,0,0,100">
+                            <TextBlock Text="Нажмите в любое место экрана для начала съемки" 
+                                      FontSize="28" 
+                                      FontWeight="Bold"
+                                      Foreground="White" 
+                                      HorizontalAlignment="Center">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="Black" Direction="320" ShadowDepth="3" Opacity="0.8"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
+                            <TextBlock Text="📸" 
+                                      FontSize="60" 
+                                      HorizontalAlignment="Center"
+                                      Margin="0,20,0,0">
                     <TextBlock.Effect>
-                        <DropShadowEffect Color="Black" Direction="320" ShadowDepth="5" Opacity="0.8"/>
+                                    <DropShadowEffect Color="Black" Direction="320" ShadowDepth="3" Opacity="0.8"/>
                     </TextBlock.Effect>
                 </TextBlock>
-                <Image x:Name="imgQrCode" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-                       Width="180" Height="180" Margin="20" Visibility="Collapsed"/>
-                <TextBlock x:Name="txtQrCodeUrl" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-                           FontSize="14" Margin="20,0,20,210" Foreground="White" Visibility="Collapsed"/>
-            </Grid>
+                        </StackPanel>
         </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Opacity" Value="0.9"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
         
-        <!-- Панель управления -->
-        <Border Grid.Row="1" Background="#111111" CornerRadius="10" Margin="20,0,20,20">
-            <Grid Margin="15">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                
-                <!-- Информационная панель -->
-                <StackPanel Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Left">
-                    <TextBlock x:Name="txtStatus" Text="Готов к съемке" FontSize="18" FontWeight="Bold" Foreground="White"/>
-                    <TextBlock x:Name="txtInfo" Text="Нажмите 'Начать', чтобы сделать фотографии" FontSize="16" Margin="0,5,0,0" Foreground="#CCCCCC"/>
-                </StackPanel>
-                
-                <!-- Кнопки управления -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button x:Name="btnStart" Content="Начать" Width="150" Height="50" Margin="5" 
-                            Background="#4CAF50" Foreground="White" FontSize="18" FontWeight="Bold" BorderThickness="0"
-                            Click="BtnStart_Click">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="8"/>
-                            </Style>
-                        </Button.Resources>
-                        <Button.Effect>
-                            <DropShadowEffect Color="Black" Direction="320" ShadowDepth="2" Opacity="0.5"/>
-                        </Button.Effect>
+        <!-- Кнопка возврата к главному экрану (появляется после QR-кода) -->
+        <Border Background="#00BFFF" 
+                CornerRadius="15"
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Bottom"
+                Margin="0,0,0,50"
+                Visibility="Collapsed"
+                x:Name="btnBackToMenuBorder">
+            <Border.Effect>
+                <DropShadowEffect Color="Black" Direction="320" ShadowDepth="5" Opacity="0.5"/>
+            </Border.Effect>
+            <Button x:Name="btnBackToMenu" 
+                    Content="Вернуться к главному меню" 
+                    FontSize="24" 
+                    FontWeight="Bold"
+                    Background="Transparent" 
+                    Foreground="White"
+                    BorderThickness="0"
+                    Padding="30,15"
+                    Click="BtnBackToMenu_Click"
+                    Cursor="Hand">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </ControlTemplate>
+                </Button.Template>
                     </Button>
-                    <Button x:Name="btnReset" Content="Сброс" Width="150" Height="50" Margin="5" 
-                            Background="#F44336" Foreground="White" FontSize="18" FontWeight="Bold" BorderThickness="0"
-                            Click="BtnReset_Click" Visibility="Collapsed">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="8"/>
-                            </Style>
-                        </Button.Resources>
-                        <Button.Effect>
-                            <DropShadowEffect Color="Black" Direction="320" ShadowDepth="2" Opacity="0.5"/>
-                        </Button.Effect>
-                    </Button>
-                    <Button x:Name="btnShare" Content="Поделиться" Width="150" Height="50" Margin="5"
-                            Background="#2196F3" Foreground="White" FontSize="18" FontWeight="Bold" BorderThickness="0"
-                            Click="BtnShare_Click" Visibility="Collapsed">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="8"/>
-                            </Style>
-                        </Button.Resources>
-                        <Button.Effect>
-                            <DropShadowEffect Color="Black" Direction="320" ShadowDepth="2" Opacity="0.5"/>
-                        </Button.Effect>
-                    </Button>
-                    <Button x:Name="btnPrint" Content="Печать" Width="150" Height="50" Margin="5"
-                            Background="#9C27B0" Foreground="White" FontSize="18" FontWeight="Bold" BorderThickness="0"
-                            Click="BtnPrint_Click" Visibility="Collapsed">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="8"/>
-                            </Style>
-                        </Button.Resources>
-                        <Button.Effect>
-                            <DropShadowEffect Color="Black" Direction="320" ShadowDepth="2" Opacity="0.5"/>
-                        </Button.Effect>
-                    </Button>
-                </StackPanel>
-                
-                <!-- Дополнительная информация -->
-                <StackPanel Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Right">
-                    <TextBlock x:Name="txtDate" Text="{Binding Source={x:Static sys:DateTime.Now}, StringFormat=dd.MM.yyyy HH:mm}" 
-                               FontSize="16" HorizontalAlignment="Right" Foreground="White"/>
-                    <TextBlock x:Name="txtEventName" Text="" FontSize="18" FontWeight="Bold" 
-                               HorizontalAlignment="Right" Margin="0,5,0,0" Foreground="#4CAF50"/>
-                </StackPanel>
-            </Grid>
         </Border>
     </Grid>
 </Page> 

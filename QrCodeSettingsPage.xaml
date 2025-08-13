@@ -1,0 +1,147 @@
+<Page x:Class="UnifiedPhotoBooth.QrCodeSettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:UnifiedPhotoBooth"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="800"
+      Title="QR-код">
+
+    <Grid Background="#212121" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Заголовок -->
+        <TextBlock Text="Настройки QR-кода" Grid.Row="0" 
+                   FontSize="28" FontWeight="Bold" Foreground="White"
+                   HorizontalAlignment="Left" Margin="0,0,0,20"/>
+        
+        <!-- Содержимое настроек -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Размер QR-кода -->
+                <TextBlock Text="Размер QR-кода (пикс.):" Grid.Row="0" Grid.Column="0" 
+                          Foreground="White" FontSize="16"
+                          VerticalAlignment="Center" Margin="0,0,20,20"/>
+                <Slider x:Name="sliderQrSize" Grid.Row="0" Grid.Column="1" 
+                        Minimum="100" Maximum="500" Value="300" 
+                        TickFrequency="50" IsSnapToTickEnabled="True"
+                        VerticalAlignment="Center" Margin="0,0,10,20"
+                        ValueChanged="SliderQrSize_ValueChanged"/>
+                <TextBlock x:Name="txtQrSize" Grid.Row="0" Grid.Column="2" 
+                          Text="300" Foreground="White" FontSize="16"
+                          VerticalAlignment="Center" Margin="0,0,0,20"/>
+                
+                <!-- Цвет фона -->
+                <TextBlock Text="Цвет фона:" Grid.Row="1" Grid.Column="0" 
+                          Foreground="White" FontSize="16"
+                          VerticalAlignment="Center" Margin="0,0,20,20"/>
+                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,20">
+                    <Rectangle x:Name="rectQrBackColor" Width="30" Height="20" 
+                              Fill="#FFFFFF" Stroke="Black" StrokeThickness="1" 
+                              VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <Button x:Name="btnQrBackColor" Content="Выбрать цвет" 
+                            Padding="10,5" VerticalAlignment="Center"
+                            Click="BtnQrBackColor_Click">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+                
+                <!-- Цвет QR-кода -->
+                <TextBlock Text="Цвет QR-кода:" Grid.Row="2" Grid.Column="0" 
+                          Foreground="White" FontSize="16"
+                          VerticalAlignment="Center" Margin="0,0,20,20"/>
+                <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,20">
+                    <Rectangle x:Name="rectQrForeColor" Width="30" Height="20" 
+                              Fill="#000000" Stroke="Black" StrokeThickness="1" 
+                              VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <Button x:Name="btnQrForeColor" Content="Выбрать цвет" 
+                            Padding="10,5" VerticalAlignment="Center"
+                            Click="BtnQrForeColor_Click">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+                
+                <!-- Логотип -->
+                <TextBlock Text="Логотип в центре:" Grid.Row="3" Grid.Column="0" 
+                          Foreground="White" FontSize="16"
+                          VerticalAlignment="Center" Margin="0,0,20,20"/>
+                <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="txtQrLogoPath" IsReadOnly="True" Grid.Column="0" 
+                            VerticalAlignment="Center" Margin="0,0,10,0"
+                            Height="35" VerticalContentAlignment="Center"/>
+                    <Button x:Name="btnLoadQrLogo" Content="Обзор" Grid.Column="1" 
+                            Padding="10,5" Margin="0,0,10,0"
+                            Click="BtnLoadQrLogo_Click">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    <Button x:Name="btnClearQrLogo" Content="Очистить" Grid.Column="2" 
+                            Padding="10,5" Click="BtnClearQrLogo_Click">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </Grid>
+                
+                <!-- Размер логотипа -->
+                <TextBlock Text="Размер логотипа (%):" Grid.Row="4" Grid.Column="0" 
+                          Foreground="White" FontSize="16"
+                          VerticalAlignment="Center" Margin="0,0,20,20"/>
+                <Slider x:Name="sliderQrLogoSize" Grid.Row="4" Grid.Column="1" 
+                        Minimum="10" Maximum="50" Value="30" 
+                        TickFrequency="5" IsSnapToTickEnabled="True"
+                        VerticalAlignment="Center" Margin="0,0,10,20"
+                        ValueChanged="SliderQrLogoSize_ValueChanged"/>
+                <TextBlock x:Name="txtQrLogoSize" Grid.Row="4" Grid.Column="2" 
+                          Text="30%" Foreground="White" FontSize="16"
+                          VerticalAlignment="Center" Margin="0,0,0,20"/>
+                
+                <!-- Предпросмотр -->
+                <TextBlock Text="Предпросмотр:" Grid.Row="5" Grid.Column="0" 
+                          Foreground="White" FontSize="16" FontWeight="SemiBold"
+                          VerticalAlignment="Top" Margin="0,10,20,20"/>
+                <Border Grid.Row="5" Grid.Column="1" BorderBrush="LightGray" 
+                        BorderThickness="1" Width="200" Height="200" 
+                        HorizontalAlignment="Left" Margin="0,10,0,20">
+                    <Image x:Name="imgQrPreview" Stretch="Uniform" Margin="10"/>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Page>

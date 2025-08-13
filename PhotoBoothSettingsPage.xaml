@@ -1,0 +1,130 @@
+<Page x:Class="UnifiedPhotoBooth.PhotoBoothSettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:UnifiedPhotoBooth"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="800"
+      Title="Фотобудка">
+
+    <Grid Background="#212121" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Заголовок -->
+        <TextBlock Text="Настройки фотобудки" Grid.Row="0" 
+                   FontSize="28" FontWeight="Bold" Foreground="White"
+                   HorizontalAlignment="Left" Margin="0,0,0,20"/>
+        
+        <!-- Содержимое настроек -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel MaxWidth="600" HorizontalAlignment="Left">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Количество фотографий -->
+                    <TextBlock Text="Количество фотографий:" Grid.Row="0" Grid.Column="0" 
+                              Foreground="White" FontSize="16"
+                              VerticalAlignment="Center" Margin="0,0,20,20"/>
+                    <ComboBox x:Name="cbPhotoCount" Grid.Row="0" Grid.Column="1" 
+                              Margin="0,0,0,20" Height="35" VerticalContentAlignment="Center"
+                              SelectionChanged="CbPhotoCount_SelectionChanged">
+                        <ComboBoxItem Content="1"/>
+                        <ComboBoxItem Content="2"/>
+                        <ComboBoxItem Content="3"/>
+                        <ComboBoxItem Content="4"/>
+                    </ComboBox>
+                    
+                    <!-- Время обратного отсчета -->
+                    <TextBlock Text="Время обратного отсчета:" Grid.Row="1" Grid.Column="0" 
+                              Foreground="White" FontSize="16"
+                              VerticalAlignment="Center" Margin="0,0,20,20"/>
+                    <ComboBox x:Name="cbPhotoCountdownTime" Grid.Row="1" Grid.Column="1" 
+                              Margin="0,0,0,20" Height="35" VerticalContentAlignment="Center"
+                              SelectionChanged="CbPhotoCountdownTime_SelectionChanged">
+                        <ComboBoxItem Content="3"/>
+                        <ComboBoxItem Content="5"/>
+                        <ComboBoxItem Content="10"/>
+                    </ComboBox>
+                    
+                    <!-- Шаблон рамки -->
+                    <TextBlock Text="Шаблон рамки:" Grid.Row="2" Grid.Column="0" 
+                              Foreground="White" FontSize="16"
+                              VerticalAlignment="Center" Margin="0,0,20,20"/>
+                    <Grid Grid.Row="2" Grid.Column="1" Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="txtFrameTemplatePath" Text="Не выбрано" Grid.Column="0"
+                                  Foreground="White" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                        <Button Content="Загрузить" Grid.Column="1" Margin="5,0,0,0" Padding="10,5" 
+                                Click="BtnLoadFrameTemplate_Click">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="5"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <Button Content="Очистить" Grid.Column="2" Margin="5,0,0,0" Padding="10,5" 
+                                Click="BtnClearFrameTemplate_Click">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="5"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </Grid>
+                    
+                    <!-- Позиции фотографий -->
+                    <TextBlock Text="Позиции фотографий:" Grid.Row="3" Grid.Column="0" 
+                              Foreground="White" FontSize="16"
+                              VerticalAlignment="Center" Margin="0,0,20,20"/>
+                    <Button Content="Настроить позиции" Grid.Row="3" Grid.Column="1" 
+                            Margin="0,0,0,20" Padding="10,5" HorizontalAlignment="Left" Width="180"
+                            Click="BtnSetupPositions_Click">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    
+                    <!-- Режим обработки фото -->
+                    <TextBlock Text="Режим обработки фото:" Grid.Row="4" Grid.Column="0" 
+                              Foreground="White" FontSize="16"
+                              VerticalAlignment="Center" Margin="0,0,20,20"/>
+                    <ComboBox x:Name="cbPhotoProcessingMode" Grid.Row="4" Grid.Column="1" 
+                              Margin="0,0,0,20" Height="35" VerticalContentAlignment="Center"
+                              SelectionChanged="CbPhotoProcessingMode_SelectionChanged">
+                        <ComboBoxItem Content="↔️ Растягивать" ToolTip="Изображение будет растянуто до заданных размеров"/>
+                        <ComboBoxItem Content="✂️ Обрезать" ToolTip="Изображение будет обрезано для соответствия пропорциям"/>
+                        <ComboBoxItem Content="🔍 Масштабировать" ToolTip="Изображение будет масштабировано с сохранением пропорций"/>
+                    </ComboBox>
+                </Grid>
+                
+                <!-- Предпросмотр рамки -->
+                <TextBlock Text="Предпросмотр рамки:" Foreground="White" FontSize="16" 
+                           Margin="0,20,0,10" FontWeight="SemiBold"/>
+                <Border x:Name="previewFrameBorder" Width="400" Height="300" BorderBrush="#444444" 
+                        BorderThickness="1" HorizontalAlignment="Left" Background="#111111">
+                    <Image x:Name="imgFramePreview" Stretch="Uniform"/>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

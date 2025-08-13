@@ -44,18 +44,19 @@ namespace UnifiedPhotoBooth
                 {
                     // Заменяем старый файл новым
                     if (File.Exists(SettingsFilePath))
+                    {
                         File.Delete(SettingsFilePath);
-                    
+                    }
                     File.Move(tempPath, SettingsFilePath);
                     return true;
                 }
-                
-                return false;
+                else
+                {
+                    return false;
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show($"Ошибка при сохранении настроек: {ex.Message}", 
-                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }
@@ -107,43 +108,43 @@ namespace UnifiedPhotoBooth
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при загрузке настроек: {ex.Message}. Будут использованы настройки по умолчанию.", 
-                    "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                // В случае ошибки возвращаем настройки по умолчанию
+                MessageBox.Show($"Ошибка загрузки настроек: {ex.Message}\nБудут использованы настройки по умолчанию.", 
+                              "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return new AppSettings();
             }
         }
         
-        // Метод для валидации настроек
-        private static void ValidateSettings(AppSettings settings)
-        {
-            // Проверяем наличие списка позиций
-            if (settings.PhotoPositions == null)
-            {
-                settings.PhotoPositions = new System.Collections.Generic.List<PhotoPosition>();
-            }
-            
-            // Проверяем корректность числовых параметров
-            if (settings.PhotoCount <= 0) settings.PhotoCount = 4;
-            if (settings.PhotoCountdownTime <= 0) settings.PhotoCountdownTime = 3;
-            if (settings.VideoCountdownTime <= 0) settings.VideoCountdownTime = 3;
-            if (settings.RecordingDuration <= 0) settings.RecordingDuration = 15;
-            
-            // Проверяем существование файлов
-            if (!string.IsNullOrEmpty(settings.FrameTemplatePath) && !File.Exists(settings.FrameTemplatePath))
-            {
-                settings.FrameTemplatePath = null;
-            }
-            
-            if (!string.IsNullOrEmpty(settings.OverlayImagePath) && !File.Exists(settings.OverlayImagePath))
-            {
-                settings.OverlayImagePath = null;
-            }
-        }
-        
-        // Метод для получения пути к файлу настроек (для диагностики)
+        // Метод для получения пути к файлу настроек
         public static string GetSettingsFilePath()
         {
             return SettingsFilePath;
         }
+        
+        // Валидация настроек
+        private static void ValidateSettings(AppSettings settings)
+        {
+            // Валидируем количество фотографий
+            if (settings.PhotoCount < 1 || settings.PhotoCount > 10)
+                settings.PhotoCount = 4;
+                
+            // Валидируем время обратного отсчета
+            if (settings.PhotoCountdownTime < 1 || settings.PhotoCountdownTime > 10)
+                settings.PhotoCountdownTime = 3;
+                
+            if (settings.VideoCountdownTime < 1 || settings.VideoCountdownTime > 10)
+                settings.VideoCountdownTime = 3;
+                
+            // Валидируем продолжительность записи видео
+            if (settings.RecordingDuration < 5 || settings.RecordingDuration > 300)
+                settings.RecordingDuration = 15;
+                
+            // Валидируем индексы устройств
+            if (settings.CameraIndex < 0)
+                settings.CameraIndex = 0;
+                
+            if (settings.MicrophoneIndex < 0)
+                settings.MicrophoneIndex = 0;
+        }
     }
-} 
+}

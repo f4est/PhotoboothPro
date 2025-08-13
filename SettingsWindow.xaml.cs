@@ -643,7 +643,7 @@ namespace UnifiedPhotoBooth
             }
         }
         
-        private void BtnSetupPositions_Click(object sender, RoutedEventArgs e)
+        public void OpenPositionSetupDialog(Window owner = null)
         {
             // Проверяем, выбран ли шаблон рамки
             if (string.IsNullOrEmpty(AppSettings.FrameTemplatePath) || !File.Exists(AppSettings.FrameTemplatePath))
@@ -665,7 +665,7 @@ namespace UnifiedPhotoBooth
                 Width = Math.Min(1400, SystemParameters.WorkArea.Width * 0.9),
                 Height = Math.Min(900, SystemParameters.WorkArea.Height * 0.9),
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Owner = this,
+                Owner = owner ?? this,
                 WindowStyle = WindowStyle.SingleBorderWindow,
                 ResizeMode = ResizeMode.CanResizeWithGrip,
                 MinWidth = 800,
@@ -1934,6 +1934,12 @@ namespace UnifiedPhotoBooth
             }
         }
         
+        // Старый обработчик на всякий случай оставляем совместимым
+        private void BtnSetupPositions_Click(object sender, RoutedEventArgs e)
+        {
+            OpenPositionSetupDialog(this);
+        }
+        
         private void AddPositionRect(double x, double y, double width, double height, int number)
         {
             // Создаем прямоугольник
@@ -2927,6 +2933,7 @@ namespace UnifiedPhotoBooth
         // Настройки камеры
         public int CameraIndex { get; set; } = 0;
         public string RotationMode { get; set; } = "Без поворота";
+        public int CameraRotation { get; set; } = 0;
         public bool MirrorMode { get; set; } = false;
         
         // Настройки фотобудки

@@ -1,0 +1,272 @@
+<Page x:Class="UnifiedPhotoBooth.PrinterSettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:UnifiedPhotoBooth"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="800"
+      Title="Принтер">
+
+    <Grid Background="#212121" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Заголовок -->
+        <TextBlock Text="Настройки принтера" Grid.Row="0" 
+                   FontSize="28" FontWeight="Bold" Foreground="White"
+                   HorizontalAlignment="Left" Margin="0,0,0,20"/>
+        
+        <!-- Содержимое настроек -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel MaxWidth="600" HorizontalAlignment="Left">
+                <!-- Основные настройки -->
+                <GroupBox Header="Основные настройки" Margin="0,0,0,20"
+                          Foreground="White" BorderBrush="#444444">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Выбор принтера -->
+                        <TextBlock Text="Выбор принтера:" Grid.Row="0" Grid.Column="0" 
+                                Foreground="White" FontSize="16"
+                                VerticalAlignment="Center" Margin="0,0,20,20"/>
+                        <ComboBox x:Name="cbPrinters" Grid.Row="0" Grid.Column="1" 
+                                Margin="0,0,0,20" Height="35" VerticalContentAlignment="Center"
+                                SelectionChanged="CbPrinters_SelectionChanged"/>
+                        
+                        <!-- Ширина печати -->
+                        <TextBlock Text="Ширина печати (см):" Grid.Row="1" Grid.Column="0" 
+                                Foreground="White" FontSize="16"
+                                VerticalAlignment="Center" Margin="0,0,20,20"/>
+                        <TextBox x:Name="txtPrintWidth" Grid.Row="1" Grid.Column="1" 
+                                Margin="0,0,0,20" Height="35" VerticalContentAlignment="Center" 
+                                Text="10.16" TextChanged="TxtPrintWidth_TextChanged"/>
+                        
+                        <!-- Высота печати -->
+                        <TextBlock Text="Высота печати (см):" Grid.Row="2" Grid.Column="0" 
+                                Foreground="White" FontSize="16"
+                                VerticalAlignment="Center" Margin="0,0,20,20"/>
+                        <TextBox x:Name="txtPrintHeight" Grid.Row="2" Grid.Column="1" 
+                                Margin="0,0,0,20" Height="35" VerticalContentAlignment="Center" 
+                                Text="15.24" TextChanged="TxtPrintHeight_TextChanged"/>
+                        
+                        <!-- Режим обработки -->
+                        <TextBlock Text="Режим обработки:" Grid.Row="3" Grid.Column="0" 
+                                Foreground="White" FontSize="16"
+                                VerticalAlignment="Center" Margin="0,0,20,20"/>
+                        <ComboBox x:Name="cbPrintProcessingMode" Grid.Row="3" Grid.Column="1" 
+                                Margin="0,0,0,20" Height="35" VerticalContentAlignment="Center"
+                                SelectionChanged="CbPrintProcessingMode_SelectionChanged">
+                            <ComboBoxItem Content="↔️ Растягивать" ToolTip="Изображение будет растянуто до заданных размеров"/>
+                            <ComboBoxItem Content="✂️ Обрезать" ToolTip="Изображение будет обрезано для соответствия пропорциям"/>
+                            <ComboBoxItem Content="🔍 Масштабировать" ToolTip="Изображение будет масштабировано с сохранением пропорций"/>
+                        </ComboBox>
+                        
+                        <!-- Тестовая печать -->
+                        <Button Content="Тестовая печать" Grid.Row="4" Grid.Column="1" 
+                                Margin="0,10,0,0" Padding="10,5" HorizontalAlignment="Left"
+                                Width="200" Height="40" Click="BtnTestPrint_Click">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="5"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </Grid>
+                </GroupBox>
+                
+                <!-- Расширенные настройки DNP DS-RX1 -->
+                <GroupBox x:Name="dnpSettingsGroup" Header="Расширенные настройки DNP DS-RX1" Margin="0,0,0,20" Visibility="Collapsed"
+                          Foreground="White" BorderBrush="#444444">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Тип поверхности -->
+                        <TextBlock Text="Тип поверхности:" Grid.Row="0" Grid.Column="0" 
+                                 Foreground="White" FontSize="16"
+                                 VerticalAlignment="Center" Margin="0,0,20,20"/>
+                        <ComboBox x:Name="cbMediaType" Grid.Row="0" Grid.Column="1" 
+                                Margin="0,0,0,20" Height="35" VerticalContentAlignment="Center"
+                                SelectionChanged="CbMediaType_SelectionChanged">
+                            <ComboBoxItem Content="Глянцевая (Glossy)" IsSelected="True"/>
+                            <ComboBoxItem Content="Матовая (Matte)"/>
+                        </ComboBox>
+                        
+                        <!-- Тип печати -->
+                        <TextBlock Text="Тип печати:" Grid.Row="1" Grid.Column="0" 
+                                 Foreground="White" FontSize="16"
+                                 VerticalAlignment="Center" Margin="0,0,20,20"/>
+                        <ComboBox x:Name="cbPrintType" Grid.Row="1" Grid.Column="1" 
+                                Margin="0,0,0,20" Height="35" VerticalContentAlignment="Center"
+                                SelectionChanged="CbPrintType_SelectionChanged">
+                            <ComboBoxItem Content="Стандартная" IsSelected="True"/>
+                            <ComboBoxItem Content="С улучшенным черным (Fine Deep)"/>
+                            <ComboBoxItem Content="С улучшенными светлыми тонами (Fine Light)"/>
+                        </ComboBox>
+                        
+                        <!-- Размер фотографии -->
+                        <TextBlock Text="Размер фотографии:" Grid.Row="2" Grid.Column="0" 
+                                 Foreground="White" FontSize="16"
+                                 VerticalAlignment="Center" Margin="0,0,20,20"/>
+                        <ComboBox x:Name="cbPhotoSize" Grid.Row="2" Grid.Column="1" 
+                                Margin="0,0,0,20" Height="35" VerticalContentAlignment="Center"
+                                SelectionChanged="CbPhotoSize_SelectionChanged">
+                            <ComboBoxItem Content="10×15 см (Postcard)" IsSelected="True"/>
+                            <ComboBoxItem Content="9×13 см (L size)"/>
+                            <ComboBoxItem Content="Пользовательский размер"/>
+                        </ComboBox>
+                        
+                        <!-- Качество печати -->
+                        <TextBlock Text="Качество печати:" Grid.Row="3" Grid.Column="0" 
+                                 Foreground="White" FontSize="16"
+                                 VerticalAlignment="Center" Margin="0,0,20,20"/>
+                        <ComboBox x:Name="cbPrintQuality" Grid.Row="3" Grid.Column="1" 
+                                Margin="0,0,0,20" Height="35" VerticalContentAlignment="Center"
+                                SelectionChanged="CbPrintQuality_SelectionChanged">
+                            <ComboBoxItem Content="Высокая скорость"/>
+                            <ComboBoxItem Content="Высокое качество" IsSelected="True"/>
+                        </ComboBox>
+                        
+                        <!-- Количество копий -->
+                        <TextBlock Text="Количество копий:" Grid.Row="4" Grid.Column="0" 
+                                 Foreground="White" FontSize="16"
+                                 VerticalAlignment="Center" Margin="0,0,20,20"/>
+                        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,20">
+                            <Button x:Name="btnCopiesMinus" Content="-" Width="30" Height="30" 
+                                  Margin="0,0,5,0" Click="BtnCopiesMinus_Click"/>
+                            <TextBlock x:Name="txtCopiesCount" Text="1" Foreground="White" FontSize="16" 
+                                     Width="30" TextAlignment="Center" VerticalAlignment="Center"/>
+                            <Button x:Name="btnCopiesPlus" Content="+" Width="30" Height="30" 
+                                  Margin="5,0,0,0" Click="BtnCopiesPlus_Click"/>
+                        </StackPanel>
+                        
+                        <!-- Дополнительные параметры -->
+                        <TextBlock Text="Дополнительно:" Grid.Row="5" Grid.Column="0" 
+                                 Foreground="White" FontSize="16"
+                                 VerticalAlignment="Top" Margin="0,0,20,20"/>
+                        <StackPanel Grid.Row="5" Grid.Column="1" Margin="0,0,0,20">
+                            <CheckBox x:Name="chkColorMatching" Content="Цветокоррекция" 
+                                    Foreground="White" IsChecked="True" Margin="0,0,0,10"
+                                    Checked="ChkColorMatching_CheckedChanged" 
+                                    Unchecked="ChkColorMatching_CheckedChanged"/>
+                            <CheckBox x:Name="chkMirrorPrint" Content="Зеркальная печать" 
+                                    Foreground="White" Margin="0,0,0,10"
+                                    Checked="ChkMirrorPrint_CheckedChanged" 
+                                    Unchecked="ChkMirrorPrint_CheckedChanged"/>
+                            <CheckBox x:Name="chkMultiCut" Content="Мультирезка (несколько маленьких фото на одном листе)" 
+                                    Foreground="White" Margin="0,0,0,10"
+                                    Checked="ChkMultiCut_CheckedChanged" 
+                                    Unchecked="ChkMultiCut_CheckedChanged"/>
+                        </StackPanel>
+                        
+                        <!-- Коррекция изображения -->
+                        <TextBlock Text="Коррекция изображения:" Grid.Row="6" Grid.Column="0" 
+                                 Foreground="White" FontSize="16"
+                                 VerticalAlignment="Top" Margin="0,0,20,20"/>
+                        <Grid Grid.Row="6" Grid.Column="1" Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- Резкость -->
+                            <TextBlock Text="Резкость:" Grid.Row="0" Grid.Column="0" 
+                                    Foreground="White" VerticalAlignment="Center" Margin="0,0,10,10"/>
+                            <Slider x:Name="sliderSharpness" Grid.Row="0" Grid.Column="1" 
+                                  Minimum="-10" Maximum="10" Value="0" Margin="0,0,10,10"
+                                  ValueChanged="SliderSharpness_ValueChanged"/>
+                            <TextBlock x:Name="txtSharpness" Text="0" Grid.Row="0" Grid.Column="2"
+                                    Foreground="White" Width="30" TextAlignment="Center"/>
+                            
+                            <!-- Яркость -->
+                            <TextBlock Text="Яркость:" Grid.Row="1" Grid.Column="0" 
+                                    Foreground="White" VerticalAlignment="Center" Margin="0,0,10,10"/>
+                            <Slider x:Name="sliderBrightness" Grid.Row="1" Grid.Column="1" 
+                                  Minimum="-10" Maximum="10" Value="0" Margin="0,0,10,10"
+                                  ValueChanged="SliderBrightness_ValueChanged"/>
+                            <TextBlock x:Name="txtBrightness" Text="0" Grid.Row="1" Grid.Column="2"
+                                    Foreground="White" Width="30" TextAlignment="Center"/>
+                            
+                            <!-- Контрастность -->
+                            <TextBlock Text="Контраст:" Grid.Row="2" Grid.Column="0" 
+                                    Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <Slider x:Name="sliderContrast" Grid.Row="2" Grid.Column="1" 
+                                  Minimum="-10" Maximum="10" Value="0" Margin="0,0,10,0"
+                                  ValueChanged="SliderContrast_ValueChanged"/>
+                            <TextBlock x:Name="txtContrast" Text="0" Grid.Row="2" Grid.Column="2"
+                                    Foreground="White" Width="30" TextAlignment="Center"/>
+                        </Grid>
+                        
+                        <!-- Кнопка сброса настроек DNP -->
+                        <Button Content="Сбросить настройки DNP" Grid.Row="7" Grid.Column="1" 
+                               Margin="0,10,0,0" Padding="10,5" HorizontalAlignment="Left"
+                               Width="220" Height="40" Click="BtnResetDnpSettings_Click">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="5"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </Grid>
+                </GroupBox>
+
+                <!-- Кнопки управления принтером DNP -->
+                <GroupBox x:Name="dnpControlGroup" Header="Управление принтером DNP DS-RX1" Margin="0,0,0,20" Visibility="Collapsed"
+                          Foreground="White" BorderBrush="#444444">
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
+                        <Button Content="Специальная тестовая печать DNP" 
+                               Margin="0,0,20,0" Padding="15,10" HorizontalAlignment="Left"
+                               Width="260" Height="50" Click="BtnDnpTestPrint_Click">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="5"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        
+                        <Button Content="Показать окно настроек DNP" 
+                               Margin="0,0,0,0" Padding="15,10" HorizontalAlignment="Left"
+                               Width="260" Height="50" Click="BtnShowDnpDialog_Click">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="5"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

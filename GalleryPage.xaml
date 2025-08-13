@@ -5,9 +5,113 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:UnifiedPhotoBooth"
       mc:Ignorable="d" 
-      d:DesignHeight="768" d:DesignWidth="1024"
+      d:DesignHeight="1080" d:DesignWidth="1920"
       Title="Галерея">
 
+    <Grid Background="Black">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="350"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Левая панель с миниатюрами -->
+        <Border Grid.Column="0" Background="#1A1A1A" BorderBrush="#333333" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Заголовок галереи -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="20,20,20,10">
+                    <Ellipse Width="40" Height="40" Fill="White" Margin="0,0,15,0">
+                        <Ellipse.OpacityMask>
+                            <VisualBrush>
+                                <VisualBrush.Visual>
+                                    <Grid>
+                                        <TextBlock Text="👥" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Ellipse.OpacityMask>
+                    </Ellipse>
+                    <TextBlock Text="Gallery" 
+                              FontSize="24" 
+                              FontWeight="Bold" 
+                              Foreground="White"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <!-- Список миниатюр -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="10">
+                    <StackPanel x:Name="thumbnailPanel">
+                        <!-- Миниатюры будут добавляться программно -->
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+        
+        <!-- Центральная область с большим изображением -->
+        <Grid Grid.Column="1" Background="Black">
+            <!-- Контейнер для изображения -->
+            <Border x:Name="imageContainer" 
+                    Background="#2A2A2A" 
+                    BorderBrush="#444444" 
+                    BorderThickness="2"
+                    CornerRadius="10"
+                    Margin="30">
+                <Grid>
+                    <!-- Основное изображение -->
+                    <Image x:Name="imgMainView" 
+                          Stretch="Uniform"
+                          Margin="10"/>
+                    
+                    <!-- Заглушка когда нет изображений -->
+                    <StackPanel x:Name="noImagesPanel" 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center"
+                               Visibility="Visible">
+                        <TextBlock Text="📷" 
+                                  FontSize="80" 
+                                  HorizontalAlignment="Center"
+                                  Foreground="#666666"
+                                  Margin="0,0,0,20"/>
+                        <TextBlock Text="Нет изображений для отображения" 
+                                  FontSize="24" 
+                                  Foreground="#666666"
+                                  HorizontalAlignment="Center"/>
+                        <TextBlock Text="Сделайте фотографии, чтобы увидеть их здесь" 
+                                  FontSize="16" 
+                                  Foreground="#888888"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Оверлей для полноэкранного просмотра -->
+            <Grid x:Name="fullscreenOverlay" 
+                  Background="Black" 
+                  Visibility="Collapsed"
+                  MouseLeftButtonDown="FullscreenOverlay_MouseLeftButtonDown">
+                <Image x:Name="imgFullscreen" Stretch="Uniform"/>
+                <Button Content="✕" 
+                        FontSize="30"
+                        Background="Transparent"
+                        Foreground="White"
+                        BorderThickness="0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Margin="20"
+                        Width="50"
+                        Height="50"
+                        Click="BtnCloseFullscreen_Click"/>
+            </Grid>
+        </Grid>
+        
+        <!-- Правая панель с кнопкой Done и QR-кодом -->
+        <Border Grid.Column="2" Background="#1A1A1A" BorderBrush="#333333" BorderThickness="1,0,0,0">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -15,21 +119,129 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
-        <!-- Заголовок -->
-        <TextBlock Text="Галерея" FontSize="32" FontWeight="Bold" 
-                   HorizontalAlignment="Center" Margin="0,20,0,20"/>
-        
-        <!-- Содержимое галереи -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <WrapPanel x:Name="galleryPanel" Margin="20">
-                <!-- Элементы галереи будут добавлены программно -->
-            </WrapPanel>
-        </ScrollViewer>
-        
-        <!-- Нижняя панель с кнопками -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20">
-            <Button x:Name="btnBack" Content="Назад" Width="120" Height="50" 
-                    Margin="10" Click="BtnBack_Click"/>
+                <!-- Кнопка Done -->
+                <Border Background="#00A86B" 
+                        CornerRadius="25"
+                        Width="120"
+                        Height="50"
+                        Margin="20,30,20,20"
+                        HorizontalAlignment="Center"
+                        Grid.Row="0">
+                    <Border.Effect>
+                        <DropShadowEffect Color="Black" Direction="320" ShadowDepth="3" Opacity="0.3"/>
+                    </Border.Effect>
+                    <Button x:Name="btnDone" 
+                            Content="Done" 
+                            FontSize="20" 
+                            FontWeight="Bold"
+                            Background="Transparent" 
+                            Foreground="White"
+                            BorderThickness="0"
+                            Click="BtnDone_Click"
+                            Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Border>
+                
+                <!-- QR-код для скачивания -->
+                <StackPanel Grid.Row="1" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"
+                           Margin="20">
+                    <Border Background="White" 
+                            CornerRadius="15" 
+                            Padding="20"
+                            x:Name="qrCodeContainer"
+                            Visibility="Collapsed">
+                        <StackPanel>
+                            <Image x:Name="imgQrCode" 
+                                   Width="200" 
+                                   Height="200" 
+                                   HorizontalAlignment="Center"/>
+                            <TextBlock Text="Отсканируйте QR-код" 
+                                      FontSize="14" 
+                                      FontWeight="Bold"
+                                      Foreground="Black"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,15,0,5"/>
+                            <TextBlock Text="для скачивания фотографий" 
+                                      FontSize="12" 
+                                      Foreground="#666666"
+                                      HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Заглушка для QR-кода -->
+                    <StackPanel x:Name="qrPlaceholder" Visibility="Visible">
+                        <Border Background="#333333" 
+                                BorderBrush="#555555"
+                                BorderThickness="2"
+                                CornerRadius="15" 
+                                Width="240"
+                                Height="240"
+                                HorizontalAlignment="Center">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="⬜" 
+                                          FontSize="60" 
+                                          HorizontalAlignment="Center"
+                                          Foreground="#666666"
+                                          Margin="0,0,0,10"/>
+                                <TextBlock Text="QR-код появится" 
+                                          FontSize="16" 
+                                          Foreground="#888888"
+                                          HorizontalAlignment="Center"/>
+                                <TextBlock Text="после съемки" 
+                                          FontSize="16" 
+                                          Foreground="#888888"
+                                          HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <TextBlock Text="Scan The QR Code to Download Your Media" 
+                                  FontSize="14" 
+                                  Foreground="#666666"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,15,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+                
+                <!-- Статистика -->
+                <StackPanel Grid.Row="2" 
+                           Orientation="Horizontal" 
+                           HorizontalAlignment="Center"
+                           Margin="20,0,20,30">
+                    <StackPanel HorizontalAlignment="Center" Margin="0,0,20,0">
+                        <TextBlock x:Name="txtPhotoCount" 
+                                  Text="0" 
+                                  FontSize="24" 
+                                  FontWeight="Bold"
+                                  Foreground="White"
+                                  HorizontalAlignment="Center"/>
+                        <TextBlock Text="Photos" 
+                                  FontSize="12" 
+                                  Foreground="#888888"
+                                  HorizontalAlignment="Center"/>
+                    </StackPanel>
+                    
+                    <Rectangle Width="1" Height="40" Fill="#444444" Margin="10,0"/>
+                    
+                    <StackPanel HorizontalAlignment="Center" Margin="20,0,0,0">
+                        <TextBlock x:Name="txtEventName" 
+                                  Text="Event" 
+                                  FontSize="14" 
+                                  FontWeight="Bold"
+                                  Foreground="White"
+                                  HorizontalAlignment="Center"/>
+                        <TextBlock Text="Current Event" 
+                                  FontSize="10" 
+                                  Foreground="#888888"
+                                  HorizontalAlignment="Center"/>
+                    </StackPanel>
         </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Page> 

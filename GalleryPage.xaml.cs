@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace UnifiedPhotoBooth
 {
@@ -32,7 +33,7 @@ namespace UnifiedPhotoBooth
         {
             try
             {
-                galleryPanel.Children.Clear();
+                thumbnailPanel.Children.Clear();
                 
                 // Загружаем фотографии
                 LoadMediaFiles(PhotosDir, ".jpg", "Фото");
@@ -41,7 +42,7 @@ namespace UnifiedPhotoBooth
                 LoadMediaFiles(RecordingsDir, ".mp4", "Видео");
                 
                 // Если нет элементов, показываем сообщение
-                if (galleryPanel.Children.Count == 0)
+                if (thumbnailPanel.Children.Count == 0)
                 {
                     TextBlock noItemsText = new TextBlock
                     {
@@ -52,7 +53,7 @@ namespace UnifiedPhotoBooth
                         VerticalAlignment = VerticalAlignment.Center,
                         Margin = new Thickness(20)
                     };
-                    galleryPanel.Children.Add(noItemsText);
+                    thumbnailPanel.Children.Add(noItemsText);
                 }
             }
             catch (Exception ex)
@@ -162,7 +163,7 @@ namespace UnifiedPhotoBooth
                 itemGrid.Cursor = System.Windows.Input.Cursors.Hand;
                 
                 // Добавляем элемент в галерею
-                galleryPanel.Children.Add(itemGrid);
+                thumbnailPanel.Children.Add(itemGrid);
             }
         }
         
@@ -200,6 +201,23 @@ namespace UnifiedPhotoBooth
         {
             // Возвращаемся на главную страницу
             NavigationService.GoBack();
+        }
+
+        private void FullscreenOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // Закрыть полноэкранный режим
+            fullscreenOverlay.Visibility = Visibility.Collapsed;
+        }
+
+        private void BtnCloseFullscreen_Click(object sender, RoutedEventArgs e)
+        {
+            fullscreenOverlay.Visibility = Visibility.Collapsed;
+        }
+
+        private void BtnDone_Click(object sender, RoutedEventArgs e)
+        {
+            // Вернуться к главному экрану
+            NavigationService?.GoBack();
         }
     }
     

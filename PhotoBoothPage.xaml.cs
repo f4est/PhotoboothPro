@@ -46,7 +46,7 @@ namespace UnifiedPhotoBooth
             if (!string.IsNullOrEmpty(_eventFolderId))
             {
                 _eventName = GetEventNameById(_eventFolderId);
-                txtEventName.Text = _eventName;
+                // txtEventName больше нет в минималистичном дизайне
             }
             
             // Инициализация таймеров
@@ -261,7 +261,7 @@ namespace UnifiedPhotoBooth
         {
             _countdownValue = seconds;
             txtCountdown.Text = _countdownValue.ToString();
-            txtCountdown.Visibility = Visibility.Visible;
+            gridCountdown.Visibility = Visibility.Visible;
             
             // Устанавливаем делегат для обратного вызова по завершении отсчета
             _onCountdownComplete = onComplete;
@@ -270,37 +270,27 @@ namespace UnifiedPhotoBooth
             _countdownTimer.Start();
         }
         
-        private void BtnStart_Click(object sender, RoutedEventArgs e)
+        private void BtnStartShooting_Click(object sender, RoutedEventArgs e)
         {
-            // Убираем проверку на выбор события
-            // Очищаем предыдущие фотографии
-            foreach (var photo in _capturedPhotos)
+            // Адаптированная логика от старого BtnStart_Click
+            if (_capture == null || !_capture.IsOpened())
             {
-                photo?.Dispose();
+                MessageBox.Show("Камера не инициализирована", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
-            _capturedPhotos.Clear();
-            
-            // Сбрасываем индекс текущей фотографии
+
+            // Заменить все Visibility.Visible/Collapsed для удаленных элементов на комментарии
+            // Адаптировать логику начала/сброса без кнопок
+
+            // Например, в BtnStartShooting_Click запускать процесс съемки
+
+            // В конце процесса показывать btnBackToMenu.Visible = Visibility.Visible;
+
+            // Удалить ShowStatus и UpdateShareButtonVisibility, или адаптировать
+            btnStartShooting.Visibility = Visibility.Collapsed;
             _currentPhotoIndex = 0;
-            
-            // Скрываем результат, если он был показан
-            imgResult.Visibility = Visibility.Collapsed;
-            imgQrCode.Visibility = Visibility.Collapsed;
-            txtQrCodeUrl.Visibility = Visibility.Collapsed;
-            
-            // Показываем превью
-            imgPreview.Visibility = Visibility.Visible;
-            
-            // Обновляем интерфейс
-            btnStart.Visibility = Visibility.Collapsed;
-            btnReset.Visibility = Visibility.Visible;
-            btnShare.Visibility = Visibility.Collapsed;
-            btnPrint.Visibility = Visibility.Collapsed;
-            
-            ShowStatus("Подготовка к съемке", "Позируйте для фотографии");
-            
-            // Запускаем процесс съемки
-            StartPhotoProcess();
+            _capturedPhotos.Clear();
+            StartCountdown(SettingsWindow.AppSettings.PhotoCountdownTime, CapturePhoto);
         }
         
         private void StartPhotoProcess()
@@ -403,10 +393,10 @@ namespace UnifiedPhotoBooth
             txtQrCodeUrl.Visibility = Visibility.Collapsed;
             imgPreview.Visibility = Visibility.Visible;
             
-            btnStart.Visibility = Visibility.Visible;
-            btnReset.Visibility = Visibility.Collapsed;
-            btnShare.Visibility = Visibility.Collapsed;
-            btnPrint.Visibility = Visibility.Collapsed;
+            // btnStart.Visibility = Visibility.Visible; // Удален
+            // btnReset.Visibility = Visibility.Collapsed; // Удален
+            // btnShare.Visibility = Visibility.Collapsed; // Удален
+            // btnPrint.Visibility = Visibility.Collapsed; // Удален
             
             ShowStatus("Готов к съемке", "Нажмите 'Начать', чтобы сделать фотографии");
         }
@@ -424,9 +414,9 @@ namespace UnifiedPhotoBooth
                 ShowStatus("Загрузка фото", "Пожалуйста, подождите...");
                 
                 // Отключаем кнопки на время загрузки
-                btnReset.IsEnabled = false;
-                btnShare.IsEnabled = false;
-                btnPrint.IsEnabled = false;
+                // btnReset.IsEnabled = false; // Удален
+                // btnShare.IsEnabled = false; // Удален
+                // btnPrint.IsEnabled = false; // Удален
                 
                 // Загружаем фото в Google Drive
                 string folderName = $"PhotoBooth_{System.DateTime.Now:yyyyMMdd_HHmmss}";
@@ -463,9 +453,9 @@ namespace UnifiedPhotoBooth
             finally
             {
                 // Включаем кнопки
-                btnReset.IsEnabled = true;
-                btnShare.IsEnabled = true;
-                btnPrint.IsEnabled = true;
+                // btnReset.IsEnabled = true; // Удален
+                // btnShare.IsEnabled = true; // Удален
+                // btnPrint.IsEnabled = true; // Удален
             }
         }
         
@@ -589,8 +579,9 @@ namespace UnifiedPhotoBooth
         
         private void ShowStatus(string status, string info)
         {
-            txtStatus.Text = status;
-            txtInfo.Text = info;
+            // txtStatus.Text = status; // Удален
+            // txtInfo.Text = info; // Удален
+            // Временно убираем статус-сообщения, так как UI элементы удалены
         }
         
         private void ShowError(string message)
@@ -610,7 +601,7 @@ namespace UnifiedPhotoBooth
             else
             {
                 _countdownTimer.Stop();
-                txtCountdown.Visibility = Visibility.Collapsed;
+                gridCountdown.Visibility = Visibility.Collapsed;
                 
                 // Делаем снимок после завершения отсчета
                 _onCountdownComplete?.Invoke();
@@ -620,7 +611,7 @@ namespace UnifiedPhotoBooth
         private void UpdateShareButtonVisibility()
         {
             // Показываем кнопку "Поделиться" только если есть интернет
-            btnShare.Visibility = _driveService.IsOnline ? Visibility.Visible : Visibility.Collapsed;
+            // btnShare.Visibility = _driveService.IsOnline ? Visibility.Visible : Visibility.Collapsed; // Удален
         }
         
         private Mat CreateCollage()
@@ -1025,9 +1016,27 @@ namespace UnifiedPhotoBooth
             ShowStatus("Коллаж готов", "Ваши фотографии готовы!");
             
             // Обновляем кнопки
-            btnReset.Visibility = Visibility.Visible;
-            UpdateShareButtonVisibility();
-            btnPrint.Visibility = Visibility.Visible;
+            // btnReset.Visibility = Visibility.Visible; // Удален
+            // UpdateShareButtonVisibility(); // Удален
+            // btnPrint.Visibility = Visibility.Visible; // Удален
+        }
+        
+        private void BtnBackToMenu_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Остановка камеры
+                _capture?.Release();
+                _capture?.Dispose();
+                _previewTimer?.Stop();
+                
+                // Возвращение к главному экрану AppStartPage
+                NavigationService?.GoBack();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при возвращении в меню: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 } 

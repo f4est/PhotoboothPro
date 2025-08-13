@@ -1,0 +1,206 @@
+<Page x:Class="UnifiedPhotoBooth.CameraSettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:UnifiedPhotoBooth"
+      mc:Ignorable="d" 
+      d:DesignHeight="800" d:DesignWidth="1000"
+      Title="Camera Settings">
+
+    <Grid Background="White">
+        <!-- Заголовок страницы -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Заголовок с иконкой -->
+        <Border Grid.Row="0" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Padding="40,30">
+            <StackPanel Orientation="Horizontal">
+                <Border Background="#00BFFF" Width="60" Height="60" CornerRadius="12" Margin="0,0,20,0">
+                    <TextBlock Text="📷" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Camera Settings" 
+                              FontSize="32" 
+                              FontWeight="Bold" 
+                              Foreground="#2C2C2C"/>
+                    <TextBlock Text="Please define your event details." 
+                              FontSize="14" 
+                              Foreground="#888888"
+                              Margin="0,5,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        
+        <!-- Содержимое настроек -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="40">
+            <StackPanel MaxWidth="800" HorizontalAlignment="Left">
+                
+                <!-- Camera Settings -->
+                <Border Background="White" 
+                        BorderBrush="#E0E0E0" 
+                        BorderThickness="1" 
+                        CornerRadius="12" 
+                        Padding="30" 
+                        Margin="0,0,0,30">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Заголовок секции -->
+                        <TextBlock Grid.Row="0" 
+                                  Text="Camera Settings" 
+                                  FontSize="24" 
+                                  FontWeight="Bold" 
+                                  Foreground="#2C2C2C"
+                                  Margin="0,0,0,20"/>
+                        
+                        <!-- Основные настройки -->
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- Select Camera Type -->
+                            <TextBlock Grid.Row="0" Grid.Column="0" 
+                                      Text="Select Camera Type" 
+                                      FontSize="16" 
+                                      FontWeight="SemiBold"
+                                      Foreground="#2C2C2C" 
+                                      VerticalAlignment="Center"
+                                      Margin="0,0,40,20"/>
+                            <ComboBox x:Name="cbCameraType" 
+                                     Grid.Row="0" Grid.Column="1"
+                                     Height="45" 
+                                     FontSize="16" 
+                                     VerticalContentAlignment="Center"
+                                     Background="White"
+                                     BorderBrush="#E0E0E0"
+                                     BorderThickness="2"
+                                     Foreground="#2C2C2C"
+                                     Margin="0,0,0,20"
+                                     SelectionChanged="CbCameraType_SelectionChanged">
+                                <ComboBoxItem Content="Webcam"/>
+                                <ComboBoxItem Content="EOS Camera"/>
+                                <ComboBox.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="8"/>
+                                    </Style>
+                                </ComboBox.Resources>
+                            </ComboBox>
+                            
+                            <!-- Select Camera -->
+                            <TextBlock Grid.Row="1" Grid.Column="0" 
+                                      Text="Select Camera" 
+                                      FontSize="16" 
+                                      FontWeight="SemiBold"
+                                      Foreground="#2C2C2C" 
+                                      VerticalAlignment="Center"
+                                      Margin="0,0,40,20"/>
+                            <ComboBox x:Name="cbCameras" 
+                                     Grid.Row="1" Grid.Column="1"
+                                     Height="45" 
+                                     FontSize="16" 
+                                     VerticalContentAlignment="Center"
+                                     Background="White"
+                                     BorderBrush="#E0E0E0"
+                                     BorderThickness="2"
+                                     Foreground="#2C2C2C"
+                                     Margin="0,0,0,20"
+                                     SelectionChanged="CbCameras_SelectionChanged">
+                                <ComboBox.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="8"/>
+                                    </Style>
+                                </ComboBox.Resources>
+                            </ComboBox>
+                            
+                            <!-- Camera Rotation -->
+                            <TextBlock Grid.Row="2" Grid.Column="0" 
+                                      Text="Camera Rotation" 
+                                      FontSize="16" 
+                                      FontWeight="SemiBold"
+                                      Foreground="#2C2C2C" 
+                                      VerticalAlignment="Center"
+                                      Margin="0,0,40,0"/>
+                            <ComboBox x:Name="cbCameraRotation" 
+                                     Grid.Row="2" Grid.Column="1"
+                                     Height="45" 
+                                     FontSize="16" 
+                                     VerticalContentAlignment="Center"
+                                     Background="White"
+                                     BorderBrush="#E0E0E0"
+                                     BorderThickness="2"
+                                     Foreground="#2C2C2C"
+                                     SelectionChanged="CbCameraRotation_SelectionChanged">
+                                <ComboBoxItem Content="0 градусов"/>
+                                <ComboBoxItem Content="90 градусов"/>
+                                <ComboBoxItem Content="180 градусов"/>
+                                <ComboBoxItem Content="270 градусов"/>
+                                <ComboBox.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="8"/>
+                                    </Style>
+                                </ComboBox.Resources>
+                            </ComboBox>
+                        </Grid>
+                        
+                        <!-- Дополнительные опции -->
+                        <StackPanel Grid.Row="2" Margin="0,20,0,0">
+                            <CheckBox x:Name="chkMirrorMode" 
+                                     Content="Mirror camera horizontally on preview screen" 
+                                     FontSize="14"
+                                     Foreground="#2C2C2C"
+                                     Margin="0,0,0,15"
+                                     Checked="ChkMirrorMode_CheckedChanged" 
+                                     Unchecked="ChkMirrorMode_CheckedChanged"/>
+                            
+                            <Border Background="#00BFFF" 
+                                   CornerRadius="8"
+                                   HorizontalAlignment="Left">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#00BFFF" 
+                                                      Direction="270" 
+                                                      ShadowDepth="0" 
+                                                      BlurRadius="8" 
+                                                      Opacity="0.3"/>
+                                </Border.Effect>
+                                <Button x:Name="btnTestCamera" 
+                                       Content="Test Camera" 
+                                       Background="Transparent" 
+                                       Foreground="White"
+                                       BorderThickness="0"
+                                       Padding="20,12"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       Click="BtnTestCamera_Click"
+                                       Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Border>
+                        </StackPanel>
+
+                        <Border x:Name="previewBorder" Background="#2C2C2C" CornerRadius="8" Height="200" Margin="0,20,0,0">
+                            <Image x:Name="imgPreview" Stretch="Uniform"/>
+                        </Border>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>
