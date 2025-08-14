@@ -35,8 +35,8 @@ namespace UnifiedPhotoBooth
             _eventFolders = new Dictionary<string, string>();
             _previousWindowState = WindowState;
             
-            // Загрузка списка событий
-            RefreshEvents();
+            // Загрузка списка событий (асинхронно после загрузки окна)
+            Loaded += async (s, e) => await RefreshEventsAsync();
             
             // Добавляем обработчик изменения выбора события
             cbEvents.SelectionChanged += cbEvents_SelectionChanged;
@@ -45,16 +45,16 @@ namespace UnifiedPhotoBooth
             MainFrame.Navigate(new PhotoBoothPage(_driveService));
         }
         
-        private void RefreshEvents()
+        private async Task RefreshEventsAsync()
         {
             try
             {
+                // Получаем список событий вне UI-потока
+                var events = await Task.Run(() => _driveService.ListEvents());
+
+                // Обновляем UI
                 cbEvents.Items.Clear();
                 _eventFolders.Clear();
-                
-                // Получаем список папок-событий
-                var events = _driveService.ListEvents();
-                
                 if (events.Count > 0)
                 {
                     cbEvents.Items.Add("Выберите событие");
@@ -122,7 +122,7 @@ namespace UnifiedPhotoBooth
             MainFrame.Navigate(new VideoBoothPage(_driveService, eventFolderId));
         }
         
-        private void BtnNewEvent_Click(object sender, RoutedEventArgs e)
+        private async void BtnNewEvent_Click(object sender, RoutedEventArgs e)
         {
             InputDialog inputDialog = new InputDialog("Введите название события:", "Новое событие");
             if (inputDialog.ShowDialog() == true)
@@ -132,21 +132,21 @@ namespace UnifiedPhotoBooth
                 {
                     try
                     {
-                        // Создаем новое событие
-                        _driveService.CreateEvent(newEventName);
-                        
-                        // Обновляем список событий
-                        RefreshEvents();
-                        
-                        // Выбираем новое событие в списке
-                        for (int i = 0; i < cbEvents.Items.Count; i++)
+                        // Создаем новое событие в фоновом потоке
+                        string createdId = await Task.Run(() => _driveService.CreateEvent(newEventName));
+
+                        // Мгновенно добавляем его в список без ожидания индексации Drive
+                        if (cbEvents.Items.Count == 0 || cbEvents.Items[0]?.ToString() != "Выберите событие")
                         {
-                            if (cbEvents.Items[i].ToString() == newEventName)
-                            {
-                                cbEvents.SelectedIndex = i;
-                                break;
-                            }
+                            cbEvents.Items.Clear();
+                            cbEvents.Items.Add("Выберите событие");
                         }
+                        _eventFolders[newEventName] = createdId;
+                        cbEvents.Items.Add(newEventName);
+                        cbEvents.SelectedItem = newEventName;
+
+                        // Фоновое обновление списка (синхронизация)
+                        _ = RefreshEventsAsync();
                     }
                     catch (Exception ex)
                     {
@@ -159,7 +159,9 @@ namespace UnifiedPhotoBooth
         private void BtnSettings_Click(object sender, RoutedEventArgs e)
         {
             var settingsWindow = new SettingsWindow();
-            settingsWindow.ShowDialog();
+            settingsWindow.WindowState = WindowState.Maximized;
+            settingsWindow.ResizeMode = ResizeMode.CanResize;
+            settingsWindow.Show();
         }
         
         private void BtnGallery_Click(object sender, RoutedEventArgs e)

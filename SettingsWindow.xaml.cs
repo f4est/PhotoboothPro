@@ -125,6 +125,56 @@ namespace UnifiedPhotoBooth
             
             // Инициализация элементов интерфейса значениями из настроек
             InitializeUIFromSettings();
+            InitializePrinterUiEvents();
+
+            // Нефиксирующая модальность и подсказка пути
+            if (txtSettingsPath != null)
+            {
+                txtSettingsPath.Text = SettingsManager.GetSettingsFilePath();
+            }
+        }
+
+        private void InitializePrinterUiEvents()
+        {
+            if (cbPaperPreset != null)
+            {
+                cbPaperPreset.SelectionChanged += (s, e) =>
+                {
+                    if (cbPaperPreset.SelectedItem is ComboBoxItem item)
+                    {
+                        var tag = item.Tag?.ToString();
+                        ApplyPaperPresetToDimensions(tag);
+                    }
+                };
+            }
+        }
+
+        private void ApplyPaperPresetToDimensions(string preset)
+        {
+            if (string.IsNullOrEmpty(preset)) return;
+            // значения в сантиметрах
+            switch (preset)
+            {
+                case "4x6":
+                    txtPrintWidth.Text = 10.16.ToString("F2");
+                    txtPrintHeight.Text = 15.24.ToString("F2");
+                    break;
+                case "5x7":
+                    txtPrintWidth.Text = 12.70.ToString("F2");
+                    txtPrintHeight.Text = 17.78.ToString("F2");
+                    break;
+                case "6x8":
+                    txtPrintWidth.Text = 15.24.ToString("F2");
+                    txtPrintHeight.Text = 20.32.ToString("F2");
+                    break;
+                case "A4":
+                    txtPrintWidth.Text = 21.00.ToString("F2");
+                    txtPrintHeight.Text = 29.70.ToString("F2");
+                    break;
+                case "Custom":
+                    // Не меняем
+                    break;
+            }
         }
         
         private void InitializeUIFromSettings()
@@ -253,6 +303,35 @@ namespace UnifiedPhotoBooth
             // Устанавливаем размеры печати
             txtPrintWidth.Text = AppSettings.PrintWidth.ToString("F2");
             txtPrintHeight.Text = AppSettings.PrintHeight.ToString("F2");
+            // Ориентация печати
+            if (!string.IsNullOrEmpty(AppSettings.PrintOrientation))
+            {
+                foreach (ComboBoxItem item in cbPrintOrientation.Items)
+                {
+                    if (item.Content.ToString() == AppSettings.PrintOrientation)
+                    {
+                        cbPrintOrientation.SelectedItem = item;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                cbPrintOrientation.SelectedIndex = 0; // Авто
+            }
+            // Пресет бумаги
+            if (!string.IsNullOrEmpty(AppSettings.PaperPreset))
+            {
+                foreach (ComboBoxItem item in cbPaperPreset.Items)
+                {
+                    var tag = item.Tag?.ToString();
+                    if (tag == AppSettings.PaperPreset)
+                    {
+                        cbPaperPreset.SelectedItem = item;
+                        break;
+                    }
+                }
+            }
             
             // Режим обработки для печати
             int printProcessingModeIndex = (int)AppSettings.PrintProcessingMode;
@@ -2487,6 +2566,23 @@ namespace UnifiedPhotoBooth
                 {
                     AppSettings.PrintHeight = printHeight;
                 }
+                // Ориентация печати
+                if (cbPrintOrientation.SelectedItem is ComboBoxItem orientationItem)
+                {
+                    AppSettings.PrintOrientation = orientationItem.Content.ToString();
+                }
+                // Пресет бумаги
+                if (cbPaperPreset.SelectedItem is ComboBoxItem presetItem)
+                {
+                    AppSettings.PaperPreset = presetItem.Tag?.ToString();
+                    // Если выбран пресет, синхронизируем ширину/высоту
+                    ApplyPaperPresetToDimensions(AppSettings.PaperPreset);
+                }
+                // Кол-во копий
+                if (int.TryParse(txtPrintCopies.Text, out int copies) && copies > 0)
+                {
+                    AppSettings.PrintCopies = copies;
+                }
                 
                 // Сохраняем режимы обработки изображений
                 AppSettings.PhotoProcessingMode = (ImageProcessingMode)cbPhotoProcessingMode.SelectedIndex;
@@ -2809,7 +2905,7 @@ namespace UnifiedPhotoBooth
                 txtPrintHeight.Text = AppSettings.PrintHeight.ToString();
                 
                 cbPhotoProcessingMode.SelectedIndex = (int)AppSettings.PhotoProcessingMode;
-                cbPrintProcessingMode.SelectedIndex = (int)AppSettings.PrintProcessingMode;
+            cbPrintProcessingMode.SelectedIndex = (int)AppSettings.PrintProcessingMode;
             }
             catch (Exception ex)
             {
@@ -2947,6 +3043,10 @@ namespace UnifiedPhotoBooth
         public double PrintWidth { get; set; } = 10.16;  // 4 дюйма = 10.16 см
         public double PrintHeight { get; set; } = 15.24; // 6 дюймов = 15.24 см
         public ImageProcessingMode PrintProcessingMode { get; set; } = ImageProcessingMode.Stretch;
+        public string PrintOrientation { get; set; } = "Авто"; // Авто | Портрет | Альбом
+        public string PaperPreset { get; set; } = "4x6"; // 4x6, 5x7, 6x8, A4, Custom
+        public int PrintCopies { get; set; } = 1;
+        public int PrintDpi { get; set; } = 300;
         
         // Добавляем список текстовых элементов
         public List<TextElement> TextElements { get; set; } = new List<TextElement>();

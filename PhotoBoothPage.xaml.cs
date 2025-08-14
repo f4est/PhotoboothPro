@@ -479,45 +479,74 @@ namespace UnifiedPhotoBooth
                     return;
                 }
 
-                // Создаем окно печати с расширенными настройками
+                // Создаем окно печати и применяем сохраненные настройки
                 System.Windows.Controls.PrintDialog printDialog = new System.Windows.Controls.PrintDialog();
-                
-                // Настраиваем параметры печати
                 printDialog.PageRangeSelection = PageRangeSelection.AllPages;
                 printDialog.UserPageRangeEnabled = true;
-                
-                // Определяем, нужно ли изображение подогнать под размер кадра
-                bool fitToFrame = MessageBox.Show("Растянуть изображение по размеру кадра? (Да - растянуть, Нет - сохранить пропорции)", 
-                    "Настройка печати", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+                // Применяем конкретный принтер, если выбран
+                if (!string.IsNullOrEmpty(SettingsWindow.AppSettings.SelectedPrinter))
+                {
+                    try
+                    {
+                        var pq = new System.Printing.PrintQueue(new System.Printing.PrintServer(), SettingsWindow.AppSettings.SelectedPrinter);
+                        printDialog.PrintQueue = pq;
+                    }
+                    catch { }
+                }
                 
                 // Создаем изображение для печати
                 BitmapImage bitmapImage = new BitmapImage(new Uri(_finalImagePath, UriKind.Absolute));
                 System.Windows.Controls.Image printImage = new System.Windows.Controls.Image();
                 printImage.Source = bitmapImage;
                 
-                // Настраиваем параметры печати в зависимости от выбора пользователя
-                if (fitToFrame)
+                // Настраиваем режим обработки печати из настроек
+                switch (SettingsWindow.AppSettings.PrintProcessingMode)
                 {
-                    // Растягиваем изображение на всю страницу
-                    printImage.Stretch = Stretch.Fill;
-                }
-                else
-                {
-                    // Сохраняем пропорции
-                    printImage.Stretch = Stretch.Uniform;
+                    case ImageProcessingMode.Stretch:
+                        printImage.Stretch = Stretch.Fill;
+                        break;
+                    case ImageProcessingMode.Crop:
+                        printImage.Stretch = Stretch.UniformToFill;
+                        break;
+                    case ImageProcessingMode.Scale:
+                        printImage.Stretch = Stretch.Uniform;
+                        break;
                 }
                 
-                // Настраиваем размер печати для формата 4x6
-                printDialog.PrintTicket.PageMediaSize = new System.Printing.PageMediaSize(
-                    4 * 96.0, // 4 дюйма в пикселях
-                    6 * 96.0  // 6 дюймов в пикселях
-                );
+                // Настраиваем размер печати по выбранным настройкам
+                double widthCm = SettingsWindow.AppSettings.PrintWidth;
+                double heightCm = SettingsWindow.AppSettings.PrintHeight;
+                // Применяем ориентацию
+                var orientationSetting = SettingsWindow.AppSettings.PrintOrientation;
+                bool isLandscape = false;
+                if (orientationSetting == "Альбом") isLandscape = true;
+                if (orientationSetting == "Портрет") isLandscape = false;
+                if (orientationSetting == "Авто")
+                {
+                    // Авто: по ориентации изображения
+                    isLandscape = bitmapImage.PixelWidth >= bitmapImage.PixelHeight;
+                }
+                var pageSize = isLandscape
+                    ? new System.Printing.PageMediaSize(ConvertCmToPixels(Math.Max(widthCm, heightCm)), ConvertCmToPixels(Math.Min(widthCm, heightCm)))
+                    : new System.Printing.PageMediaSize(ConvertCmToPixels(Math.Min(widthCm, heightCm)), ConvertCmToPixels(Math.Max(widthCm, heightCm)));
+                printDialog.PrintTicket.PageMediaSize = pageSize;
+                // Ориентация страницы в PrintTicket
+                printDialog.PrintTicket.PageOrientation = isLandscape
+                    ? System.Printing.PageOrientation.Landscape
+                    : System.Printing.PageOrientation.Portrait;
+                // Разрешение печати (DPI)
+                int dpi = SettingsWindow.AppSettings.PrintDpi > 0 ? SettingsWindow.AppSettings.PrintDpi : 300;
+                printDialog.PrintTicket.PageResolution = new System.Printing.PageResolution(dpi, dpi);
                 
                 // Показываем диалог печати
                 if (printDialog.ShowDialog() == true)
                 {
-                    // Печатаем изображение
-                    printDialog.PrintVisual(printImage, "Печать фотографии");
+                    // Печатаем нужное количество копий
+                    int copies = Math.Max(1, SettingsWindow.AppSettings.PrintCopies);
+                    for (int i = 0; i < copies; i++)
+                    {
+                        printDialog.PrintVisual(printImage, "Печать фотографии");
+                    }
                     ShowStatus("Печать", "Задание отправлено на печать");
                 }
             }

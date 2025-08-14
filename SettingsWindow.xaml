@@ -54,6 +54,7 @@
         
         <TabControl Grid.Row="1" Margin="0,0,0,20">
             <TabItem Header="Камера">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -91,9 +92,11 @@
                             Height="35" Width="150" HorizontalAlignment="Left"
                             Click="BtnTestCamera_Click"/>
                 </Grid>
+                </ScrollViewer>
             </TabItem>
             
             <TabItem Header="Фотобудка">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -159,9 +162,11 @@
                         <ComboBoxItem Content="🔍 Масштабировать" ToolTip="Изображение будет масштабировано с сохранением пропорций"/>
                     </ComboBox>
                 </Grid>
+                </ScrollViewer>
             </TabItem>
             
             <TabItem Header="Видеобудка">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -209,11 +214,15 @@
                                 Click="BtnClearOverlay_Click"/>
                     </StackPanel>
                 </Grid>
+                </ScrollViewer>
             </TabItem>
             
             <TabItem Header="Принтер">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -240,18 +249,44 @@
                     <TextBox x:Name="txtPrintHeight" Grid.Row="2" Grid.Column="1" 
                              Margin="0,5" Height="30" VerticalContentAlignment="Center" Text="15.24"/>
                     
+                    <TextBlock Text="Ориентация:" Grid.Row="3" Grid.Column="0" 
+                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox x:Name="cbPrintOrientation" Grid.Row="3" Grid.Column="1" 
+                              Margin="0,5" Height="30" VerticalContentAlignment="Center">
+                        <ComboBoxItem Content="Авто"/>
+                        <ComboBoxItem Content="Портрет"/>
+                        <ComboBoxItem Content="Альбом"/>
+                    </ComboBox>
+
+                    <TextBlock Text="Размер бумаги (пресет):" Grid.Row="4" Grid.Column="0" 
+                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox x:Name="cbPaperPreset" Grid.Row="4" Grid.Column="1"
+                              Margin="0,5" Height="30" VerticalContentAlignment="Center">
+                        <ComboBoxItem Content="4x6 in (10.16 x 15.24 см)" Tag="4x6"/>
+                        <ComboBoxItem Content="5x7 in (12.7 x 17.78 см)" Tag="5x7"/>
+                        <ComboBoxItem Content="6x8 in (15.24 x 20.32 см)" Tag="6x8"/>
+                        <ComboBoxItem Content="А4 (21.0 x 29.7 см)" Tag="A4"/>
+                        <ComboBoxItem Content="Пользовательский" Tag="Custom"/>
+                    </ComboBox>
+
                     <TextBlock Text="Режим обработки:" Grid.Row="3" Grid.Column="0" 
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <ComboBox x:Name="cbPrintProcessingMode" Grid.Row="3" Grid.Column="1" 
+                    <ComboBox x:Name="cbPrintProcessingMode" Grid.Row="5" Grid.Column="1" 
                               Margin="0,5" Height="30" VerticalContentAlignment="Center">
                         <ComboBoxItem Content="↔️ Растягивать" ToolTip="Изображение будет растянуто до заданных размеров"/>
                         <ComboBoxItem Content="✂️ Обрезать" ToolTip="Изображение будет обрезано для соответствия пропорциям"/>
                         <ComboBoxItem Content="🔍 Масштабировать" ToolTip="Изображение будет масштабировано с сохранением пропорций"/>
                     </ComboBox>
                     
-                    <Button Content="Тестовая печать" Grid.Row="4" Grid.Column="1" 
-                            Margin="0,10" Padding="10,5" HorizontalAlignment="Left"/>
+                    <TextBlock Text="Копий:" Grid.Row="6" Grid.Column="0" 
+                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBox x:Name="txtPrintCopies" Grid.Row="6" Grid.Column="1"
+                             Margin="0,5" Height="30" VerticalContentAlignment="Center" Text="1"/>
+
+                    <Button x:Name="btnTestPrint" Content="Тестовая печать" Grid.Row="7" Grid.Column="1" 
+                            Margin="0,10" Padding="10,5" HorizontalAlignment="Left" Click="BtnTestPrint_Click"/>
                 </Grid>
+                </ScrollViewer>
             </TabItem>
             
             <TabItem Header="Печать">
@@ -354,12 +389,16 @@
             </TabItem>
         </TabControl>
         
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Отмена" Width="100" Height="35" Margin="0,0,10,0"
-                    Click="BtnCancel_Click"/>
-            <Button Content="Сохранить" Width="100" Height="35"
-                    Background="#4CAF50" Foreground="White"
-                    Click="BtnSave_Click"/>
-        </StackPanel>
+        <DockPanel Grid.Row="2">
+            <TextBlock Text="Путь к настройкам: " VerticalAlignment="Center"/>
+            <TextBlock Text="" x:Name="txtSettingsPath" Margin="5,0,0,0" VerticalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Right">
+                <Button Content="Отмена" Width="120" Height="35" Margin="0,0,10,0"
+                        Click="BtnCancel_Click"/>
+                <Button Content="Сохранить" Width="140" Height="35"
+                        Background="#4CAF50" Foreground="White"
+                        Click="BtnSave_Click"/>
+            </StackPanel>
+        </DockPanel>
     </Grid>
 </Window> 

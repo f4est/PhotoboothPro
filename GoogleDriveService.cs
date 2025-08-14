@@ -198,7 +198,8 @@ namespace UnifiedPhotoBooth
                     var fileMetadata = new Google.Apis.Drive.v3.Data.File()
                     {
                         Name = eventName,
-                        MimeType = "application/vnd.google-apps.folder"
+                        MimeType = "application/vnd.google-apps.folder",
+                        Parents = new List<string> { EVENTS_FOLDER_ID }
                     };
 
                     var request = _driveService.Files.Create(fileMetadata);
