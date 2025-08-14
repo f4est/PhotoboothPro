@@ -21,6 +21,8 @@ namespace UnifiedPhotoBooth
             {
                 System.Diagnostics.Debug.WriteLine($"Сохранение настроек. Индекс камеры: {settings.CameraIndex}");
                 
+                System.Diagnostics.Debug.WriteLine($"Сохранение настроек. Индекс камеры: {settings.CameraIndex}");
+                
                 // Создаем директорию, если она не существует
                 if (!Directory.Exists(SettingsFolder))
                 {

@@ -274,6 +274,15 @@
                         <ComboBoxItem Content="PR 3.5x5" Tag="PR 3.5x5"/>
                         <ComboBoxItem Content="PR 4x6" Tag="PR 4x6"/>
                         <ComboBoxItem Content="PR 4x6 x 2" Tag="PR 4x6 x 2"/>
+                        <ComboBoxItem Content="6x4" Tag="6x4"/>
+                        <ComboBoxItem Content="5x3.5" Tag="5x3.5"/>
+                        <ComboBoxItem Content="5x5" Tag="5x5"/>
+                        <ComboBoxItem Content="5x7" Tag="5x7"/>
+                        <ComboBoxItem Content="6x8" Tag="6x8"/>
+                        <ComboBoxItem Content="6x6" Tag="6x6"/>
+                        <ComboBoxItem Content="PR 3.5x5" Tag="PR 3.5x5"/>
+                        <ComboBoxItem Content="PR 4x6" Tag="PR 4x6"/>
+                        <ComboBoxItem Content="PR 4x6 x 2" Tag="PR 4x6 x 2"/>
                     </ComboBox>
 
                     <TextBlock Text="Режим обработки изображения (внутри снимка):" Grid.Row="5" Grid.Column="0" 

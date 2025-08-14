@@ -2644,6 +2644,12 @@ namespace UnifiedPhotoBooth
                 {
                     AppSettings.PrintStretchFull = chkPrintStretchFull.IsChecked ?? false;
                 }
+
+                // Флаг "Растянуть на всю страницу"
+                if (chkPrintStretchFull != null)
+                {
+                    AppSettings.PrintStretchFull = chkPrintStretchFull.IsChecked ?? false;
+                }
                 
                 // Сохраняем режимы обработки изображений
                 AppSettings.PhotoProcessingMode = (ImageProcessingMode)cbPhotoProcessingMode.SelectedIndex;
