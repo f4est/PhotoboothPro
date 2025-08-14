@@ -152,27 +152,80 @@ namespace UnifiedPhotoBooth
         private void ApplyPaperPresetToDimensions(string preset)
         {
             if (string.IsNullOrEmpty(preset)) return;
-            // значения в сантиметрах
+            // значения в дюймах, перевод в сантиметры (1 дюйм = 2.54 см)
+            const double inch = 2.54;
+            
             switch (preset)
             {
-                case "4x6":
-                    txtPrintWidth.Text = 10.16.ToString("F2");
-                    txtPrintHeight.Text = 15.24.ToString("F2");
+                case "6x4":
+                    txtPrintWidth.Text = (6 * inch).ToString("F2");
+                    txtPrintHeight.Text = (4 * inch).ToString("F2");
+                    break;
+                case "5x3.5":
+                    txtPrintWidth.Text = (5 * inch).ToString("F2");
+                    txtPrintHeight.Text = (3.5 * inch).ToString("F2");
+                    break;
+                case "5x5":
+                    txtPrintWidth.Text = (5 * inch).ToString("F2");
+                    txtPrintHeight.Text = (5 * inch).ToString("F2");
                     break;
                 case "5x7":
-                    txtPrintWidth.Text = 12.70.ToString("F2");
-                    txtPrintHeight.Text = 17.78.ToString("F2");
+                    txtPrintWidth.Text = (5 * inch).ToString("F2");
+                    txtPrintHeight.Text = (7 * inch).ToString("F2");
                     break;
                 case "6x8":
-                    txtPrintWidth.Text = 15.24.ToString("F2");
-                    txtPrintHeight.Text = 20.32.ToString("F2");
+                    txtPrintWidth.Text = (6 * inch).ToString("F2");
+                    txtPrintHeight.Text = (8 * inch).ToString("F2");
                     break;
-                case "A4":
-                    txtPrintWidth.Text = 21.00.ToString("F2");
-                    txtPrintHeight.Text = 29.70.ToString("F2");
+                case "6x6":
+                    txtPrintWidth.Text = (6 * inch).ToString("F2");
+                    txtPrintHeight.Text = (6 * inch).ToString("F2");
                     break;
-                case "Custom":
-                    // Не меняем
+                case "PR 3.5x5":
+                    // В форматах PR первое число - это ширина, второе - высота
+                    txtPrintWidth.Text = (3.5 * inch).ToString("F2");
+                    txtPrintHeight.Text = (5 * inch).ToString("F2");
+                    // Устанавливаем ориентацию на портретную
+                    foreach (ComboBoxItem item in cbPrintOrientation.Items)
+                    {
+                        if (item.Content.ToString() == "Портрет")
+                        {
+                            cbPrintOrientation.SelectedItem = item;
+                            break;
+                        }
+                    }
+                    break;
+                case "PR 4x6":
+                    // В форматах PR первое число - это ширина, второе - высота
+                    // Стандартный размер для фотографий 4x6 дюймов (10.16 x 15.24 см)
+                    txtPrintWidth.Text = "10.16"; // 4 дюйма точно
+                    txtPrintHeight.Text = "15.24"; // 6 дюймов точно
+                    // Устанавливаем ориентацию на портретную
+                    foreach (ComboBoxItem item in cbPrintOrientation.Items)
+                    {
+                        if (item.Content.ToString() == "Портрет")
+                        {
+                            cbPrintOrientation.SelectedItem = item;
+                            break;
+                        }
+                    }
+                    break;
+                case "PR 4x6 x 2":
+                    // В форматах PR первое число - это ширина, второе - высота
+                    txtPrintWidth.Text = (4 * inch).ToString("F2");
+                    txtPrintHeight.Text = (6 * 2 * inch).ToString("F2");
+                    // Устанавливаем ориентацию на портретную
+                    foreach (ComboBoxItem item in cbPrintOrientation.Items)
+                    {
+                        if (item.Content.ToString() == "Портрет")
+                        {
+                            cbPrintOrientation.SelectedItem = item;
+                            break;
+                        }
+                    }
+                    break;
+                default:
+                    // Не меняем для неизвестных пресетов
                     break;
             }
         }
@@ -342,6 +395,12 @@ namespace UnifiedPhotoBooth
             else
             {
                 cbPrintProcessingMode.SelectedIndex = 0; // По умолчанию растягивание
+            }
+
+            // Чекбокс "Растянуть на всю страницу"
+            if (chkPrintStretchFull != null)
+            {
+                chkPrintStretchFull.IsChecked = AppSettings.PrintStretchFull;
             }
             
             // Если путь к рамке существует, отображаем его
@@ -2583,6 +2642,12 @@ namespace UnifiedPhotoBooth
                 {
                     AppSettings.PrintCopies = copies;
                 }
+
+                // Флаг "Растянуть на всю страницу"
+                if (chkPrintStretchFull != null)
+                {
+                    AppSettings.PrintStretchFull = chkPrintStretchFull.IsChecked ?? false;
+                }
                 
                 // Сохраняем режимы обработки изображений
                 AppSettings.PhotoProcessingMode = (ImageProcessingMode)cbPhotoProcessingMode.SelectedIndex;
@@ -2600,7 +2665,7 @@ namespace UnifiedPhotoBooth
                                    MessageBoxButton.OK, MessageBoxImage.Information);
                     
                     // Закрываем окно настроек
-                    DialogResult = true;
+                    this.Close();
                 }
                 else
                 {
@@ -3047,6 +3112,7 @@ namespace UnifiedPhotoBooth
         public string PaperPreset { get; set; } = "4x6"; // 4x6, 5x7, 6x8, A4, Custom
         public int PrintCopies { get; set; } = 1;
         public int PrintDpi { get; set; } = 300;
+        public bool PrintStretchFull { get; set; } = false;
         
         // Добавляем список текстовых элементов
         public List<TextElement> TextElements { get; set; } = new List<TextElement>();
