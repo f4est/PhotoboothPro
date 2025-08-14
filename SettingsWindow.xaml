@@ -262,11 +262,15 @@
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <ComboBox x:Name="cbPaperPreset" Grid.Row="4" Grid.Column="1"
                               Margin="0,5" Height="30" VerticalContentAlignment="Center">
-                        <ComboBoxItem Content="4x6 in (10.16 x 15.24 см)" Tag="4x6"/>
-                        <ComboBoxItem Content="5x7 in (12.7 x 17.78 см)" Tag="5x7"/>
-                        <ComboBoxItem Content="6x8 in (15.24 x 20.32 см)" Tag="6x8"/>
-                        <ComboBoxItem Content="А4 (21.0 x 29.7 см)" Tag="A4"/>
-                        <ComboBoxItem Content="Пользовательский" Tag="Custom"/>
+                        <ComboBoxItem Content="6x4" Tag="6x4"/>
+                        <ComboBoxItem Content="5x3.5" Tag="5x3.5"/>
+                        <ComboBoxItem Content="5x5" Tag="5x5"/>
+                        <ComboBoxItem Content="5x7" Tag="5x7"/>
+                        <ComboBoxItem Content="6x8" Tag="6x8"/>
+                        <ComboBoxItem Content="6x6" Tag="6x6"/>
+                        <ComboBoxItem Content="PR 3.5x5" Tag="PR 3.5x5"/>
+                        <ComboBoxItem Content="PR 4x6" Tag="PR 4x6"/>
+                        <ComboBoxItem Content="PR 4x6 x 2" Tag="PR 4x6 x 2"/>
                     </ComboBox>
 
                     <TextBlock Text="Режим обработки:" Grid.Row="3" Grid.Column="0" 
@@ -283,16 +287,16 @@
                     <TextBox x:Name="txtPrintCopies" Grid.Row="6" Grid.Column="1"
                              Margin="0,5" Height="30" VerticalContentAlignment="Center" Text="1"/>
 
-                    <Button x:Name="btnTestPrint" Content="Тестовая печать" Grid.Row="7" Grid.Column="1" 
+                    <CheckBox x:Name="chkPrintStretchFull" Grid.Row="7" Grid.Column="1" Content="Растянуть на всю страницу"
+                              Margin="0,5" VerticalAlignment="Center"/>
+
+                    <Button x:Name="btnTestPrint" Content="Тестовая печать" Grid.Row="8" Grid.Column="1" 
                             Margin="0,10" Padding="10,5" HorizontalAlignment="Left" Click="BtnTestPrint_Click"/>
                 </Grid>
                 </ScrollViewer>
             </TabItem>
             
-            <TabItem Header="Печать">
-                <!-- Содержимое вкладки Печать -->
-                <!-- ... existing code ... -->
-            </TabItem>
+
             
             <TabItem Header="QR-код">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">

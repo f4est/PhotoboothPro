@@ -13,6 +13,8 @@ using System.Windows.Media;
 using System.Diagnostics;
 using Point = OpenCvSharp.Point;
 using Rect = OpenCvSharp.Rect;
+using System.Printing;
+using System.Windows.Documents;
 
 namespace UnifiedPhotoBooth
 {
@@ -479,23 +481,35 @@ namespace UnifiedPhotoBooth
                     return;
                 }
 
-                // Создаем окно печати и применяем сохраненные настройки
-                System.Windows.Controls.PrintDialog printDialog = new System.Windows.Controls.PrintDialog();
-                printDialog.PageRangeSelection = PageRangeSelection.AllPages;
-                printDialog.UserPageRangeEnabled = true;
-                // Применяем конкретный принтер, если выбран
-                if (!string.IsNullOrEmpty(SettingsWindow.AppSettings.SelectedPrinter))
+                // Печать без диалогового окна, используя сохраненные настройки
+                DirectPrint(_finalImagePath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при печати: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        private void DirectPrint(string imagePath)
+        {
+            try
+            {
+                // Проверяем, выбран ли принтер в настройках
+                if (string.IsNullOrEmpty(SettingsWindow.AppSettings.SelectedPrinter))
                 {
-                    try
-                    {
-                        var pq = new System.Printing.PrintQueue(new System.Printing.PrintServer(), SettingsWindow.AppSettings.SelectedPrinter);
-                        printDialog.PrintQueue = pq;
-                    }
-                    catch { }
+                    MessageBox.Show("В настройках не выбран принтер. Пожалуйста, настройте принтер в настройках приложения.", 
+                                   "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
                 }
                 
-                // Создаем изображение для печати
-                BitmapImage bitmapImage = new BitmapImage(new Uri(_finalImagePath, UriKind.Absolute));
+                // Создаем объект печати
+                System.Windows.Controls.PrintDialog printDialog = new System.Windows.Controls.PrintDialog();
+                
+                // Устанавливаем принтер из настроек
+                printDialog.PrintQueue = new System.Printing.PrintQueue(new System.Printing.PrintServer(), SettingsWindow.AppSettings.SelectedPrinter);
+                
+                // Загружаем изображение
+                BitmapImage bitmapImage = new BitmapImage(new Uri(imagePath, UriKind.Absolute));
                 System.Windows.Controls.Image printImage = new System.Windows.Controls.Image();
                 printImage.Source = bitmapImage;
                 
@@ -516,20 +530,91 @@ namespace UnifiedPhotoBooth
                 // Настраиваем размер печати по выбранным настройкам
                 double widthCm = SettingsWindow.AppSettings.PrintWidth;
                 double heightCm = SettingsWindow.AppSettings.PrintHeight;
-                // Применяем ориентацию
+                // Применяем ориентацию с принудительным выбором
                 var orientationSetting = SettingsWindow.AppSettings.PrintOrientation;
                 bool isLandscape = false;
-                if (orientationSetting == "Альбом") isLandscape = true;
-                if (orientationSetting == "Портрет") isLandscape = false;
-                if (orientationSetting == "Авто")
+                
+                // Для форматов PR всегда используем портретную ориентацию
+                string paperPreset = SettingsWindow.AppSettings.PaperPreset;
+                if (paperPreset != null && paperPreset.StartsWith("PR "))
                 {
-                    // Авто: по ориентации изображения
-                    isLandscape = bitmapImage.PixelWidth >= bitmapImage.PixelHeight;
+                    // PR форматы всегда в портретной ориентации (высота > ширины)
+                    isLandscape = false;
+                    System.Diagnostics.Debug.WriteLine("Используется портретная ориентация для PR формата");
                 }
-                var pageSize = isLandscape
-                    ? new System.Printing.PageMediaSize(ConvertCmToPixels(Math.Max(widthCm, heightCm)), ConvertCmToPixels(Math.Min(widthCm, heightCm)))
-                    : new System.Printing.PageMediaSize(ConvertCmToPixels(Math.Min(widthCm, heightCm)), ConvertCmToPixels(Math.Max(widthCm, heightCm)));
-                printDialog.PrintTicket.PageMediaSize = pageSize;
+                else
+                {
+                    // Явное применение выбранной ориентации
+                    if (orientationSetting == "Альбом") 
+                    {
+                        isLandscape = true;
+                        System.Diagnostics.Debug.WriteLine("Используется альбомная ориентация по настройкам пользователя");
+                    }
+                    else if (orientationSetting == "Портрет") 
+                    {
+                        isLandscape = false;
+                        System.Diagnostics.Debug.WriteLine("Используется портретная ориентация по настройкам пользователя");
+                    }
+                    else // Авто
+                    {
+                        // Определяем ориентацию по соотношению сторон изображения
+                        isLandscape = bitmapImage.PixelWidth > bitmapImage.PixelHeight;
+                        System.Diagnostics.Debug.WriteLine($"Автоматически выбрана {(isLandscape ? "альбомная" : "портретная")} ориентация по размерам изображения {bitmapImage.PixelWidth}x{bitmapImage.PixelHeight}");
+                    }
+                }
+                // Установка размера страницы с учётом специфичных форматов и ориентации
+                if (paperPreset == "PR 4x6")
+                {
+                    // Используем стандартный размер 4x6 для PR фотопечати
+                    printDialog.PrintTicket.PageMediaSize = new System.Printing.PageMediaSize(
+                        System.Printing.PageMediaSizeName.NorthAmerica4x6);
+                    
+                    // Устанавливаем дополнительные параметры для PR 4x6
+                    printDialog.PrintTicket.OutputColor = System.Printing.OutputColor.Color;
+                    printDialog.PrintTicket.InputBin = System.Printing.InputBin.AutoSelect;
+                    
+                    // Отладочная информация для проверки размеров
+                    var pageMediaSize = printDialog.PrintTicket.PageMediaSize;
+                    System.Diagnostics.Debug.WriteLine($"Установлен формат PR 4x6: ширина={pageMediaSize.Width/100.0} дюймов, высота={pageMediaSize.Height/100.0} дюймов");
+                }
+                else if (paperPreset == "PR 3.5x5")
+                {
+                    // Для 3.5x5 используем точные размеры в пикселях
+                    double width = 3.5 * 96; // 3.5 дюйма в пикселях
+                    double height = 5 * 96;  // 5 дюймов в пикселях
+                    
+                    printDialog.PrintTicket.PageMediaSize = new System.Printing.PageMediaSize(width, height);
+                    System.Diagnostics.Debug.WriteLine($"Установлен формат PR 3.5x5: ширина={width/96.0} дюймов, высота={height/96.0} дюймов");
+                }
+                else if (paperPreset == "PR 4x6 x 2")
+                {
+                    // Для 4x6x2 используем точные размеры в пикселях
+                    double width = 4 * 96;      // 4 дюйма в пикселях
+                    double height = 12 * 96;    // 12 дюймов в пикселях (6*2)
+                    
+                    printDialog.PrintTicket.PageMediaSize = new System.Printing.PageMediaSize(width, height);
+                    System.Diagnostics.Debug.WriteLine($"Установлен формат PR 4x6 x 2: ширина={width/96.0} дюймов, высота={height/96.0} дюймов");
+                }
+                else
+                {
+                    // Для других форматов учитываем выбранную ориентацию
+                    // Если ландшафт, то ширина > высоты, иначе высота > ширины
+                    double width, height;
+                    
+                    if (isLandscape)
+                    {
+                        width = ConvertCmToPixels(Math.Max(widthCm, heightCm));
+                        height = ConvertCmToPixels(Math.Min(widthCm, heightCm));
+                    }
+                    else
+                    {
+                        width = ConvertCmToPixels(Math.Min(widthCm, heightCm));
+                        height = ConvertCmToPixels(Math.Max(widthCm, heightCm));
+                    }
+                    
+                    printDialog.PrintTicket.PageMediaSize = new System.Printing.PageMediaSize(width, height);
+                    System.Diagnostics.Debug.WriteLine($"Установлен пользовательский формат: ширина={width/96.0} см, высота={height/96.0} см, ориентация={orientationSetting}");
+                }
                 // Ориентация страницы в PrintTicket
                 printDialog.PrintTicket.PageOrientation = isLandscape
                     ? System.Printing.PageOrientation.Landscape
@@ -538,21 +623,22 @@ namespace UnifiedPhotoBooth
                 int dpi = SettingsWindow.AppSettings.PrintDpi > 0 ? SettingsWindow.AppSettings.PrintDpi : 300;
                 printDialog.PrintTicket.PageResolution = new System.Printing.PageResolution(dpi, dpi);
                 
-                // Показываем диалог печати
-                if (printDialog.ShowDialog() == true)
+                // Устанавливаем количество копий
+                printDialog.PrintTicket.CopyCount = SettingsWindow.AppSettings.PrintCopies;
+                
+                // Печатаем напрямую без диалогового окна
+                if (SettingsWindow.AppSettings.PrintStretchFull)
                 {
-                    // Печатаем нужное количество копий
-                    int copies = Math.Max(1, SettingsWindow.AppSettings.PrintCopies);
-                    for (int i = 0; i < copies; i++)
-                    {
-                        printDialog.PrintVisual(printImage, "Печать фотографии");
-                    }
-                    ShowStatus("Печать", "Задание отправлено на печать");
+                    // Растянуть на всю страницу
+                    printImage.Stretch = Stretch.Fill;
                 }
+                printDialog.PrintVisual(printImage, "Печать фотографии");
+                
+                ShowStatus("Печать", "Задание отправлено на печать");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при печати: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                throw new Exception($"Ошибка при печати: {ex.Message}", ex);
             }
         }
         
