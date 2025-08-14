@@ -622,16 +622,43 @@ namespace UnifiedPhotoBooth
                 // Разрешение печати (DPI)
                 int dpi = SettingsWindow.AppSettings.PrintDpi > 0 ? SettingsWindow.AppSettings.PrintDpi : 300;
                 printDialog.PrintTicket.PageResolution = new System.Printing.PageResolution(dpi, dpi);
-                
-                // Устанавливаем количество копий
-                printDialog.PrintTicket.CopyCount = SettingsWindow.AppSettings.PrintCopies;
-                
-                // Печатаем напрямую без диалогового окна
+
+                // Печать без полей, если пользователь включил растягивание на всю площадь
                 if (SettingsWindow.AppSettings.PrintStretchFull)
                 {
-                    // Растянуть на всю страницу
-                    printImage.Stretch = Stretch.Fill;
+                    try
+                    {
+                        printDialog.PrintTicket.PageBorderless = System.Printing.PageBorderless.Borderless;
+                    }
+                    catch { /* Некоторые драйверы могут не поддерживать PageBorderless */ }
                 }
+                
+                // Количество копий убрано из пользовательских настроек — по умолчанию 1
+                printDialog.PrintTicket.CopyCount = 1;
+                
+                // Подгоняем размеры визуала под страницу
+                var capabilities = printDialog.PrintQueue.GetPrintCapabilities(printDialog.PrintTicket);
+                double pageW = capabilities?.OrientedPageMediaWidth ?? printDialog.PrintableAreaWidth;
+                double pageH = capabilities?.OrientedPageMediaHeight ?? printDialog.PrintableAreaHeight;
+                double originX = capabilities?.PageImageableArea?.OriginWidth ?? 0;
+                double originY = capabilities?.PageImageableArea?.OriginHeight ?? 0;
+
+                if (SettingsWindow.AppSettings.PrintStretchFull)
+                {
+                    printImage.Stretch = Stretch.Fill;
+                    // Размещаем изображение с учётом не печатаемых полей, чтобы занять всю страницу
+                    printImage.Width = pageW;
+                    printImage.Height = pageH;
+                    printImage.Measure(new System.Windows.Size(pageW, pageH));
+                    printImage.Arrange(new System.Windows.Rect(-originX, -originY, pageW, pageH));
+                }
+                else
+                {
+                    // По умолчанию — в пределах printable area
+                    printImage.Measure(new System.Windows.Size(printDialog.PrintableAreaWidth, printDialog.PrintableAreaHeight));
+                    printImage.Arrange(new System.Windows.Rect(0, 0, printDialog.PrintableAreaWidth, printDialog.PrintableAreaHeight));
+                }
+
                 printDialog.PrintVisual(printImage, "Печать фотографии");
                 
                 ShowStatus("Печать", "Задание отправлено на печать");

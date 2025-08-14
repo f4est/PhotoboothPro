@@ -106,6 +106,9 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -273,7 +276,7 @@
                         <ComboBoxItem Content="PR 4x6 x 2" Tag="PR 4x6 x 2"/>
                     </ComboBox>
 
-                    <TextBlock Text="Режим обработки:" Grid.Row="3" Grid.Column="0" 
+                    <TextBlock Text="Режим обработки изображения (внутри снимка):" Grid.Row="5" Grid.Column="0" 
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <ComboBox x:Name="cbPrintProcessingMode" Grid.Row="5" Grid.Column="1" 
                               Margin="0,5" Height="30" VerticalContentAlignment="Center">
@@ -282,16 +285,11 @@
                         <ComboBoxItem Content="🔍 Масштабировать" ToolTip="Изображение будет масштабировано с сохранением пропорций"/>
                     </ComboBox>
                     
-                    <TextBlock Text="Копий:" Grid.Row="6" Grid.Column="0" 
-                               VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBox x:Name="txtPrintCopies" Grid.Row="6" Grid.Column="1"
-                             Margin="0,5" Height="30" VerticalContentAlignment="Center" Text="1"/>
-
-                    <CheckBox x:Name="chkPrintStretchFull" Grid.Row="7" Grid.Column="1" Content="Растянуть на всю страницу"
-                              Margin="0,5" VerticalAlignment="Center"/>
-
-                    <Button x:Name="btnTestPrint" Content="Тестовая печать" Grid.Row="8" Grid.Column="1" 
-                            Margin="0,10" Padding="10,5" HorizontalAlignment="Left" Click="BtnTestPrint_Click"/>
+                    <!-- Блок растягивания на всю печать принтера (в отдельной строке и на 2 колонки) -->
+                    <CheckBox x:Name="chkPrintStretchFull"
+                              Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"
+                              Content="Растянуть на всю печать принтера (без полей)"
+                              Margin="0,0,0,0" VerticalAlignment="Center"/>
                 </Grid>
                 </ScrollViewer>
             </TabItem>

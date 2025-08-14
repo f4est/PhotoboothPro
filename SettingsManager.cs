@@ -149,6 +149,7 @@ namespace UnifiedPhotoBooth
             // Проверяем настройки принтера
             if (settings.PrintWidth <= 0) settings.PrintWidth = 10.16; // 4 дюйма
             if (settings.PrintHeight <= 0) settings.PrintHeight = 15.24; // 6 дюймов
+            // PrintCopies больше не настраивается пользователем — держим значение по умолчанию 1
             if (settings.PrintCopies <= 0) settings.PrintCopies = 1;
             if (settings.PrintDpi <= 0) settings.PrintDpi = 300;
             

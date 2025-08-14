@@ -2637,11 +2637,7 @@ namespace UnifiedPhotoBooth
                     // Если выбран пресет, синхронизируем ширину/высоту
                     ApplyPaperPresetToDimensions(AppSettings.PaperPreset);
                 }
-                // Кол-во копий
-                if (int.TryParse(txtPrintCopies.Text, out int copies) && copies > 0)
-                {
-                    AppSettings.PrintCopies = copies;
-                }
+                // Количество копий убрано из настроек по запросу пользователя
 
                 // Флаг "Растянуть на всю страницу"
                 if (chkPrintStretchFull != null)
@@ -3044,42 +3040,7 @@ namespace UnifiedPhotoBooth
             }
         }
 
-        private void BtnTestPrint_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(AppSettings.SelectedPrinter))
-                {
-                    MessageBox.Show("Пожалуйста, выберите принтер", "Предупреждение", 
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                var printDialog = new PrintDialog();
-                printDialog.PrintQueue = new PrintQueue(new PrintServer(), AppSettings.SelectedPrinter);
-                
-                // Создаем тестовое изображение
-                var testImage = new System.Windows.Controls.Image();
-                testImage.Source = new BitmapImage(new Uri("pack://application:,,,/Resources/test_print.png"));
-                
-                // Настраиваем размеры печати
-                printDialog.PrintTicket.PageMediaSize = new PageMediaSize(
-                    AppSettings.PrintWidth * 96, // Конвертируем сантиметры в пиксели
-                    AppSettings.PrintHeight * 96);
-                
-                if (printDialog.ShowDialog() == true)
-                {
-                    printDialog.PrintVisual(testImage, "Тестовая печать");
-                    MessageBox.Show("Тестовая печать отправлена на принтер", "Успех", 
-                        MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при тестовой печати: {ex.Message}", "Ошибка", 
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+        // Удалено по запросу пользователя: тестовая печать скрыта из настроек
     }
     
     // Класс настроек приложения

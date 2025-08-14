@@ -432,20 +432,38 @@ namespace UnifiedPhotoBooth
                     System.Diagnostics.Debug.WriteLine($"Автоматически выбрана {orientationName} ориентация по размерам изображения {bitmapImage.PixelWidth}x{bitmapImage.PixelHeight}");
                 }
                 
-                // Устанавливаем количество копий
-                printDialog.PrintTicket.CopyCount = SettingsWindow.AppSettings.PrintCopies;
-                
-                // Масштабируем изображение для печати
+                // Печать без полей при включенном флаге
                 if (SettingsWindow.AppSettings.PrintStretchFull)
                 {
-                    // Растянуть на всю страницу
+                    try
+                    {
+                        printDialog.PrintTicket.PageBorderless = PageBorderless.Borderless;
+                    }
+                    catch { /* Может не поддерживаться драйвером */ }
+                }
+
+                // Количество копий (по умолчанию 1)
+                printDialog.PrintTicket.CopyCount = 1;
+                
+                // Масштабируем изображение для печати
+                var capabilities = printDialog.PrintQueue.GetPrintCapabilities(printDialog.PrintTicket);
+                double pageW = capabilities?.OrientedPageMediaWidth ?? printDialog.PrintableAreaWidth;
+                double pageH = capabilities?.OrientedPageMediaHeight ?? printDialog.PrintableAreaHeight;
+                double originX = capabilities?.PageImageableArea?.OriginWidth ?? 0;
+                double originY = capabilities?.PageImageableArea?.OriginHeight ?? 0;
+
+                if (SettingsWindow.AppSettings.PrintStretchFull)
+                {
+                    // Заполнить всю страницу с учётом полей
                     printImage.Stretch = Stretch.Fill;
-                    printImage.Measure(new System.Windows.Size(printDialog.PrintableAreaWidth, printDialog.PrintableAreaHeight));
-                    printImage.Arrange(new Rect(0, 0, printDialog.PrintableAreaWidth, printDialog.PrintableAreaHeight));
+                    printImage.Width = pageW;
+                    printImage.Height = pageH;
+                    printImage.Measure(new System.Windows.Size(pageW, pageH));
+                    printImage.Arrange(new Rect(-originX, -originY, pageW, pageH));
                 }
                 else
                 {
-                    // Сохранить выбранный режим обработки
+                    // В пределах printable area
                     printImage.Measure(new System.Windows.Size(printDialog.PrintableAreaWidth, printDialog.PrintableAreaHeight));
                     printImage.Arrange(new Rect(0, 0, printDialog.PrintableAreaWidth, printDialog.PrintableAreaHeight));
                 }
