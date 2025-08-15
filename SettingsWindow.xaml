@@ -176,6 +176,8 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -208,7 +210,32 @@
                     <ComboBox x:Name="cbMicrophones" Grid.Row="2" Grid.Column="1" 
                               Margin="0,5" Height="30" VerticalContentAlignment="Center"/>
                     
-                    <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,10,0,0">
+                    <TextBlock Text="Частота кадров (FPS):" Grid.Row="3" Grid.Column="0" 
+                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox x:Name="cbVideoFps" Grid.Row="3" Grid.Column="1" 
+                              Margin="0,5" Height="30" VerticalContentAlignment="Center">
+                        <ComboBoxItem Content="15" Tag="15"/>
+                        <ComboBoxItem Content="24" Tag="24"/>
+                        <ComboBoxItem Content="25" Tag="25"/>
+                        <ComboBoxItem Content="30" Tag="30" IsSelected="True"/>
+                        <ComboBoxItem Content="50" Tag="50"/>
+                        <ComboBoxItem Content="60" Tag="60"/>
+                    </ComboBox>
+                    
+                    <TextBlock Text="Кодек видео:" Grid.Row="4" Grid.Column="0" 
+                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox x:Name="cbVideoCodec" Grid.Row="4" Grid.Column="1" 
+                              Margin="0,5" Height="30" VerticalContentAlignment="Center">
+                        <ComboBoxItem Content="Авто (рекомендуется)" Tag="Auto" IsSelected="True"/>
+                        <ComboBoxItem Content="H.264" Tag="H264"/>
+                        <ComboBoxItem Content="X264" Tag="X264"/>
+                        <ComboBoxItem Content="MP4V" Tag="MP4V"/>
+                        <ComboBoxItem Content="MJPG" Tag="MJPG"/>
+                        <ComboBoxItem Content="XVID" Tag="XVID"/>
+                        <ComboBoxItem Content="DIVX" Tag="DIVX"/>
+                    </ComboBox>
+                    
+                    <StackPanel Grid.Row="5" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,10,0,0">
                         <Button x:Name="btnLoadOverlay" Content="Загрузить оверлей" 
                                 Height="35" Width="150" Margin="0,0,10,0"
                                 Click="BtnLoadOverlay_Click"/>

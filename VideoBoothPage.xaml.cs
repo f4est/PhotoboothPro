@@ -49,6 +49,10 @@ namespace UnifiedPhotoBooth
         // Добавляем поле для хранения пути к временному видеофайлу
         private string _tempVideoPath;
         
+        // Добавляем поля для контроля времени записи
+        private int _framesRecorded;
+        private double _targetFps;
+        
         public VideoBoothPage(GoogleDriveService driveService, string eventFolderId = null)
         {
             InitializeComponent();
@@ -65,9 +69,11 @@ namespace UnifiedPhotoBooth
             // Инициализация таймеров
             _previewTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromMilliseconds(33) // ~30 fps
+                Interval = TimeSpan.FromMilliseconds(33) // Будет обновлено в StartPreview
             };
             _previewTimer.Tick += PreviewTimer_Tick;
+            
+            
             
             _countdownTimer = new DispatcherTimer
             {
@@ -137,6 +143,21 @@ namespace UnifiedPhotoBooth
                     return;
                 }
                 
+                // Получаем частоту кадров из настроек или реальную частоту камеры
+                double cameraFps = SettingsWindow.AppSettings.VideoFps;
+                if (cameraFps <= 0)
+                {
+                    cameraFps = _capture.Get(OpenCvSharp.VideoCaptureProperties.Fps);
+                    if (cameraFps <= 0)
+                    {
+                        cameraFps = 30.0; // Значение по умолчанию
+                    }
+                }
+                
+                // Устанавливаем интервал таймера на основе частоты кадров
+                int intervalMs = (int)(1000.0 / cameraFps);
+                _previewTimer.Interval = TimeSpan.FromMilliseconds(intervalMs);
+                
                 _previewRunning = true;
                 _previewTimer.Start();
                 
@@ -156,6 +177,8 @@ namespace UnifiedPhotoBooth
             _capture?.Dispose();
             _capture = null;
         }
+        
+
         
         private void PreviewTimer_Tick(object sender, EventArgs e)
         {
@@ -186,21 +209,22 @@ namespace UnifiedPhotoBooth
                         // Отображаем кадр
                         imgPreview.Source = BitmapSourceConverter.ToBitmapSource(frameWithCorrectAspect);
                         
-                        // Если идет запись, сохраняем кадр в видео
+                        // Если идет запись, записываем кадр в видео
                         if (_isRecording && _videoWriter != null && _videoWriter.IsOpened())
                         {
                             try
                             {
-                                // Для записи используем копию кадра с правильными размерами
+                                // Записываем кадр в видео
                                 Mat frameForRecording = new Mat();
                                 Cv2.Resize(frameWithCorrectAspect, frameForRecording, _videoWriter.FrameSize);
                                 _videoWriter.Write(frameForRecording);
                                 frameForRecording.Dispose();
+                                
+                                _framesRecorded++;
                             }
                             catch (Exception ex)
                             {
-                                System.Diagnostics.Debug.WriteLine($"Ошибка при записи кадра: {ex.Message}");
-                                // Продолжаем запись, даже если был пропущен кадр
+                                System.Diagnostics.Debug.WriteLine($"Ошибка при записи кадра в видео: {ex.Message}");
                             }
                         }
                         
@@ -413,38 +437,90 @@ namespace UnifiedPhotoBooth
                 frameWidth = frameWidth - (frameWidth % 2);
                 frameHeight = frameHeight - (frameHeight % 2);
                 
-                // Используем mp4v кодек для лучшей совместимости
-                int fourcc = VideoWriter.FourCC('m', 'p', '4', 'v');
-                double fps = 30.0;
+                // Получаем частоту кадров из настроек или реальную частоту камеры
+                double fps = SettingsWindow.AppSettings.VideoFps;
+                if (fps <= 0)
+                {
+                    fps = _capture.Get(OpenCvSharp.VideoCaptureProperties.Fps);
+                    if (fps <= 0)
+                    {
+                        fps = 30.0; // Значение по умолчанию
+                    }
+                }
                 
-                // Инициализируем VideoWriter
+                // Инициализируем VideoWriter с различными кодеками
                 try
                 {
-                    _videoWriter = new VideoWriter(videoPath, fourcc, fps, new OpenCvSharp.Size(frameWidth, frameHeight));
+                    // Получаем предпочтительный кодек из настроек
+                    string preferredCodec = SettingsWindow.AppSettings.VideoCodec;
                     
-                    if (!_videoWriter.IsOpened())
+                    // Список кодеков для попытки (в порядке предпочтения)
+                    var allCodecs = new[]
                     {
-                        // Если не удалось открыть с mp4v, пробуем другой кодек
-                        _videoWriter?.Dispose();
-                        fourcc = VideoWriter.FourCC('X', '2', '6', '4');
-                        _videoWriter = new VideoWriter(videoPath, fourcc, fps, new OpenCvSharp.Size(frameWidth, frameHeight));
-                        
-                        if (!_videoWriter.IsOpened())
+                        new { FourCC = VideoWriter.FourCC('H', '2', '6', '4'), Extension = ".mp4", Name = "H.264", Tag = "H264" },
+                        new { FourCC = VideoWriter.FourCC('X', '2', '6', '4'), Extension = ".mp4", Name = "X264", Tag = "X264" },
+                        new { FourCC = VideoWriter.FourCC('m', 'p', '4', 'v'), Extension = ".mp4", Name = "MP4V", Tag = "MP4V" },
+                        new { FourCC = VideoWriter.FourCC('M', 'J', 'P', 'G'), Extension = ".avi", Name = "MJPG", Tag = "MJPG" },
+                        new { FourCC = VideoWriter.FourCC('X', 'V', 'I', 'D'), Extension = ".avi", Name = "XVID", Tag = "XVID" },
+                        new { FourCC = VideoWriter.FourCC('D', 'I', 'V', 'X'), Extension = ".avi", Name = "DIVX", Tag = "DIVX" }
+                    };
+                    
+                    // Если выбран конкретный кодек, ставим его первым
+                    var codecAttempts = allCodecs.ToList();
+                    if (preferredCodec != "Auto")
+                    {
+                        var preferred = codecAttempts.FirstOrDefault(c => c.Tag == preferredCodec);
+                        if (preferred != null)
                         {
-                            // Если и это не сработало, используем MJPG
+                            codecAttempts.Remove(preferred);
+                            codecAttempts.Insert(0, preferred);
+                        }
+                    }
+                    
+                    bool videoWriterOpened = false;
+                    string finalVideoPath = videoPath;
+                    
+                    foreach (var codec in codecAttempts)
+                    {
+                        try
+                        {
                             _videoWriter?.Dispose();
-                            fourcc = VideoWriter.FourCC('M', 'J', 'P', 'G');
-                            _videoWriter = new VideoWriter(videoPath.Replace(".mp4", ".avi"), fourcc, fps, new OpenCvSharp.Size(frameWidth, frameHeight));
+                            _videoWriter = null;
                             
-                            if (!_videoWriter.IsOpened())
+                            // Изменяем расширение файла в зависимости от кодека
+                            if (codec.Extension != ".mp4")
                             {
-                                throw new Exception("Не удалось открыть VideoWriter с любым кодеком.");
+                                finalVideoPath = videoPath.Replace(".mp4", codec.Extension);
+                            }
+                            
+                            _videoWriter = new VideoWriter(finalVideoPath, codec.FourCC, fps, new OpenCvSharp.Size(frameWidth, frameHeight));
+                            
+                            if (_videoWriter.IsOpened())
+                            {
+                                System.Diagnostics.Debug.WriteLine($"Успешно открыт VideoWriter с кодеком: {codec.Name}");
+                                videoWriterOpened = true;
+                                _recordingFilePath = finalVideoPath; // Обновляем путь к файлу
+                                break;
                             }
                         }
+                        catch (Exception codecEx)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Ошибка при попытке использовать кодек {codec.Name}: {codecEx.Message}");
+                            continue;
+                        }
+                    }
+                    
+                    if (!videoWriterOpened)
+                    {
+                        throw new Exception("Не удалось открыть VideoWriter ни с одним из доступных кодеков.");
                     }
                     
                     // Запускаем запись
                     _isRecording = true;
+                    
+                    // Инициализируем счетчики записи
+                    _framesRecorded = 0;
+                    _targetFps = fps;
                     
                     // Сбрасываем таймер записи
                     _recordingTime = TimeSpan.Zero;
@@ -517,8 +593,14 @@ namespace UnifiedPhotoBooth
                 // Останавливаем таймер записи
                 _recordingTimer.Stop();
                 
-                // Сбрасываем флаг записи
+                
+                
+                // Сбрасываем флаг записи и счетчики
                 _isRecording = false;
+                _framesRecorded = 0;
+                _targetFps = 0;
+                
+
                 
                 // Скрываем счетчик времени и индикатор записи
                 txtRecordingTime.Visibility = Visibility.Collapsed;
@@ -1455,7 +1537,10 @@ namespace UnifiedPhotoBooth
         private void CleanupRecording()
         {
             _isRecording = false;
+            _framesRecorded = 0;
+            _targetFps = 0;
             
+
             _recordingTimer.Stop();
             txtRecordingTime.Visibility = Visibility.Collapsed;
             

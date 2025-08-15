@@ -2610,6 +2610,18 @@ namespace UnifiedPhotoBooth
                     AppSettings.MicrophoneIndex = cbMicrophones.SelectedIndex;
                 }
                 
+                // Сохраняем частоту кадров для видео
+                if (cbVideoFps.SelectedItem != null && double.TryParse(((ComboBoxItem)cbVideoFps.SelectedItem).Tag?.ToString(), out double videoFps))
+                {
+                    AppSettings.VideoFps = videoFps;
+                }
+                
+                // Сохраняем кодек для видео
+                if (cbVideoCodec.SelectedItem != null)
+                {
+                    AppSettings.VideoCodec = ((ComboBoxItem)cbVideoCodec.SelectedItem).Tag?.ToString() ?? "Auto";
+                }
+                
                 // Сохраняем настройки принтера
                 if (cbPrinters.SelectedValue != null)
                 {
@@ -2962,6 +2974,44 @@ namespace UnifiedPhotoBooth
                     AppSettings.VideoCountdownTime = 3;
                 }
                 
+                // Устанавливаем частоту кадров для видео
+                bool videoFpsFound = false;
+                string videoFps = AppSettings.VideoFps.ToString();
+                foreach (ComboBoxItem item in cbVideoFps.Items)
+                {
+                    if (item.Tag?.ToString() == videoFps)
+                    {
+                        cbVideoFps.SelectedItem = item;
+                        videoFpsFound = true;
+                        break;
+                    }
+                }
+                
+                if (!videoFpsFound)
+                {
+                    cbVideoFps.SelectedIndex = 3; // 30 FPS по умолчанию
+                    AppSettings.VideoFps = 30.0;
+                }
+                
+                // Устанавливаем кодек для видео
+                bool videoCodecFound = false;
+                string videoCodec = AppSettings.VideoCodec;
+                foreach (ComboBoxItem item in cbVideoCodec.Items)
+                {
+                    if (item.Tag?.ToString() == videoCodec)
+                    {
+                        cbVideoCodec.SelectedItem = item;
+                        videoCodecFound = true;
+                        break;
+                    }
+                }
+                
+                if (!videoCodecFound)
+                {
+                    cbVideoCodec.SelectedIndex = 0; // Авто по умолчанию
+                    AppSettings.VideoCodec = "Auto";
+                }
+                
                 RefreshPrinterList();
                 if (!string.IsNullOrEmpty(AppSettings.SelectedPrinter))
                 {
@@ -3069,6 +3119,8 @@ namespace UnifiedPhotoBooth
         public int VideoCountdownTime { get; set; } = 3;
         public int MicrophoneIndex { get; set; } = 0;
         public string OverlayImagePath { get; set; }
+        public double VideoFps { get; set; } = 30.0; // Частота кадров для записи видео
+        public string VideoCodec { get; set; } = "Auto"; // Кодек для записи видео
         
         // Настройки принтера
         public string PrinterName { get; set; }
