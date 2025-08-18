@@ -27,7 +27,6 @@ namespace UnifiedPhotoBooth
         
         private VideoCapture _capture;
         private DispatcherTimer _previewTimer;
-        private bool _previewRunning;
         private System.Threading.CancellationTokenSource _captureCts;
         private System.Threading.Tasks.Task _captureTask;
         
@@ -149,7 +148,6 @@ namespace UnifiedPhotoBooth
                     return;
                 }
 
-                _previewRunning = true;
                 _captureCts = new System.Threading.CancellationTokenSource();
                 _captureTask = System.Threading.Tasks.Task.Run(() => CaptureLoop(_captureCts.Token));
 
@@ -163,7 +161,6 @@ namespace UnifiedPhotoBooth
         
         private void StopPreview()
         {
-            _previewRunning = false;
             _captureCts?.Cancel();
             try { _captureTask?.Wait(500); } catch {}
             _captureTask = null;
@@ -677,13 +674,35 @@ namespace UnifiedPhotoBooth
                 }
                 
                 // Показываем статус
-                ShowStatus("Подготовка видео", "Пожалуйста, подождите...");
+                ShowStatus("Подготовка видео", "Объединение видео и аудио...");
                 
-                // Запускаем обработку видео в отдельном потоке
+                // Запускаем обработку видео (слияние с аудио и приведение к MP4) в отдельном потоке
                 Task.Run(() =>
                 {
                     try
                     {
+                        bool audioExists = !string.IsNullOrEmpty(_audioFilePath) && File.Exists(_audioFilePath) && new FileInfo(_audioFilePath).Length > 0;
+                        string sourceVideoPath = _recordingFilePath;
+                        string ext = Path.GetExtension(sourceVideoPath)?.ToLowerInvariant();
+
+                        if (audioExists)
+                        {
+                            string dir = Path.GetDirectoryName(sourceVideoPath);
+                            string nameNoExt = Path.GetFileNameWithoutExtension(sourceVideoPath);
+                            string mergedPath = Path.Combine(dir ?? string.Empty, $"{nameNoExt}_with_audio.mp4");
+
+                            // Сливаем видео и аудио с использованием FFmpeg
+                            MergeVideoAndAudio(sourceVideoPath, _audioFilePath, mergedPath);
+
+                            if (File.Exists(mergedPath) && new FileInfo(mergedPath).Length > 0)
+                            {
+                                try { File.Delete(sourceVideoPath); } catch { }
+                                try { if (!string.IsNullOrEmpty(_audioFilePath)) File.Delete(_audioFilePath); } catch { }
+                                _recordingFilePath = mergedPath; // Используем файл со звуком далее (воспроизведение/поделиться)
+                            }
+                        }
+
+                        // Финальная обработка UI на главном потоке
                         Dispatcher.Invoke(() =>
                         {
                             FinalizeVideoProcessing();
@@ -1126,72 +1145,60 @@ namespace UnifiedPhotoBooth
                     ShowStatus("Обработка видео", "Объединение видео и аудио. Это может занять несколько минут...");
                 });
                 
-                // Сначала попробуем просто скопировать видео без звука, чтобы обеспечить наличие файла
-                string tempOutputPath = Path.Combine(
-                    Path.GetDirectoryName(outputPath),
-                    $"temp_{Path.GetFileName(outputPath)}");
+                // Выбираем стратегию: если исходник MP4 — пробуем копировать видео-поток; иначе перекодируем видео
+                bool isMp4Source = string.Equals(Path.GetExtension(videoPath), ".mp4", StringComparison.OrdinalIgnoreCase);
+                string argumentsPrimary = isMp4Source
+                    ? $"-y -i \"{videoPath}\" -i \"{audioPath}\" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -shortest \"{outputPath}\""
+                    : $"-y -i \"{videoPath}\" -i \"{audioPath}\" -map 0:v:0 -map 1:a:0 -c:v libx264 -preset veryfast -pix_fmt yuv420p -c:a aac -b:a 192k -shortest \"{outputPath}\"";
                 
-                // Копируем видео
-                File.Copy(videoPath, tempOutputPath, true);
-                
-                // Проверяем, что копия создана
-                if (!File.Exists(tempOutputPath))
-                {
-                    throw new Exception("Не удалось создать копию видеофайла.");
-                }
-                
-                // Используем более простую команду FFmpeg
-                string arguments = $"-i \"{videoPath}\" -i \"{audioPath}\" -c:v copy -c:a aac -strict experimental -shortest \"{outputPath}\"";
-                
-                // Создаем команду для FFmpeg
-                ProcessStartInfo startInfo = new ProcessStartInfo
+                var startInfo = new ProcessStartInfo
                 {
                     FileName = ffmpegPath,
-                    Arguments = arguments,
+                    Arguments = argumentsPrimary,
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     RedirectStandardError = true
                 };
                 
-                // Запускаем процесс с таймаутом
                 using (Process process = Process.Start(startInfo))
                 {
-                    // Читаем вывод ошибок асинхронно
-                    var errorBuilder = new System.Text.StringBuilder();
-                    process.ErrorDataReceived += (sender, e) => {
-                        if (!string.IsNullOrEmpty(e.Data))
-                        {
-                            errorBuilder.AppendLine(e.Data);
-                        }
-                    };
-                    process.BeginErrorReadLine();
-                    
-                    // Ждем завершения процесса с таймаутом в 2 минуты
-                    if (!process.WaitForExit(120000))
+                    string err = process.StandardError.ReadToEnd();
+                    System.Diagnostics.Debug.WriteLine($"FFmpeg mux log: {err}");
+                    if (!process.WaitForExit(180000))
                     {
                         try { process.Kill(); } catch { }
-                        
-                        // Если процесс не завершился, используем копию видео без звука
-                        File.Copy(tempOutputPath, outputPath, true);
+                        throw new TimeoutException("FFmpeg превысил время ожидания при объединении аудио и видео");
                     }
-                    else if (process.ExitCode != 0)
+                    if (process.ExitCode != 0 || !File.Exists(outputPath) || new FileInfo(outputPath).Length == 0)
                     {
-                        // Если процесс завершился с ошибкой, используем копию видео без звука
-                        File.Copy(tempOutputPath, outputPath, true);
+                        // Пытаемся форсировать перекодирование как резервный вариант
+                        var fallbackInfo = new ProcessStartInfo
+                        {
+                            FileName = ffmpegPath,
+                            Arguments = $"-y -i \"{videoPath}\" -i \"{audioPath}\" -map 0:v:0 -map 1:a:0 -c:v libx264 -preset veryfast -pix_fmt yuv420p -c:a aac -b:a 192k -shortest \"{outputPath}\"",
+                            CreateNoWindow = true,
+                            UseShellExecute = false,
+                            RedirectStandardError = true
+                        };
+                        using (var p2 = Process.Start(fallbackInfo))
+                        {
+                            string err2 = p2.StandardError.ReadToEnd();
+                            System.Diagnostics.Debug.WriteLine($"FFmpeg fallback mux log: {err2}");
+                            if (!p2.WaitForExit(180000) || p2.ExitCode != 0)
+                            {
+                                throw new Exception("Не удалось объединить видео и аудио с помощью FFmpeg");
+                            }
+                        }
                     }
                 }
                 
-                // Удаляем временный файл
-                try { File.Delete(tempOutputPath); } catch { }
-                
-                // Проверяем, создался ли файл
                 if (!File.Exists(outputPath))
                 {
-                    throw new FileNotFoundException("Выходной файл не был создан");
+                    throw new FileNotFoundException("Выходной файл не был создан FFmpeg");
                 }
                 
                 Dispatcher.Invoke(() => {
-                    ShowStatus("Завершение", "Видео успешно обработано!");
+                    ShowStatus("Завершение", "Видео со звуком готово!");
                 });
             }
             catch (Exception ex)

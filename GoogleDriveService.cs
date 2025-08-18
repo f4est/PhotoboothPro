@@ -254,7 +254,7 @@ namespace UnifiedPhotoBooth
                 };
                 
                 string universalFileId;
-                using (var stream = new FileStream(filePath, FileMode.Open))
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
                     var uploadRequest = _driveService.Files.Create(fileMetadataUpload, stream, "");
                     uploadRequest.Fields = "id, webContentLink";
@@ -293,7 +293,7 @@ namespace UnifiedPhotoBooth
                         Parents = new List<string> { eventFolderId }
                     };
                     
-                    using (var stream = new FileStream(filePath, FileMode.Open))
+                    using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
                         var eventUploadRequest = _driveService.Files.Create(eventFileMetadata, stream, "");
                         await Task.Run(() => eventUploadRequest.Upload());
@@ -379,7 +379,7 @@ namespace UnifiedPhotoBooth
                 };
                 
                 string universalFileId;
-                using (var stream = new FileStream(filePath, FileMode.Open))
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
                     var uploadRequest = _driveService.Files.Create(fileMetadataUpload, stream, "video/mp4");
                     uploadRequest.Fields = "id, webContentLink";
@@ -418,7 +418,7 @@ namespace UnifiedPhotoBooth
                         Parents = new List<string> { eventFolderId }
                     };
                     
-                    using (var stream = new FileStream(filePath, FileMode.Open))
+                    using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
                         var eventUploadRequest = _driveService.Files.Create(eventFileMetadata, stream, "video/mp4");
                         await Task.Run(() => eventUploadRequest.Upload());
@@ -488,7 +488,7 @@ namespace UnifiedPhotoBooth
                         Parents = new List<string> { eventFolderId }
                     };
                     
-                    using (var stream = new FileStream(filePath, FileMode.Open))
+                    using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
                         var eventUploadRequest = _driveService.Files.Create(eventFileMetadata, stream, "");
                         eventUploadRequest.Fields = "id, webContentLink";
@@ -520,7 +520,7 @@ namespace UnifiedPhotoBooth
                 };
                 
                 string universalFileId;
-                using (var stream = new FileStream(filePath, FileMode.Open))
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
                     var uploadRequest = _driveService.Files.Create(fileMetadataUpload, stream, "");
                     uploadRequest.Fields = "id, webContentLink";

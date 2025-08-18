@@ -55,6 +55,10 @@
     <None Update="Resources\video_icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- Если ffmpeg.exe добавлен в корень проекта, копируем его рядом с исполняемым файлом -->
+    <None Include="ffmpeg.exe" Condition="Exists('ffmpeg.exe')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <!-- Копирование нативных библиотек в выходной каталог -->

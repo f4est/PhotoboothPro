@@ -41,6 +41,9 @@ namespace UnifiedPhotoBooth
             // Добавляем обработчик изменения выбора события
             cbEvents.SelectionChanged += cbEvents_SelectionChanged;
             
+            // Добавляем обработчик навигации для обновления галереи
+            MainFrame.Navigated += MainFrame_Navigated;
+            
             // По умолчанию открываем режим фотобудки
             MainFrame.Navigate(new PhotoBoothPage(_driveService));
         }
@@ -93,6 +96,15 @@ namespace UnifiedPhotoBooth
             else if (MainFrame.Content is VideoBoothPage videoPage)
             {
                 MainFrame.Navigate(new VideoBoothPage(_driveService, eventFolderId));
+            }
+        }
+        
+        private void MainFrame_Navigated(object sender, NavigationEventArgs e)
+        {
+            // Обновляем галерею при возврате на главную страницу
+            if (e.Content is GalleryPage galleryPage)
+            {
+                galleryPage.RefreshGallery();
             }
         }
         
@@ -168,7 +180,18 @@ namespace UnifiedPhotoBooth
         {
             try
             {
-                MainFrame.Navigate(new GalleryPage());
+                // Получаем ID выбранного события
+                string eventFolderId = null;
+                if (cbEvents.SelectedIndex > 0 && cbEvents.SelectedItem != null)
+                {
+                    string selectedEvent = cbEvents.SelectedItem.ToString();
+                    if (_eventFolders.ContainsKey(selectedEvent))
+                    {
+                        eventFolderId = _eventFolders[selectedEvent];
+                    }
+                }
+                
+                MainFrame.Navigate(new GalleryPage(eventFolderId));
             }
             catch (Exception ex)
             {
