@@ -52,6 +52,9 @@ namespace UnifiedPhotoBooth
         // Добавляем поле для хранения пути к временному видеофайлу
         private string _tempVideoPath;
         
+        // Добавляем поле для отслеживания режима отображения (превью или видео)
+        private bool _showingPreview = true;
+        
         // Добавляем поля для контроля времени записи
         private int _framesRecorded;
         private double _targetFps;
@@ -251,6 +254,11 @@ namespace UnifiedPhotoBooth
 
                         // Обновляем предпросмотр всегда (не ограничиваем частотой)
                         var bmp = BitmapSourceConverter.ToBitmapSource(processed);
+                        // Важно: замораживаем BitmapSource, чтобы безопасно передать его в UI-поток
+                        if (bmp.CanFreeze)
+                        {
+                            bmp.Freeze();
+                        }
                         Dispatcher.BeginInvoke(new Action(() =>
                         {
                             imgPreview.Source = bmp;
@@ -916,9 +924,12 @@ namespace UnifiedPhotoBooth
                 UpdateShareButtonVisibility();
                 
                 btnPlayPause.Visibility = System.Windows.Visibility.Visible;
+                btnTogglePreview.Visibility = System.Windows.Visibility.Visible;
                 
-                // Показываем превью
-                imgPreview.Visibility = System.Windows.Visibility.Collapsed;
+                // Показываем превью по умолчанию, но готовы к переключению на видео
+                _showingPreview = true;
+                imgPreview.Visibility = System.Windows.Visibility.Visible;
+                mediaPlayer.Visibility = System.Windows.Visibility.Collapsed;
                 
                 try
                 {
@@ -1319,6 +1330,7 @@ namespace UnifiedPhotoBooth
                 btnReset.Visibility = Visibility.Collapsed;
                 btnShare.Visibility = Visibility.Collapsed;
                 btnPlayPause.Visibility = Visibility.Collapsed;
+                btnTogglePreview.Visibility = Visibility.Collapsed;
                 
                 // Удаляем временные файлы
                 try
@@ -1357,6 +1369,7 @@ namespace UnifiedPhotoBooth
                 btnReset.IsEnabled = false;
                 btnShare.IsEnabled = false;
                 btnPlayPause.IsEnabled = false;
+                btnTogglePreview.IsEnabled = false;
                 
                 // Загружаем видео в Google Drive
                 string folderName = $"VideoBooth_{System.DateTime.Now:yyyyMMdd_HHmmss}";
@@ -1396,6 +1409,45 @@ namespace UnifiedPhotoBooth
                 btnReset.IsEnabled = true;
                 btnShare.IsEnabled = true;
                 btnPlayPause.IsEnabled = true;
+                btnTogglePreview.IsEnabled = true;
+            }
+        }
+        
+        private void BtnTogglePreview_Click(object sender, RoutedEventArgs e)
+        {
+            if (_showingPreview)
+            {
+                // Переключаемся на видео
+                _showingPreview = false;
+                imgPreview.Visibility = Visibility.Collapsed;
+                mediaPlayer.Visibility = Visibility.Visible;
+                btnTogglePreview.Content = "📷";
+                btnTogglePreview.ToolTip = "Показать превью камеры";
+                
+                // Воспроизводим видео, если оно не воспроизводится
+                if (mediaPlayer.Source != null && !_isPlaying)
+                {
+                    mediaPlayer.Play();
+                    _isPlaying = true;
+                    btnPlayPause.Content = "⏸";
+                }
+            }
+            else
+            {
+                // Переключаемся на превью
+                _showingPreview = true;
+                imgPreview.Visibility = Visibility.Visible;
+                mediaPlayer.Visibility = Visibility.Collapsed;
+                btnTogglePreview.Content = "📹";
+                btnTogglePreview.ToolTip = "Показать записанное видео";
+                
+                // Останавливаем воспроизведение видео
+                if (_isPlaying)
+                {
+                    mediaPlayer.Pause();
+                    _isPlaying = false;
+                    btnPlayPause.Content = "▶";
+                }
             }
         }
         
