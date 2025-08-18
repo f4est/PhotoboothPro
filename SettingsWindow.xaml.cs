@@ -3118,6 +3118,7 @@ namespace UnifiedPhotoBooth
         public int RecordingDuration { get; set; } = 15;
         public int VideoCountdownTime { get; set; } = 3;
         public int MicrophoneIndex { get; set; } = 0;
+        public bool UseMicrophone { get; set; } = true;
         public string OverlayImagePath { get; set; }
         public double VideoFps { get; set; } = 30.0; // Частота кадров для записи видео
         public string VideoCodec { get; set; } = "Auto"; // Кодек для записи видео

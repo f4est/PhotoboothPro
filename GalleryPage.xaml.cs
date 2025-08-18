@@ -10,6 +10,7 @@ using System.Windows.Navigation;
 using System.Threading.Tasks;
 using System.Printing;
 using System.Windows.Documents;
+using System.Windows.Media.Effects;
 
 namespace UnifiedPhotoBooth
 {
@@ -17,7 +18,7 @@ namespace UnifiedPhotoBooth
     {
         private const string PhotosDir = "photos";
         private const string RecordingsDir = "recordings";
-        private const int ThumbnailSize = 200;
+        private const int ThumbnailSize = 260;
         
         public GalleryPage()
         {
@@ -41,6 +42,7 @@ namespace UnifiedPhotoBooth
                 
                 // Загружаем видео
                 LoadMediaFiles(RecordingsDir, ".mp4", "Видео");
+                LoadMediaFiles(RecordingsDir, ".avi", "Видео");
                 
                 // Если нет элементов, показываем сообщение
                 if (galleryPanel.Children.Count == 0)
@@ -86,22 +88,35 @@ namespace UnifiedPhotoBooth
                 
                 bool hasQrCode = File.Exists(qrFilePath);
                 
-                // Создаем элемент галереи
-                Grid itemGrid = new Grid
+                // Создаем элемент галереи (карточка)
+                Border card = new Border
                 {
                     Width = ThumbnailSize,
-                    Height = ThumbnailSize + 50, // Дополнительное пространство для метки
-                    Margin = new Thickness(10)
+                    Height = ThumbnailSize + 60,
+                    Margin = new Thickness(12),
+                    Background = new SolidColorBrush(Color.FromRgb(32, 32, 32)),
+                    CornerRadius = new CornerRadius(10),
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(60, 60, 60)),
+                    BorderThickness = new Thickness(1),
+                    Effect = new System.Windows.Media.Effects.DropShadowEffect
+                    {
+                        Color = Colors.Black,
+                        BlurRadius = 10,
+                        ShadowDepth = 2,
+                        Opacity = 0.3
+                    }
                 };
                 
-                // Контейнер для миниатюры
+                Grid cardGrid = new Grid();
+                card.Child = cardGrid;
+                
+                // Верх: миниатюра
                 Border thumbnailBorder = new Border
                 {
                     Width = ThumbnailSize,
                     Height = ThumbnailSize,
-                    BorderBrush = Brushes.LightGray,
-                    BorderThickness = new Thickness(1),
-                    VerticalAlignment = VerticalAlignment.Top
+                    CornerRadius = new CornerRadius(10, 10, 0, 0),
+                    ClipToBounds = true
                 };
                 
                 // Изображение миниатюры
@@ -126,30 +141,62 @@ namespace UnifiedPhotoBooth
                     catch
                     {
                         // В случае ошибки загрузки изображения используем заглушку
-                        thumbnailImage.Source = new BitmapImage(new Uri("pack://application:,,,/Resources/no_image.png", UriKind.Absolute));
+                        CreatePlaceholderImage(thumbnailImage, "ФОТО");
                     }
                 }
-                else
+                else if (extension == ".mp4" || extension == ".avi")
                 {
-                    // Для видео используем значок видео
-                    thumbnailImage.Source = new BitmapImage(new Uri("pack://application:,,,/Resources/video_icon.png", UriKind.Absolute));
+                    try
+                    {
+                        // Для видео используем значок видео
+                        thumbnailImage.Source = new BitmapImage(new Uri("pack://application:,,,/Resources/video_icon.png", UriKind.Absolute));
+                    }
+                    catch
+                    {
+                        // В случае ошибки загрузки иконки видео используем заглушку
+                        CreatePlaceholderImage(thumbnailImage, "ВИДЕО");
+                    }
                 }
                 
                 thumbnailBorder.Child = thumbnailImage;
                 
-                // Метка с типом и датой
-                TextBlock infoText = new TextBlock
+                // Низ: подпись
+                Border captionBar = new Border
                 {
-                    Text = $"{typeLabel} - {file.CreationTime.ToString("dd.MM.yyyy HH:mm")}",
-                    TextWrapping = TextWrapping.Wrap,
-                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Background = new SolidColorBrush(Color.FromRgb(24, 24, 24)),
+                    Height = 60,
                     VerticalAlignment = VerticalAlignment.Bottom,
-                    Margin = new Thickness(0, ThumbnailSize + 5, 0, 0)
+                    CornerRadius = new CornerRadius(0, 0, 10, 10)
                 };
                 
-                // Добавляем элементы в сетку
-                itemGrid.Children.Add(thumbnailBorder);
-                itemGrid.Children.Add(infoText);
+                StackPanel captionPanel = new StackPanel
+                {
+                    Orientation = Orientation.Vertical,
+                    Margin = new Thickness(10, 6, 10, 6)
+                };
+                
+                TextBlock titleText = new TextBlock
+                {
+                    Text = typeLabel,
+                    Foreground = Brushes.White,
+                    FontWeight = FontWeights.SemiBold,
+                    FontSize = 14
+                };
+                
+                TextBlock dateText = new TextBlock
+                {
+                    Text = file.CreationTime.ToString("dd.MM.yyyy HH:mm"),
+                    Foreground = Brushes.Gray,
+                    FontSize = 12
+                };
+                
+                captionPanel.Children.Add(titleText);
+                captionPanel.Children.Add(dateText);
+                captionBar.Child = captionPanel;
+                
+                // Слои в карточке
+                cardGrid.Children.Add(thumbnailBorder);
+                cardGrid.Children.Add(captionBar);
                 
                 // Создаем объект с информацией о медиафайле и QR-коде
                 var mediaInfo = new MediaInfo
@@ -159,12 +206,12 @@ namespace UnifiedPhotoBooth
                 };
                 
                 // Обработчик нажатия
-                itemGrid.Tag = mediaInfo;
-                itemGrid.MouseLeftButtonDown += GalleryItem_Click;
-                itemGrid.Cursor = System.Windows.Input.Cursors.Hand;
+                card.Tag = mediaInfo;
+                card.MouseLeftButtonDown += GalleryItem_Click;
+                card.Cursor = System.Windows.Input.Cursors.Hand;
                 
                 // Добавляем элемент в галерею
-                galleryPanel.Children.Add(itemGrid);
+                galleryPanel.Children.Add(card);
             }
         }
         
@@ -182,7 +229,8 @@ namespace UnifiedPhotoBooth
                 string qrCodePath = mediaInfo.QrCodePath;
                 
                 // Определяем тип файла
-                bool isVideo = filePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase);
+                bool isVideo = filePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) || 
+                              filePath.EndsWith(".avi", StringComparison.OrdinalIgnoreCase);
                 
                 // Открываем страницу с результатом
                 if (isVideo)
@@ -202,6 +250,44 @@ namespace UnifiedPhotoBooth
         {
             // Возвращаемся на главную страницу
             NavigationService.GoBack();
+        }
+        
+        private void CreatePlaceholderImage(Image image, string text)
+        {
+            try
+            {
+                // Создаем заглушку программно
+                var renderTarget = new RenderTargetBitmap(ThumbnailSize, ThumbnailSize, 96, 96, PixelFormats.Pbgra32);
+                var visual = new DrawingVisual();
+                
+                using (var context = visual.RenderOpen())
+                {
+                    // Фон
+                    context.DrawRectangle(new SolidColorBrush(Color.FromRgb(64, 64, 64)), null, 
+                        new Rect(0, 0, ThumbnailSize, ThumbnailSize));
+                    
+                    // Текст
+                    var textBlock = new FormattedText(text, 
+                        System.Globalization.CultureInfo.CurrentCulture, 
+                        FlowDirection.LeftToRight, 
+                        new Typeface("Arial"), 24, Brushes.White, VisualTreeHelper.GetDpi(visual).PixelsPerDip);
+                    
+                    var textRect = new Rect((ThumbnailSize - textBlock.Width) / 2, 
+                        (ThumbnailSize - textBlock.Height) / 2, 
+                        textBlock.Width, textBlock.Height);
+                    
+                    context.DrawText(textBlock, new Point(textRect.X, textRect.Y));
+                }
+                
+                renderTarget.Render(visual);
+                image.Source = renderTarget;
+            }
+            catch
+            {
+                // Если не удалось создать заглушку программно, используем простой цветной прямоугольник
+                var bitmap = new WriteableBitmap(ThumbnailSize, ThumbnailSize, 96, 96, PixelFormats.Bgr32, null);
+                image.Source = bitmap;
+            }
         }
     }
     
@@ -240,12 +326,14 @@ namespace UnifiedPhotoBooth
             // Кнопка "Поделиться"
             Button btnShare = new Button
             {
-                Content = "Поделиться QR",
+                Content = "Поделиться",
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Bottom,
                 Margin = new Thickness(10),
                 Padding = new Thickness(10, 5, 10, 5),
-                Visibility = string.IsNullOrEmpty(_qrCodePath) ? Visibility.Collapsed : Visibility.Visible
+                Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)),
+                Foreground = Brushes.White,
+                FontWeight = FontWeights.Bold
             };
             btnShare.Click += BtnShare_Click;
             

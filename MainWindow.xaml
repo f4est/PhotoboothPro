@@ -60,8 +60,8 @@
                         </Style>
                     </Button.Resources>
                 </Button>
-                <Button x:Name="btnSettings" Content="⚙" Height="50" Width="50" Margin="20,0,0,0"
-                        Background="#607D8B" Foreground="White" FontSize="22" FontWeight="Bold" BorderThickness="0"
+                <Button x:Name="btnSettings" Content="Настройки" Height="50" Width="150" Margin="20,0,0,0"
+                        Background="#607D8B" Foreground="White" FontSize="16" FontWeight="Bold" BorderThickness="0"
                         Click="BtnSettings_Click" ToolTip="Настройки">
                     <Button.Resources>
                         <Style TargetType="Border">
@@ -69,8 +69,8 @@
                         </Style>
                     </Button.Resources>
                 </Button>
-                <Button x:Name="btnFullscreen" Content="⛶" Height="50" Width="50" Margin="5,0,0,0"
-                        Background="#607D8B" Foreground="White" FontSize="22" FontWeight="Bold" BorderThickness="0"
+                <Button x:Name="btnFullscreen" Content="Полный экран" Height="50" Width="150" Margin="5,0,0,0"
+                        Background="#607D8B" Foreground="White" FontSize="16" FontWeight="Bold" BorderThickness="0"
                         Click="BtnFullscreen_Click" ToolTip="Полноэкранный режим (F11)">
                     <Button.Resources>
                         <Style TargetType="Border">

@@ -238,13 +238,13 @@ namespace UnifiedPhotoBooth
             if (WindowState == WindowState.Maximized && WindowStyle == WindowStyle.None)
             {
                 // В полноэкранном режиме показываем иконку выхода из него
-                btnFullscreen.Content = "⮽";
+                btnFullscreen.Content = "Выйти";
                 btnFullscreen.ToolTip = "Выйти из полноэкранного режима (F11)";
             }
             else
             {
                 // В обычном режиме показываем иконку входа в полноэкранный режим
-                btnFullscreen.Content = "⛶";
+                btnFullscreen.Content = "Полный экран";
                 btnFullscreen.ToolTip = "Полноэкранный режим (F11)";
             }
         }

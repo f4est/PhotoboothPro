@@ -28,6 +28,8 @@ namespace UnifiedPhotoBooth
         private VideoCapture _capture;
         private DispatcherTimer _previewTimer;
         private bool _previewRunning;
+        private System.Threading.CancellationTokenSource _captureCts;
+        private System.Threading.Tasks.Task _captureTask;
         
         private VideoWriter _videoWriter;
         private bool _isRecording;
@@ -43,6 +45,8 @@ namespace UnifiedPhotoBooth
         private string _audioFilePath;
         
         private bool _isPlaying;
+        private WaveInEvent _audioCapture;
+        private WaveFileWriter _audioWriter;
         
         private Action _onCountdownComplete;
         
@@ -52,6 +56,12 @@ namespace UnifiedPhotoBooth
         // Добавляем поля для контроля времени записи
         private int _framesRecorded;
         private double _targetFps;
+        
+        // Поля для точной записи видео
+        private System.Threading.Timer _recordingFrameTimer; // Высокоточный таймер для записи
+        private DateTime _recordingStartTime;
+        private Mat _lastFrame; // Буфер для последнего кадра
+        private readonly object _frameLock = new object(); // Блокировка для потокобезопасности
         
         public VideoBoothPage(GoogleDriveService driveService, string eventFolderId = null)
         {
@@ -66,12 +76,9 @@ namespace UnifiedPhotoBooth
                 txtEventName.Text = _eventName;
             }
             
-            // Инициализация таймеров
-            _previewTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(33) // Будет обновлено в StartPreview
-            };
-            _previewTimer.Tick += PreviewTimer_Tick;
+            // Инициализация таймера предпросмотра (больше не управляет захватом кадров)
+            _previewTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) };
+            _previewTimer.Tick += (s, e) => { /* зарезервировано */ };
             
             
             
@@ -135,32 +142,17 @@ namespace UnifiedPhotoBooth
         {
             try
             {
-                // Инициализация камеры
                 _capture = new VideoCapture(SettingsWindow.AppSettings.CameraIndex);
                 if (!_capture.IsOpened())
                 {
                     ShowError("Не удалось открыть камеру. Проверьте настройки.");
                     return;
                 }
-                
-                // Получаем частоту кадров из настроек или реальную частоту камеры
-                double cameraFps = SettingsWindow.AppSettings.VideoFps;
-                if (cameraFps <= 0)
-                {
-                    cameraFps = _capture.Get(OpenCvSharp.VideoCaptureProperties.Fps);
-                    if (cameraFps <= 0)
-                    {
-                        cameraFps = 30.0; // Значение по умолчанию
-                    }
-                }
-                
-                // Устанавливаем интервал таймера на основе частоты кадров
-                int intervalMs = (int)(1000.0 / cameraFps);
-                _previewTimer.Interval = TimeSpan.FromMilliseconds(intervalMs);
-                
+
                 _previewRunning = true;
-                _previewTimer.Start();
-                
+                _captureCts = new System.Threading.CancellationTokenSource();
+                _captureTask = System.Threading.Tasks.Task.Run(() => CaptureLoop(_captureCts.Token));
+
                 ShowStatus("Готов к записи", "Нажмите 'Начать запись', чтобы записать видео");
             }
             catch (Exception ex)
@@ -172,74 +164,108 @@ namespace UnifiedPhotoBooth
         private void StopPreview()
         {
             _previewRunning = false;
-            _previewTimer.Stop();
-            
+            _captureCts?.Cancel();
+            try { _captureTask?.Wait(500); } catch {}
+            _captureTask = null;
+
             _capture?.Dispose();
             _capture = null;
         }
         
 
         
-        private void PreviewTimer_Tick(object sender, EventArgs e)
+        private void RecordingFrameTimer_Tick(object state)
         {
-            if (!_previewRunning || _capture == null || !_capture.IsOpened())
+            if (!_isRecording || _videoWriter == null || !_videoWriter.IsOpened())
                 return;
             
             try
             {
-                using (var frame = new Mat())
+                lock (_frameLock)
                 {
-                    if (_capture.Read(frame))
+                    if (_lastFrame != null && !_lastFrame.Empty())
                     {
-                        // Применяем поворот, если необходимо
-                        ApplyRotation(frame);
+                        // Записываем кадр в видео
+                        Mat frameForRecording = new Mat();
+                        Cv2.Resize(_lastFrame, frameForRecording, _videoWriter.FrameSize);
+                        _videoWriter.Write(frameForRecording);
+                        frameForRecording.Dispose();
                         
-                        // Применяем зеркальное отображение, если включено
-                        if (SettingsWindow.AppSettings.MirrorMode)
+                        _framesRecorded++;
+                        
+                        // Логируем прогресс каждые 30 кадров
+                        if (_framesRecorded % 30 == 0)
                         {
-                            Cv2.Flip(frame, frame, FlipMode.Y);
-                        }
-                        
-                        // Убираем черные края путем обрезки до нужного соотношения сторон
-                        Mat frameWithCorrectAspect = AdjustAspectRatio(frame, 1200.0 / 1800.0);
-                        
-                        // Накладываем оверлей, если есть
-                        ApplyOverlay(frameWithCorrectAspect);
-                        
-                        // Отображаем кадр
-                        imgPreview.Source = BitmapSourceConverter.ToBitmapSource(frameWithCorrectAspect);
-                        
-                        // Если идет запись, записываем кадр в видео
-                        if (_isRecording && _videoWriter != null && _videoWriter.IsOpened())
-                        {
-                            try
-                            {
-                                // Записываем кадр в видео
-                                Mat frameForRecording = new Mat();
-                                Cv2.Resize(frameWithCorrectAspect, frameForRecording, _videoWriter.FrameSize);
-                                _videoWriter.Write(frameForRecording);
-                                frameForRecording.Dispose();
-                                
-                                _framesRecorded++;
-                            }
-                            catch (Exception ex)
-                            {
-                                System.Diagnostics.Debug.WriteLine($"Ошибка при записи кадра в видео: {ex.Message}");
-                            }
-                        }
-                        
-                        // Освобождаем ресурсы
-                        if (frameWithCorrectAspect != frame)
-                        {
-                            frameWithCorrectAspect.Dispose();
+                            var elapsed = DateTime.Now - _recordingStartTime;
+                            var expectedFrames = (int)(elapsed.TotalSeconds * _targetFps);
+                            System.Diagnostics.Debug.WriteLine($"Записано кадров: {_framesRecorded}, Ожидалось: {expectedFrames}, FPS: {_targetFps}");
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка в PreviewTimer_Tick: {ex.Message}");
-                // Продолжаем работу даже при ошибке
+                System.Diagnostics.Debug.WriteLine($"Ошибка при записи кадра в видео: {ex.Message}");
+            }
+        }
+        
+        private void CaptureLoop(System.Threading.CancellationToken token)
+        {
+            // Определяем целевой FPS для предпросмотра и записи
+            double cameraFps = SettingsWindow.AppSettings.VideoFps;
+            if (cameraFps <= 0)
+            {
+                cameraFps = _capture.Get(OpenCvSharp.VideoCaptureProperties.Fps);
+                if (cameraFps <= 0) cameraFps = 30.0;
+            }
+
+            var frameInterval = TimeSpan.FromMilliseconds(System.Math.Max(1, 1000.0 / cameraFps));
+
+            while (!token.IsCancellationRequested && _capture != null && _capture.IsOpened())
+            {
+                try
+                {
+                    using (var frame = new Mat())
+                    {
+                        if (!_capture.Read(frame) || frame.Empty())
+                        {
+                            System.Threading.Thread.Sleep(1);
+                            continue;
+                        }
+
+                        ApplyRotation(frame);
+                        if (SettingsWindow.AppSettings.MirrorMode)
+                        {
+                            Cv2.Flip(frame, frame, FlipMode.Y);
+                        }
+
+                        Mat processed = AdjustAspectRatio(frame, 1200.0 / 1800.0);
+                        ApplyOverlay(processed);
+
+                        // Пишем кадр сразу при захвате — без потери кадров
+                        if (_isRecording && _videoWriter != null && _videoWriter.IsOpened())
+                        {
+                            var recMat = new Mat();
+                            Cv2.Resize(processed, recMat, _videoWriter.FrameSize);
+                            _videoWriter.Write(recMat);
+                            recMat.Dispose();
+                            _framesRecorded++;
+                        }
+
+                        // Обновляем предпросмотр всегда (не ограничиваем частотой)
+                        var bmp = BitmapSourceConverter.ToBitmapSource(processed);
+                        Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            imgPreview.Source = bmp;
+                        }));
+
+                        if (processed != frame) processed.Dispose();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Ошибка в CaptureLoop: {ex.Message}");
+                }
             }
         }
         
@@ -406,8 +432,8 @@ namespace UnifiedPhotoBooth
                 string recordingsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "recordings");
                 Directory.CreateDirectory(recordingsDir);
                 
-                // Генерируем имя файла на основе текущей даты и времени
-                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                // Генерируем имя файла на основе текущей даты и времени с миллисекундами для уникальности
+                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
                 string videoFileName = $"video_{timestamp}.mp4";
                 string videoPath = Path.Combine(recordingsDir, videoFileName);
                 
@@ -521,10 +547,18 @@ namespace UnifiedPhotoBooth
                     // Инициализируем счетчики записи
                     _framesRecorded = 0;
                     _targetFps = fps;
+                    _recordingStartTime = DateTime.Now;
                     
                     // Сбрасываем таймер записи
                     _recordingTime = TimeSpan.Zero;
                     txtRecordingTime.Text = "00:00";
+                    
+                    // Запускаем высокоточный таймер для записи кадров
+                    int frameIntervalMs = (int)(1000.0 / fps);
+                    _recordingFrameTimer = new System.Threading.Timer(RecordingFrameTimer_Tick, null, 0, frameIntervalMs);
+                    
+                    // Запускаем запись аудио
+                    StartAudioRecording();
                     
                     // Запускаем таймер для обновления времени записи
                     _recordingTimer.Start();
@@ -593,7 +627,19 @@ namespace UnifiedPhotoBooth
                 // Останавливаем таймер записи
                 _recordingTimer.Stop();
                 
+                // Останавливаем высокоточный таймер записи кадров
+                _recordingFrameTimer?.Dispose();
+                _recordingFrameTimer = null;
                 
+                // Останавливаем запись аудио
+                StopAudioRecording();
+                
+                // Освобождаем последний кадр
+                lock (_frameLock)
+                {
+                    _lastFrame?.Dispose();
+                    _lastFrame = null;
+                }
                 
                 // Сбрасываем флаг записи и счетчики
                 _isRecording = false;
@@ -613,6 +659,11 @@ namespace UnifiedPhotoBooth
                     _videoWriter.Dispose();
                     _videoWriter = null;
                 }
+                
+                // Логируем статистику записи
+                var recordingDuration = DateTime.Now - _recordingStartTime;
+                var actualFps = _framesRecorded / recordingDuration.TotalSeconds;
+                System.Diagnostics.Debug.WriteLine($"Запись завершена: {_framesRecorded} кадров за {recordingDuration.TotalSeconds:F2} сек, FPS: {actualFps:F2} (целевой: {_targetFps})");
                 
                 // Проверяем, существует ли видеофайл и имеет ли он размер
                 bool videoExists = File.Exists(_recordingFilePath) && new FileInfo(_recordingFilePath).Length > 0;
@@ -1540,6 +1591,19 @@ namespace UnifiedPhotoBooth
             _framesRecorded = 0;
             _targetFps = 0;
             
+            // Останавливаем высокоточный таймер записи кадров
+            _recordingFrameTimer?.Dispose();
+            _recordingFrameTimer = null;
+            
+            // Останавливаем запись аудио
+            StopAudioRecording();
+            
+            // Освобождаем последний кадр
+            lock (_frameLock)
+            {
+                _lastFrame?.Dispose();
+                _lastFrame = null;
+            }
 
             _recordingTimer.Stop();
             txtRecordingTime.Visibility = Visibility.Collapsed;
@@ -1551,6 +1615,71 @@ namespace UnifiedPhotoBooth
             recordingIndicator.Visibility = Visibility.Collapsed;
             btnStopRecording.Visibility = Visibility.Collapsed;
             btnStartRecording.Visibility = Visibility.Visible;
+        }
+        
+        private void StartAudioRecording()
+        {
+            try
+            {
+                if (SettingsWindow.AppSettings.UseMicrophone)
+                {
+                    _audioCapture = new WaveInEvent
+                    {
+                        DeviceNumber = SettingsWindow.AppSettings.MicrophoneIndex,
+                        WaveFormat = new WaveFormat(44100, 16, 1),
+                        BufferMilliseconds = 50
+                    };
+                    
+                    _audioCapture.DataAvailable += AudioCapture_DataAvailable;
+                    _audioWriter = new WaveFileWriter(_audioFilePath, _audioCapture.WaveFormat);
+                    _audioCapture.StartRecording();
+                    
+                    System.Diagnostics.Debug.WriteLine("Запись аудио начата");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при запуске записи аудио: {ex.Message}");
+            }
+        }
+        
+        private void StopAudioRecording()
+        {
+            try
+            {
+                if (_audioCapture != null)
+                {
+                    _audioCapture.StopRecording();
+                    _audioCapture.DataAvailable -= AudioCapture_DataAvailable;
+                    _audioCapture.Dispose();
+                    _audioCapture = null;
+                }
+                
+                if (_audioWriter != null)
+                {
+                    _audioWriter.Dispose();
+                    _audioWriter = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при остановке записи аудио: {ex.Message}");
+            }
+        }
+        
+        private void AudioCapture_DataAvailable(object sender, WaveInEventArgs e)
+        {
+            try
+            {
+                if (_audioWriter != null && e.BytesRecorded > 0)
+                {
+                    _audioWriter.Write(e.Buffer, 0, e.BytesRecorded);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при записи аудио данных: {ex.Message}");
+            }
         }
     }
 } 
