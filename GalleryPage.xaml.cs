@@ -39,7 +39,7 @@ namespace UnifiedPhotoBooth
             LoadGalleryItems();
         }
         
-        private void LoadGalleryItems()
+        private async void LoadGalleryItems()
         {
             try
             {
@@ -48,37 +48,15 @@ namespace UnifiedPhotoBooth
                 // Собираем все медиафайлы в один список
                 var allMediaFiles = new List<MediaFileInfo>();
                 
-                // Добавляем фотографии
-                if (Directory.Exists(PhotosDir))
+                if (string.IsNullOrEmpty(_eventFolderId))
                 {
-                    var photoFiles = Directory.GetFiles(PhotosDir, "*.jpg")
-                        .Select(f => new FileInfo(f))
-                        .Select(f => new MediaFileInfo
-                        {
-                            FilePath = f.FullName,
-                            FileName = f.Name,
-                            CreationTime = f.CreationTime,
-                            Type = "Фото",
-                            Extension = ".jpg"
-                        });
-                    allMediaFiles.AddRange(photoFiles);
+                                    // Если событие не выбрано, показываем только локальные файлы
+                LoadLocalFiles(allMediaFiles);
                 }
-                
-                // Добавляем видео
-                if (Directory.Exists(RecordingsDir))
+                else
                 {
-                    var videoFiles = Directory.GetFiles(RecordingsDir, "*.mp4")
-                        .Concat(Directory.GetFiles(RecordingsDir, "*.avi"))
-                        .Select(f => new FileInfo(f))
-                        .Select(f => new MediaFileInfo
-                        {
-                            FilePath = f.FullName,
-                            FileName = f.Name,
-                            CreationTime = f.CreationTime,
-                            Type = "Видео",
-                            Extension = Path.GetExtension(f.Name).ToLower()
-                        });
-                    allMediaFiles.AddRange(videoFiles);
+                    // Если событие выбрано, загружаем файлы из Google Drive для этого события
+                    await LoadEventFiles(allMediaFiles);
                 }
                 
                 // Сортируем все файлы по дате создания (сначала новые)
@@ -95,7 +73,9 @@ namespace UnifiedPhotoBooth
                 {
                     TextBlock noItemsText = new TextBlock
                     {
-                        Text = "Нет доступных фотографий или видео",
+                        Text = string.IsNullOrEmpty(_eventFolderId) 
+                            ? "Нет доступных фотографий или видео" 
+                            : "Нет файлов в выбранном событии",
                         FontSize = 18,
                         Foreground = Brushes.Gray,
                         HorizontalAlignment = HorizontalAlignment.Center,
@@ -112,6 +92,96 @@ namespace UnifiedPhotoBooth
             }
         }
         
+        private void LoadLocalFiles(List<MediaFileInfo> allMediaFiles)
+        {
+            // Добавляем локальные фотографии
+            if (Directory.Exists(PhotosDir))
+            {
+                var photoFiles = Directory.GetFiles(PhotosDir, "*.jpg")
+                    .Select(f => new FileInfo(f))
+                    .Select(f => new MediaFileInfo
+                    {
+                        FilePath = f.FullName,
+                        FileName = f.Name,
+                        CreationTime = f.CreationTime,
+                        Type = "Фото",
+                        Extension = ".jpg",
+                        Source = "Локальный"
+                    });
+                allMediaFiles.AddRange(photoFiles);
+            }
+            
+            // Добавляем локальные видео
+            if (Directory.Exists(RecordingsDir))
+            {
+                var videoFiles = Directory.GetFiles(RecordingsDir, "*.mp4")
+                    .Concat(Directory.GetFiles(RecordingsDir, "*.avi"))
+                    .Select(f => new FileInfo(f))
+                    .Select(f => new MediaFileInfo
+                    {
+                        FilePath = f.FullName,
+                        FileName = f.Name,
+                        CreationTime = f.CreationTime,
+                        Type = "Видео",
+                        Extension = Path.GetExtension(f.Name).ToLower(),
+                        Source = "Локальный"
+                    });
+                allMediaFiles.AddRange(videoFiles);
+            }
+        }
+        
+        private async Task LoadEventFiles(List<MediaFileInfo> allMediaFiles)
+        {
+            try
+            {
+                // Создаем экземпляр GoogleDriveService для загрузки файлов события
+                var driveService = new GoogleDriveService();
+                
+                // Загружаем файлы из Google Drive для выбранного события
+                var eventFiles = await driveService.GetEventFilesAsync(_eventFolderId);
+                
+                foreach (var file in eventFiles)
+                {
+                    var mediaFile = new MediaFileInfo
+                    {
+                        FilePath = file.DownloadUrl, // URL для скачивания
+                        FileName = file.Name,
+                        CreationTime = file.CreatedTime ?? DateTime.Now,
+                        Type = GetFileType(file.Name),
+                        Extension = Path.GetExtension(file.Name).ToLower(),
+                        Source = "Google Drive",
+                        FileId = file.Id
+                    };
+                    allMediaFiles.Add(mediaFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при загрузке файлов события: {ex.Message}");
+                // При ошибке загружаем только локальные файлы
+                LoadLocalFiles(allMediaFiles);
+            }
+        }
+        
+        private string GetFileType(string fileName)
+        {
+            string extension = Path.GetExtension(fileName).ToLower();
+            switch (extension)
+            {
+                case ".jpg":
+                case ".jpeg":
+                case ".png":
+                case ".bmp":
+                    return "Фото";
+                case ".mp4":
+                case ".avi":
+                case ".mov":
+                    return "Видео";
+                default:
+                    return "Файл";
+            }
+        }
+        
         private class MediaFileInfo
         {
             public string FilePath { get; set; }
@@ -119,16 +189,28 @@ namespace UnifiedPhotoBooth
             public DateTime CreationTime { get; set; }
             public string Type { get; set; }
             public string Extension { get; set; }
+            public string Source { get; set; } = "Локальный"; // "Локальный" или "Google Drive"
+            public string FileId { get; set; } // ID файла в Google Drive
         }
         
         private void CreateGalleryItem(MediaFileInfo mediaFile)
         {
             // Проверяем, существует ли связанный QR-код
-            string qrFilePath = Path.Combine(
-                Path.GetDirectoryName(mediaFile.FilePath), 
-                Path.GetFileNameWithoutExtension(mediaFile.FileName) + "_qr.png");
+            string qrFilePath = "";
+            bool hasQrCode = false;
             
-            bool hasQrCode = File.Exists(qrFilePath);
+            if (mediaFile.Source == "Локальный")
+            {
+                qrFilePath = Path.Combine(
+                    Path.GetDirectoryName(mediaFile.FilePath), 
+                    Path.GetFileNameWithoutExtension(mediaFile.FileName) + "_qr.png");
+                hasQrCode = File.Exists(qrFilePath);
+            }
+            else
+            {
+                // Для файлов из Google Drive QR-код не нужен, так как они уже загружены
+                hasQrCode = false;
+            }
             
             // Создаем элемент галереи (карточка)
             Border card = new Border
@@ -174,7 +256,18 @@ namespace UnifiedPhotoBooth
                 {
                     BitmapImage bitmap = new BitmapImage();
                     bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(mediaFile.FilePath);
+                    
+                    if (mediaFile.Source == "Google Drive")
+                    {
+                        // Для файлов из Google Drive используем URL
+                        bitmap.UriSource = new Uri(mediaFile.FilePath);
+                    }
+                    else
+                    {
+                        // Для локальных файлов используем путь к файлу
+                        bitmap.UriSource = new Uri(mediaFile.FilePath);
+                    }
+                    
                     bitmap.DecodePixelWidth = ThumbnailSize;
                     bitmap.CacheOption = BitmapCacheOption.OnLoad;
                     bitmap.EndInit();
@@ -219,7 +312,7 @@ namespace UnifiedPhotoBooth
                 
                 TextBlock titleText = new TextBlock
                 {
-                    Text = mediaFile.Type,
+                    Text = $"{mediaFile.Type} ({mediaFile.Source})",
                     Foreground = Brushes.White,
                     FontWeight = FontWeights.SemiBold,
                     FontSize = 14
@@ -244,7 +337,8 @@ namespace UnifiedPhotoBooth
                 var mediaInfo = new MediaInfo
                 {
                     FilePath = mediaFile.FilePath,
-                    QrCodePath = hasQrCode ? qrFilePath : null
+                    QrCodePath = hasQrCode ? qrFilePath : null,
+                    Source = mediaFile.Source
                 };
                 
                 // Обработчик нажатия
@@ -260,6 +354,7 @@ namespace UnifiedPhotoBooth
         {
             public string FilePath { get; set; }
             public string QrCodePath { get; set; }
+            public string Source { get; set; }
         }
         
         private void GalleryItem_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -268,6 +363,7 @@ namespace UnifiedPhotoBooth
             {
                 string filePath = mediaInfo.FilePath;
                 string qrCodePath = mediaInfo.QrCodePath;
+                string source = mediaInfo.Source;
                 
                 // Определяем тип файла
                 bool isVideo = filePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) || 

@@ -718,6 +718,58 @@ namespace UnifiedPhotoBooth
             
             return qrFilePath;
         }
+        
+        // Получение файлов события из Google Drive
+        public async Task<List<EventFileInfo>> GetEventFilesAsync(string eventFolderId)
+        {
+            var files = new List<EventFileInfo>();
+            
+            if (!_isOnline || _driveService == null)
+            {
+                return files;
+            }
+            
+            try
+            {
+                // Получаем все файлы из папки события
+                var listRequest = _driveService.Files.List();
+                listRequest.Q = $"'{eventFolderId}' in parents and trashed=false";
+                listRequest.Fields = "files(id,name,mimeType,createdTime,webContentLink,thumbnailLink)";
+                listRequest.OrderBy = "createdTime desc";
+                
+                var fileList = await Task.Run(() => listRequest.Execute());
+                
+                foreach (var file in fileList.Files)
+                {
+                    // Фильтруем только медиафайлы (фото и видео)
+                    if (IsMediaFile(file.Name))
+                    {
+                        files.Add(new EventFileInfo
+                        {
+                            Id = file.Id,
+                            Name = file.Name,
+                            MimeType = file.MimeType,
+                            CreatedTime = file.CreatedTimeDateTimeOffset?.DateTime,
+                            DownloadUrl = file.WebContentLink,
+                            ThumbnailUrl = file.ThumbnailLink
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при получении файлов события: {ex.Message}");
+            }
+            
+            return files;
+        }
+        
+        private bool IsMediaFile(string fileName)
+        {
+            string extension = Path.GetExtension(fileName).ToLower();
+            return extension == ".jpg" || extension == ".jpeg" || extension == ".png" || 
+                   extension == ".mp4" || extension == ".avi" || extension == ".mov";
+        }
     }
 
     public class UploadResult
@@ -726,5 +778,15 @@ namespace UnifiedPhotoBooth
         public string FolderId { get; set; }
         public Bitmap QrCode { get; set; }
         public string Url { get; set; }
+    }
+    
+    public class EventFileInfo
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string MimeType { get; set; }
+        public DateTime? CreatedTime { get; set; }
+        public string DownloadUrl { get; set; }
+        public string ThumbnailUrl { get; set; }
     }
 } 
