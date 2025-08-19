@@ -806,6 +806,14 @@ namespace UnifiedPhotoBooth
                     int photoCount = Math.Min(_capturedPhotos.Count, positions.Count);
                     System.Diagnostics.Debug.WriteLine($"Будет размещено {photoCount} фотографий");
                     
+                    // Вычисляем масштаб для преобразования координат из канвы в финальный размер
+                    double scaleX = (double)finalWidth / frameTemplate.Width;
+                    double scaleY = (double)finalHeight / frameTemplate.Height;
+                    
+                    System.Diagnostics.Debug.WriteLine($"Масштаб: scaleX={scaleX}, scaleY={scaleY}");
+                    System.Diagnostics.Debug.WriteLine($"Размеры шаблона: {frameTemplate.Width}x{frameTemplate.Height}");
+                    System.Diagnostics.Debug.WriteLine($"Финальные размеры: {finalWidth}x{finalHeight}");
+                    
                     for (int i = 0; i < photoCount; i++)
                     {
                         // Дополнительная проверка на выход за границы массива
@@ -814,16 +822,24 @@ namespace UnifiedPhotoBooth
                         var photo = _capturedPhotos[i].Clone(); // Клонируем для безопасности операций
                         var pos = positions[i];
                         
+                        // Масштабируем координаты и размеры позиции
+                        double scaledX = pos.X * scaleX;
+                        double scaledY = pos.Y * scaleY;
+                        double scaledWidth = pos.Width * scaleX;
+                        double scaledHeight = pos.Height * scaleY;
+                        
+                        System.Diagnostics.Debug.WriteLine($"Фото {i+1}: исходные координаты ({pos.X}, {pos.Y}, {pos.Width}, {pos.Height}) -> масштабированные ({scaledX}, {scaledY}, {scaledWidth}, {scaledHeight})");
+                        
                         // Изменяем размер фото для соответствия позиции в шаблоне
                         Mat processedPhoto = new Mat();
-                        Cv2.Resize(photo, processedPhoto, new OpenCvSharp.Size(pos.Width, pos.Height));
+                        Cv2.Resize(photo, processedPhoto, new OpenCvSharp.Size(scaledWidth, scaledHeight));
                         photo.Dispose();
                         
                         // Проверяем границы перед созданием ROI
-                        int x = (int)Math.Max(0, Math.Min(pos.X, result.Width - 1));
-                        int y = (int)Math.Max(0, Math.Min(pos.Y, result.Height - 1));
-                        int w = (int)Math.Min(pos.Width, result.Width - x);
-                        int h = (int)Math.Min(pos.Height, result.Height - y);
+                        int x = (int)Math.Max(0, Math.Min(scaledX, result.Width - 1));
+                        int y = (int)Math.Max(0, Math.Min(scaledY, result.Height - 1));
+                        int w = (int)Math.Min(scaledWidth, result.Width - x);
+                        int h = (int)Math.Min(scaledHeight, result.Height - y);
                         
                         // Проверяем, что размеры не равны нулю
                         if (w <= 0 || h <= 0) continue;
