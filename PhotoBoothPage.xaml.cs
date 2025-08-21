@@ -461,6 +461,7 @@ namespace UnifiedPhotoBooth
             catch (Exception ex)
             {
                 ShowError($"Ошибка при загрузке фото: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка в BtnShare_Click: {ex.Message}");
             }
             finally
             {
@@ -1175,6 +1176,12 @@ namespace UnifiedPhotoBooth
             // Создаем коллаж из обработанных фотографий
             var finalImage = CreateCollage();
             
+            // Сохраняем изображение локально
+            SaveImageLocally(finalImage);
+            
+            // Автоматически загружаем на Google Drive в фоновом режиме
+            UploadToGoogleDriveAsync(finalImage);
+            
             // Показываем результат
             imgPreview.Visibility = Visibility.Collapsed;
             imgResult.Source = BitmapSourceConverter.ToBitmapSource(finalImage);
@@ -1186,6 +1193,82 @@ namespace UnifiedPhotoBooth
             btnReset.Visibility = Visibility.Visible;
             UpdateShareButtonVisibility();
             btnPrint.Visibility = Visibility.Visible;
+        }
+        
+        private void SaveImageLocally(Mat finalImage)
+        {
+            try
+            {
+                // Создаем папку для сохранения, если её нет
+                string photosDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "PhotoBooth");
+                if (!Directory.Exists(photosDir))
+                {
+                    Directory.CreateDirectory(photosDir);
+                }
+                
+                // Генерируем уникальное имя файла
+                string fileName = $"PhotoBooth_{DateTime.Now:yyyyMMdd_HHmmss}.jpg";
+                _finalImagePath = Path.Combine(photosDir, fileName);
+                
+                // Сохраняем изображение
+                Cv2.ImWrite(_finalImagePath, finalImage);
+                
+                System.Diagnostics.Debug.WriteLine($"Фото сохранено локально: {_finalImagePath}");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при сохранении фото локально: {ex.Message}");
+            }
+        }
+        
+        private async void UploadToGoogleDriveAsync(Mat finalImage)
+        {
+            // Запускаем загрузку в отдельном потоке, чтобы не блокировать UI
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    if (_driveService != null && _driveService.IsOnline)
+                    {
+                        // Создаем временный файл для загрузки
+                        string tempPath = Path.Combine(Path.GetTempPath(), $"temp_upload_{Guid.NewGuid()}.jpg");
+                        
+                        try
+                        {
+                            // Сохраняем изображение во временный файл
+                            Cv2.ImWrite(tempPath, finalImage);
+                            
+                            // Загружаем на Google Drive
+                            string folderName = $"PhotoBooth_{DateTime.Now:yyyyMMdd_HHmmss}";
+                            var result = await _driveService.UploadPhotoAsync(tempPath, folderName, _eventFolderId, false, _lastUniversalFolderId);
+                            
+                            // Сохраняем ID папки для возможного повторного использования
+                            _lastUniversalFolderId = result.FolderId;
+                            
+                            // Сохраняем QR-код локально рядом с фото
+                            if (result.QrCode != null && !string.IsNullOrEmpty(_finalImagePath))
+                            {
+                                string qrPath = Path.Combine(
+                                    Path.GetDirectoryName(_finalImagePath),
+                                    Path.GetFileNameWithoutExtension(_finalImagePath) + "_qr.png");
+                                result.QrCode.Save(qrPath, System.Drawing.Imaging.ImageFormat.Png);
+                            }
+                            
+                            System.Diagnostics.Debug.WriteLine("Фото успешно загружено на Google Drive");
+                        }
+                        finally
+                        {
+                            // Удаляем временный файл
+                            try { File.Delete(tempPath); } catch { }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Ошибка при загрузке на Google Drive: {ex.Message}");
+                    // Не показываем ошибку пользователю, так как это фоновый процесс
+                }
+            });
         }
     }
 } 

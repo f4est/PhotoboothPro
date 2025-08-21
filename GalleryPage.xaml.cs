@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Printing;
 using System.Windows.Documents;
 using System.Windows.Media.Effects;
+using QRCoder;
 
 namespace UnifiedPhotoBooth
 {
@@ -50,12 +51,12 @@ namespace UnifiedPhotoBooth
                 
                 if (string.IsNullOrEmpty(_eventFolderId))
                 {
-                                    // Если событие не выбрано, показываем только локальные файлы
-                LoadLocalFiles(allMediaFiles);
+                    // Если событие не выбрано, показываем только локальные файлы
+                    LoadLocalFiles(allMediaFiles);
                 }
                 else
                 {
-                    // Если событие выбрано, загружаем файлы из Google Drive для этого события
+                    // Если событие выбрано, загружаем ТОЛЬКО файлы из Google Drive для этого события
                     await LoadEventFiles(allMediaFiles);
                 }
                 
@@ -158,8 +159,8 @@ namespace UnifiedPhotoBooth
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка при загрузке файлов события: {ex.Message}");
-                // При ошибке загружаем только локальные файлы
-                LoadLocalFiles(allMediaFiles);
+                // При ошибке НЕ загружаем локальные файлы, чтобы избежать дублирования
+                // Просто возвращаем пустой список
             }
         }
         
@@ -449,7 +450,8 @@ namespace UnifiedPhotoBooth
             bmp.CacheOption = BitmapCacheOption.OnLoad;
             bmp.UriSource = new Uri(imagePath, UriKind.Absolute);
             bmp.EndInit();
-            bmp.Freeze();
+            // Убираем вызов Freeze(), который может вызывать ошибки
+            // bmp.Freeze();
             Image image = new Image
             {
                 Source = bmp,
@@ -508,7 +510,7 @@ namespace UnifiedPhotoBooth
             NavigationService.GoBack();
         }
         
-        private async void BtnShare_Click(object sender, RoutedEventArgs e)
+        private void BtnShare_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -523,45 +525,44 @@ namespace UnifiedPhotoBooth
                 }
                 else
                 {
-                    // Создаем новый QR-код и загружаем файл
+                    // Создаем QR-код напрямую, ведущий на Google Drive
                     var driveService = new GoogleDriveService();
                     string fileName = Path.GetFileName(_imagePath);
-                    string folderName = $"PhotoBooth_{DateTime.Now:yyyyMMdd_HHmmss}";
-
-                    // Открываем файл для копирования безопасно (исключая удержание блокировки)
-                    string tempCopy = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid() + System.IO.Path.GetExtension(_imagePath));
-                    try
+                    
+                    // Создаем QR-код, ведущий на универсальную папку Google Drive
+                    string googleDriveUrl = "https://drive.google.com/drive/folders/1FR92J38OPdLZoCaKKZ6lW7EucdGtG624";
+                    
+                    // Генерируем QR-код
+                    var qrGenerator = new QRCoder.QRCodeGenerator();
+                    var qrCodeData = qrGenerator.CreateQrCode(googleDriveUrl, QRCoder.QRCodeGenerator.ECCLevel.H);
+                    var qrCode = new QRCoder.QRCode(qrCodeData);
+                    
+                    // Получаем настройки QR-кода
+                    var appSettings = SettingsWindow.AppSettings;
+                    System.Drawing.Color qrForeColor = System.Drawing.ColorTranslator.FromHtml(appSettings.QrForegroundColor);
+                    System.Drawing.Color qrBackColor = System.Drawing.ColorTranslator.FromHtml(appSettings.QrBackgroundColor);
+                    
+                    // Создаем QR-код с настраиваемыми цветами
+                    var qrBitmap = qrCode.GetGraphic(20, qrForeColor, qrBackColor, false);
+                    
+                    // Изменяем размер QR-кода
+                    int size = appSettings.QrCodeSize;
+                    var resizedQrBitmap = new System.Drawing.Bitmap(size, size);
+                    using (var g = System.Drawing.Graphics.FromImage(resizedQrBitmap))
                     {
-                        using (var fs = new FileStream(_imagePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                        using (var outFs = new FileStream(tempCopy, FileMode.Create, FileAccess.Write, FileShare.Read))
-                        {
-                            await fs.CopyToAsync(outFs);
-                        }
-
-                        var result = await driveService.UploadPhotoAsync(tempCopy, folderName, _eventFolderId);
-                        
-                        if (result != null && result.QrCode != null)
-                        {
-                            // Сохраняем QR-код локально
-                            string qrFilePath = Path.Combine(
-                                Path.GetDirectoryName(_imagePath),
-                                Path.GetFileNameWithoutExtension(fileName) + "_qr.png");
-                            
-                            result.QrCode.Save(qrFilePath, System.Drawing.Imaging.ImageFormat.Png);
-                            
-                            // Показываем QR-код
-                            NavigationService.Navigate(new QRCodePage(qrFilePath, false, true));
-                        }
-                        else
-                        {
-                            MessageBox.Show("Не удалось создать QR-код для этого файла.", "Ошибка", 
-                                           MessageBoxButton.OK, MessageBoxImage.Error);
-                        }
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g.DrawImage(qrBitmap, new System.Drawing.Rectangle(0, 0, size, size));
                     }
-                    finally
-                    {
-                        try { System.IO.File.Delete(tempCopy); } catch { }
-                    }
+                    
+                    // Сохраняем QR-код локально
+                    string qrFilePath = Path.Combine(
+                        Path.GetDirectoryName(_imagePath),
+                        Path.GetFileNameWithoutExtension(fileName) + "_qr.png");
+                    
+                    resizedQrBitmap.Save(qrFilePath, System.Drawing.Imaging.ImageFormat.Png);
+                    
+                    // Показываем QR-код
+                    NavigationService.Navigate(new QRCodePage(qrFilePath, false, true));
                 }
             }
             catch (Exception ex)

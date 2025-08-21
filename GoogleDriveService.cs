@@ -333,15 +333,16 @@ namespace UnifiedPhotoBooth
                 // Логирование ошибки
                 Console.WriteLine($"Ошибка при загрузке фото: {ex.Message}");
                 
-                // В случае ошибки создаем QR-код с сообщением об ошибке
-                Bitmap qrCode = GenerateQrCode("Ошибка загрузки: " + ex.Message.Substring(0, Math.Min(50, ex.Message.Length)));
+                // В случае ошибки создаем QR-код, ведущий на Google Drive
+                string googleDriveUrl = $"https://drive.google.com/drive/folders/{UNIVERSAL_FOLDER_ID}";
+                Bitmap qrCode = GenerateQrCode(googleDriveUrl);
                 
                 return new UploadResult
                 {
                     FileId = null,
-                    FolderId = null,
+                    FolderId = UNIVERSAL_FOLDER_ID,
                     QrCode = qrCode,
-                    Url = "Ошибка загрузки"
+                    Url = googleDriveUrl
                 };
             }
         }
@@ -458,15 +459,16 @@ namespace UnifiedPhotoBooth
                 // Логирование ошибки
                 Console.WriteLine($"Ошибка при загрузке видео: {ex.Message}");
                 
-                // В случае ошибки создаем QR-код с сообщением об ошибке
-                Bitmap qrCode = GenerateQrCode("Ошибка загрузки: " + ex.Message.Substring(0, Math.Min(50, ex.Message.Length)));
+                // В случае ошибки создаем QR-код, ведущий на Google Drive
+                string googleDriveUrl = $"https://drive.google.com/drive/folders/{UNIVERSAL_FOLDER_ID}";
+                Bitmap qrCode = GenerateQrCode(googleDriveUrl);
                 
                 return new UploadResult
                 {
                     FileId = null,
-                    FolderId = null,
+                    FolderId = UNIVERSAL_FOLDER_ID,
                     QrCode = qrCode,
-                    Url = "Ошибка загрузки"
+                    Url = googleDriveUrl
                 };
             }
         }
@@ -607,33 +609,35 @@ namespace UnifiedPhotoBooth
                 
                 await Task.Run(() => System.IO.File.Copy(filePath, targetPath, true));
                 
-                // Создаем QR-код с локальным путем
-                string localUrl = $"file:///{targetPath.Replace('\\', '/')}";
-                Bitmap qrCode = GenerateQrCode(localUrl);
+                // Создаем QR-код, ведущий на Google Drive (даже в офлайн режиме)
+                // Используем универсальную папку Google Drive
+                string googleDriveUrl = $"https://drive.google.com/drive/folders/{UNIVERSAL_FOLDER_ID}";
+                Bitmap qrCode = GenerateQrCode(googleDriveUrl);
                 
                 // Сохранение QR-кода в файл
                 string qrFilePath = SaveQrCodeToFile(qrCode, filePath, fileName);
                 
-                // Возвращаем результат с локальным путем
+                // Возвращаем результат с URL Google Drive
                 return new UploadResult
                 {
                     FileId = Guid.NewGuid().ToString(),
-                    FolderId = folderName,
+                    FolderId = UNIVERSAL_FOLDER_ID,
                     QrCode = qrCode,
-                    Url = localUrl
+                    Url = googleDriveUrl
                 };
             }
             catch
             {
-                // В случае ошибки создаем пустой QR-код
-                Bitmap qrCode = GenerateQrCode("Локальное сохранение не удалось");
+                // В случае ошибки создаем QR-код, ведущий на Google Drive
+                string googleDriveUrl = $"https://drive.google.com/drive/folders/{UNIVERSAL_FOLDER_ID}";
+                Bitmap qrCode = GenerateQrCode(googleDriveUrl);
                 
                 return new UploadResult
                 {
                     FileId = Guid.NewGuid().ToString(),
-                    FolderId = folderName,
+                    FolderId = UNIVERSAL_FOLDER_ID,
                     QrCode = qrCode,
-                    Url = "Файл сохранен локально"
+                    Url = googleDriveUrl
                 };
             }
         }

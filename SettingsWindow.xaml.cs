@@ -88,7 +88,7 @@ namespace UnifiedPhotoBooth
     public partial class SettingsWindow : Window
     {
         // Статические настройки приложения
-        public static AppSettings AppSettings { get; private set; } = new AppSettings();
+        public static AppSettings AppSettings { get; set; } = new AppSettings();
         
         // Флаг для обозначения того, было ли окно настроек инициализировано
         private static bool _isInitialized = false;

@@ -710,9 +710,11 @@ namespace UnifiedPhotoBooth
                             }
                         }
 
-                        // Финальная обработка UI на главном потоке
+                        // Сохраняем видео локально и загружаем на Google Drive
                         Dispatcher.Invoke(() =>
                         {
+                            SaveVideoLocally();
+                            UploadVideoToGoogleDriveAsync();
                             FinalizeVideoProcessing();
                         });
                     }
@@ -903,6 +905,66 @@ namespace UnifiedPhotoBooth
             Dispatcher.Invoke(() =>
             {
                 FinalizeVideoProcessing();
+            });
+        }
+        
+        private void SaveVideoLocally()
+        {
+            try
+            {
+                // Создаем папку для сохранения, если её нет
+                string videosDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "VideoBooth");
+                if (!Directory.Exists(videosDir))
+                {
+                    Directory.CreateDirectory(videosDir);
+                }
+                
+                // Генерируем уникальное имя файла
+                string fileName = $"VideoBooth_{DateTime.Now:yyyyMMdd_HHmmss}.mp4";
+                string localVideoPath = Path.Combine(videosDir, fileName);
+                
+                // Копируем видео в локальную папку
+                if (File.Exists(_recordingFilePath))
+                {
+                    File.Copy(_recordingFilePath, localVideoPath, true);
+                    System.Diagnostics.Debug.WriteLine($"Видео сохранено локально: {localVideoPath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при сохранении видео локально: {ex.Message}");
+            }
+        }
+        
+        private async void UploadVideoToGoogleDriveAsync()
+        {
+            // Запускаем загрузку в отдельном потоке, чтобы не блокировать UI
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    if (_driveService != null && _driveService.IsOnline && File.Exists(_recordingFilePath))
+                    {
+                        // Загружаем на Google Drive
+                        string folderName = $"VideoBooth_{DateTime.Now:yyyyMMdd_HHmmss}";
+                        var result = await _driveService.UploadVideoAsync(_recordingFilePath, folderName, _eventFolderId);
+                        
+                        // Сохраняем QR-код локально рядом с видео
+                        if (result.QrCode != null)
+                        {
+                            string videosDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "VideoBooth");
+                            string qrPath = Path.Combine(videosDir, $"VideoBooth_{DateTime.Now:yyyyMMdd_HHmmss}_qr.png");
+                            result.QrCode.Save(qrPath, System.Drawing.Imaging.ImageFormat.Png);
+                        }
+                        
+                        System.Diagnostics.Debug.WriteLine("Видео успешно загружено на Google Drive");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Ошибка при загрузке видео на Google Drive: {ex.Message}");
+                    // Не показываем ошибку пользователю, так как это фоновый процесс
+                }
             });
         }
         
@@ -1402,6 +1464,7 @@ namespace UnifiedPhotoBooth
             catch (System.Exception ex)
             {
                 ShowError($"Ошибка при загрузке видео: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка в BtnShare_Click: {ex.Message}");
             }
             finally
             {
