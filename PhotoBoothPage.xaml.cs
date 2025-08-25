@@ -461,6 +461,7 @@ namespace UnifiedPhotoBooth
             catch (Exception ex)
             {
                 ShowError($"Ошибка при загрузке фото: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка в BtnShare_Click: {ex.Message}");
             }
             finally
             {
@@ -806,6 +807,14 @@ namespace UnifiedPhotoBooth
                     int photoCount = Math.Min(_capturedPhotos.Count, positions.Count);
                     System.Diagnostics.Debug.WriteLine($"Будет размещено {photoCount} фотографий");
                     
+                    // Вычисляем масштаб для преобразования координат из канвы в финальный размер
+                    double scaleX = (double)finalWidth / frameTemplate.Width;
+                    double scaleY = (double)finalHeight / frameTemplate.Height;
+                    
+                    System.Diagnostics.Debug.WriteLine($"Масштаб: scaleX={scaleX}, scaleY={scaleY}");
+                    System.Diagnostics.Debug.WriteLine($"Размеры шаблона: {frameTemplate.Width}x{frameTemplate.Height}");
+                    System.Diagnostics.Debug.WriteLine($"Финальные размеры: {finalWidth}x{finalHeight}");
+                    
                     for (int i = 0; i < photoCount; i++)
                     {
                         // Дополнительная проверка на выход за границы массива
@@ -814,16 +823,24 @@ namespace UnifiedPhotoBooth
                         var photo = _capturedPhotos[i].Clone(); // Клонируем для безопасности операций
                         var pos = positions[i];
                         
+                        // Масштабируем координаты и размеры позиции
+                        double scaledX = pos.X * scaleX;
+                        double scaledY = pos.Y * scaleY;
+                        double scaledWidth = pos.Width * scaleX;
+                        double scaledHeight = pos.Height * scaleY;
+                        
+                        System.Diagnostics.Debug.WriteLine($"Фото {i+1}: исходные координаты ({pos.X}, {pos.Y}, {pos.Width}, {pos.Height}) -> масштабированные ({scaledX}, {scaledY}, {scaledWidth}, {scaledHeight})");
+                        
                         // Изменяем размер фото для соответствия позиции в шаблоне
                         Mat processedPhoto = new Mat();
-                        Cv2.Resize(photo, processedPhoto, new OpenCvSharp.Size(pos.Width, pos.Height));
+                        Cv2.Resize(photo, processedPhoto, new OpenCvSharp.Size(scaledWidth, scaledHeight));
                         photo.Dispose();
                         
                         // Проверяем границы перед созданием ROI
-                        int x = (int)Math.Max(0, Math.Min(pos.X, result.Width - 1));
-                        int y = (int)Math.Max(0, Math.Min(pos.Y, result.Height - 1));
-                        int w = (int)Math.Min(pos.Width, result.Width - x);
-                        int h = (int)Math.Min(pos.Height, result.Height - y);
+                        int x = (int)Math.Max(0, Math.Min(scaledX, result.Width - 1));
+                        int y = (int)Math.Max(0, Math.Min(scaledY, result.Height - 1));
+                        int w = (int)Math.Min(scaledWidth, result.Width - x);
+                        int h = (int)Math.Min(scaledHeight, result.Height - y);
                         
                         // Проверяем, что размеры не равны нулю
                         if (w <= 0 || h <= 0) continue;
@@ -1159,6 +1176,12 @@ namespace UnifiedPhotoBooth
             // Создаем коллаж из обработанных фотографий
             var finalImage = CreateCollage();
             
+            // Сохраняем изображение локально
+            SaveImageLocally(finalImage);
+            
+            // Автоматически загружаем на Google Drive в фоновом режиме
+            UploadToGoogleDriveAsync(finalImage);
+            
             // Показываем результат
             imgPreview.Visibility = Visibility.Collapsed;
             imgResult.Source = BitmapSourceConverter.ToBitmapSource(finalImage);
@@ -1170,6 +1193,82 @@ namespace UnifiedPhotoBooth
             btnReset.Visibility = Visibility.Visible;
             UpdateShareButtonVisibility();
             btnPrint.Visibility = Visibility.Visible;
+        }
+        
+        private void SaveImageLocally(Mat finalImage)
+        {
+            try
+            {
+                // Создаем папку для сохранения, если её нет
+                string photosDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "PhotoBooth");
+                if (!Directory.Exists(photosDir))
+                {
+                    Directory.CreateDirectory(photosDir);
+                }
+                
+                // Генерируем уникальное имя файла
+                string fileName = $"PhotoBooth_{DateTime.Now:yyyyMMdd_HHmmss}.jpg";
+                _finalImagePath = Path.Combine(photosDir, fileName);
+                
+                // Сохраняем изображение
+                Cv2.ImWrite(_finalImagePath, finalImage);
+                
+                System.Diagnostics.Debug.WriteLine($"Фото сохранено локально: {_finalImagePath}");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при сохранении фото локально: {ex.Message}");
+            }
+        }
+        
+        private async void UploadToGoogleDriveAsync(Mat finalImage)
+        {
+            // Запускаем загрузку в отдельном потоке, чтобы не блокировать UI
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    if (_driveService != null && _driveService.IsOnline)
+                    {
+                        // Создаем временный файл для загрузки
+                        string tempPath = Path.Combine(Path.GetTempPath(), $"temp_upload_{Guid.NewGuid()}.jpg");
+                        
+                        try
+                        {
+                            // Сохраняем изображение во временный файл
+                            Cv2.ImWrite(tempPath, finalImage);
+                            
+                            // Загружаем на Google Drive
+                            string folderName = $"PhotoBooth_{DateTime.Now:yyyyMMdd_HHmmss}";
+                            var result = await _driveService.UploadPhotoAsync(tempPath, folderName, _eventFolderId, false, _lastUniversalFolderId);
+                            
+                            // Сохраняем ID папки для возможного повторного использования
+                            _lastUniversalFolderId = result.FolderId;
+                            
+                            // Сохраняем QR-код локально рядом с фото
+                            if (result.QrCode != null && !string.IsNullOrEmpty(_finalImagePath))
+                            {
+                                string qrPath = Path.Combine(
+                                    Path.GetDirectoryName(_finalImagePath),
+                                    Path.GetFileNameWithoutExtension(_finalImagePath) + "_qr.png");
+                                result.QrCode.Save(qrPath, System.Drawing.Imaging.ImageFormat.Png);
+                            }
+                            
+                            System.Diagnostics.Debug.WriteLine("Фото успешно загружено на Google Drive");
+                        }
+                        finally
+                        {
+                            // Удаляем временный файл
+                            try { File.Delete(tempPath); } catch { }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Ошибка при загрузке на Google Drive: {ex.Message}");
+                    // Не показываем ошибку пользователю, так как это фоновый процесс
+                }
+            });
         }
     }
 } 

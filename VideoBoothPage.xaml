@@ -137,6 +137,18 @@
                             <DropShadowEffect Color="Black" Direction="320" ShadowDepth="2" Opacity="0.5"/>
                         </Button.Effect>
                     </Button>
+                    <Button x:Name="btnTogglePreview" Content="📹" Width="60" Height="50" Margin="5"
+                            Background="#FF9800" Foreground="White" FontSize="18" FontWeight="Bold" BorderThickness="0"
+                            Click="BtnTogglePreview_Click" Visibility="Collapsed" ToolTip="Переключить превью/видео">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="8"/>
+                            </Style>
+                        </Button.Resources>
+                        <Button.Effect>
+                            <DropShadowEffect Color="Black" Direction="320" ShadowDepth="2" Opacity="0.5"/>
+                        </Button.Effect>
+                    </Button>
                 </StackPanel>
                 
                 <!-- Дополнительная информация -->

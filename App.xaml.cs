@@ -39,6 +39,9 @@ namespace UnifiedPhotoBooth
             // Инициализация OpenCvSharp
             InitializeOpenCvSharp();
             
+            // Загружаем настройки при запуске приложения
+            LoadSettingsOnStartup();
+            
             // Настраиваем глобальную обработку необработанных исключений
             AppDomain.CurrentDomain.UnhandledException += (s, args) =>
             {
@@ -118,6 +121,25 @@ namespace UnifiedPhotoBooth
             {
                 MessageBox.Show($"Ошибка инициализации OpenCV: {ex.Message}\n\nDetails: {ex.StackTrace}",
                                "Ошибка инициализации OpenCV", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        private void LoadSettingsOnStartup()
+        {
+            try
+            {
+                // Загружаем настройки при запуске приложения
+                var settings = SettingsManager.LoadSettings();
+                
+                // Присваиваем загруженные настройки в статическое свойство
+                SettingsWindow.AppSettings = settings;
+                
+                Console.WriteLine("Настройки успешно загружены при запуске приложения.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при загрузке настроек: {ex.Message}");
+                // Не показываем ошибку пользователю, так как это может быть первым запуском
             }
         }
     }

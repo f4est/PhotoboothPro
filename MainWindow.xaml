@@ -16,27 +16,36 @@
         <!-- Верхняя панель навигации -->
         <Border Grid.Row="0" Background="#1A1A1A" BorderBrush="#444444" BorderThickness="0,0,0,2">
             <StackPanel Orientation="Horizontal" Height="60">
-                <Button x:Name="btnPhotoMode" Content="Фотобудка" Height="50" Width="180" Margin="10,0,5,0" 
-                        Background="#4CAF50" Foreground="White" FontSize="18" FontWeight="Bold"
-                        Click="BtnPhotoMode_Click" BorderThickness="0">
+                <Button x:Name="btnPhotoMode" Height="50" Width="180" Margin="10,0,5,0" 
+                        Background="#4CAF50" Foreground="White" FontSize="24" FontWeight="Bold"
+                        Click="BtnPhotoMode_Click" BorderThickness="0" ToolTip="Фотобудка">
+                    <Button.Content>
+                        <TextBlock Text="📷" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button.Content>
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
                         </Style>
                     </Button.Resources>
                 </Button>
-                <Button x:Name="btnVideoMode" Content="Видеобудка" Height="50" Width="180" Margin="5,0,10,0" 
-                        Background="#2196F3" Foreground="White" FontSize="18" FontWeight="Bold"
-                        Click="BtnVideoMode_Click" BorderThickness="0">
+                <Button x:Name="btnVideoMode" Height="50" Width="180" Margin="5,0,10,0" 
+                        Background="#2196F3" Foreground="White" FontSize="24" FontWeight="Bold"
+                        Click="BtnVideoMode_Click" BorderThickness="0" ToolTip="Видеобудка">
+                    <Button.Content>
+                        <TextBlock Text="📹" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button.Content>
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
                         </Style>
                     </Button.Resources>
                 </Button>
-                <Button x:Name="btnGallery" Content="Галерея" Height="50" Width="150" Margin="5,0,10,0" 
-                        Background="#9C27B0" Foreground="White" FontSize="18" FontWeight="Bold"
-                        Click="BtnGallery_Click" BorderThickness="0">
+                <Button x:Name="btnGallery" Height="50" Width="150" Margin="5,0,10,0" 
+                        Background="#9C27B0" Foreground="White" FontSize="24" FontWeight="Bold"
+                        Click="BtnGallery_Click" BorderThickness="0" ToolTip="Галерея">
+                    <Button.Content>
+                        <TextBlock Text="🖼️" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button.Content>
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
@@ -51,27 +60,36 @@
                         </Style>
                     </ComboBox.Resources>
                 </ComboBox>
-                <Button x:Name="btnNewEvent" Content="Новое событие" Height="50" Width="150" Margin="5,0,0,0"
-                        Background="#FF9800" Foreground="White" FontSize="16" BorderThickness="0"
-                        Click="BtnNewEvent_Click">
+                <Button x:Name="btnNewEvent" Height="50" Width="150" Margin="5,0,0,0"
+                        Background="#FF9800" Foreground="White" FontSize="24" BorderThickness="0"
+                        Click="BtnNewEvent_Click" ToolTip="Новое событие">
+                    <Button.Content>
+                        <TextBlock Text="➕" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button.Content>
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
                         </Style>
                     </Button.Resources>
                 </Button>
-                <Button x:Name="btnSettings" Content="⚙" Height="50" Width="50" Margin="20,0,0,0"
-                        Background="#607D8B" Foreground="White" FontSize="22" FontWeight="Bold" BorderThickness="0"
+                <Button x:Name="btnSettings" Height="50" Width="150" Margin="20,0,0,0"
+                        Background="#607D8B" Foreground="White" FontSize="24" FontWeight="Bold" BorderThickness="0"
                         Click="BtnSettings_Click" ToolTip="Настройки">
+                    <Button.Content>
+                        <TextBlock Text="⚙️" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button.Content>
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
                         </Style>
                     </Button.Resources>
                 </Button>
-                <Button x:Name="btnFullscreen" Content="⛶" Height="50" Width="50" Margin="5,0,0,0"
-                        Background="#607D8B" Foreground="White" FontSize="22" FontWeight="Bold" BorderThickness="0"
+                <Button x:Name="btnFullscreen" Height="50" Width="150" Margin="5,0,0,0"
+                        Background="#607D8B" Foreground="White" FontSize="24" FontWeight="Bold" BorderThickness="0"
                         Click="BtnFullscreen_Click" ToolTip="Полноэкранный режим (F11)">
+                    <Button.Content>
+                        <TextBlock Text="⛶" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button.Content>
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>

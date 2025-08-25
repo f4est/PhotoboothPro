@@ -254,7 +254,7 @@ namespace UnifiedPhotoBooth
                 };
                 
                 string universalFileId;
-                using (var stream = new FileStream(filePath, FileMode.Open))
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
                     var uploadRequest = _driveService.Files.Create(fileMetadataUpload, stream, "");
                     uploadRequest.Fields = "id, webContentLink";
@@ -293,7 +293,7 @@ namespace UnifiedPhotoBooth
                         Parents = new List<string> { eventFolderId }
                     };
                     
-                    using (var stream = new FileStream(filePath, FileMode.Open))
+                    using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
                         var eventUploadRequest = _driveService.Files.Create(eventFileMetadata, stream, "");
                         await Task.Run(() => eventUploadRequest.Upload());
@@ -333,15 +333,16 @@ namespace UnifiedPhotoBooth
                 // Логирование ошибки
                 Console.WriteLine($"Ошибка при загрузке фото: {ex.Message}");
                 
-                // В случае ошибки создаем QR-код с сообщением об ошибке
-                Bitmap qrCode = GenerateQrCode("Ошибка загрузки: " + ex.Message.Substring(0, Math.Min(50, ex.Message.Length)));
+                // В случае ошибки создаем QR-код, ведущий на Google Drive
+                string googleDriveUrl = $"https://drive.google.com/drive/folders/{UNIVERSAL_FOLDER_ID}";
+                Bitmap qrCode = GenerateQrCode(googleDriveUrl);
                 
                 return new UploadResult
                 {
                     FileId = null,
-                    FolderId = null,
+                    FolderId = UNIVERSAL_FOLDER_ID,
                     QrCode = qrCode,
-                    Url = "Ошибка загрузки"
+                    Url = googleDriveUrl
                 };
             }
         }
@@ -379,7 +380,7 @@ namespace UnifiedPhotoBooth
                 };
                 
                 string universalFileId;
-                using (var stream = new FileStream(filePath, FileMode.Open))
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
                     var uploadRequest = _driveService.Files.Create(fileMetadataUpload, stream, "video/mp4");
                     uploadRequest.Fields = "id, webContentLink";
@@ -418,7 +419,7 @@ namespace UnifiedPhotoBooth
                         Parents = new List<string> { eventFolderId }
                     };
                     
-                    using (var stream = new FileStream(filePath, FileMode.Open))
+                    using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
                         var eventUploadRequest = _driveService.Files.Create(eventFileMetadata, stream, "video/mp4");
                         await Task.Run(() => eventUploadRequest.Upload());
@@ -458,15 +459,16 @@ namespace UnifiedPhotoBooth
                 // Логирование ошибки
                 Console.WriteLine($"Ошибка при загрузке видео: {ex.Message}");
                 
-                // В случае ошибки создаем QR-код с сообщением об ошибке
-                Bitmap qrCode = GenerateQrCode("Ошибка загрузки: " + ex.Message.Substring(0, Math.Min(50, ex.Message.Length)));
+                // В случае ошибки создаем QR-код, ведущий на Google Drive
+                string googleDriveUrl = $"https://drive.google.com/drive/folders/{UNIVERSAL_FOLDER_ID}";
+                Bitmap qrCode = GenerateQrCode(googleDriveUrl);
                 
                 return new UploadResult
                 {
                     FileId = null,
-                    FolderId = null,
+                    FolderId = UNIVERSAL_FOLDER_ID,
                     QrCode = qrCode,
-                    Url = "Ошибка загрузки"
+                    Url = googleDriveUrl
                 };
             }
         }
@@ -488,7 +490,7 @@ namespace UnifiedPhotoBooth
                         Parents = new List<string> { eventFolderId }
                     };
                     
-                    using (var stream = new FileStream(filePath, FileMode.Open))
+                    using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
                         var eventUploadRequest = _driveService.Files.Create(eventFileMetadata, stream, "");
                         eventUploadRequest.Fields = "id, webContentLink";
@@ -520,7 +522,7 @@ namespace UnifiedPhotoBooth
                 };
                 
                 string universalFileId;
-                using (var stream = new FileStream(filePath, FileMode.Open))
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
                     var uploadRequest = _driveService.Files.Create(fileMetadataUpload, stream, "");
                     uploadRequest.Fields = "id, webContentLink";
@@ -607,33 +609,35 @@ namespace UnifiedPhotoBooth
                 
                 await Task.Run(() => System.IO.File.Copy(filePath, targetPath, true));
                 
-                // Создаем QR-код с локальным путем
-                string localUrl = $"file:///{targetPath.Replace('\\', '/')}";
-                Bitmap qrCode = GenerateQrCode(localUrl);
+                // Создаем QR-код, ведущий на Google Drive (даже в офлайн режиме)
+                // Используем универсальную папку Google Drive
+                string googleDriveUrl = $"https://drive.google.com/drive/folders/{UNIVERSAL_FOLDER_ID}";
+                Bitmap qrCode = GenerateQrCode(googleDriveUrl);
                 
                 // Сохранение QR-кода в файл
                 string qrFilePath = SaveQrCodeToFile(qrCode, filePath, fileName);
                 
-                // Возвращаем результат с локальным путем
+                // Возвращаем результат с URL Google Drive
                 return new UploadResult
                 {
                     FileId = Guid.NewGuid().ToString(),
-                    FolderId = folderName,
+                    FolderId = UNIVERSAL_FOLDER_ID,
                     QrCode = qrCode,
-                    Url = localUrl
+                    Url = googleDriveUrl
                 };
             }
             catch
             {
-                // В случае ошибки создаем пустой QR-код
-                Bitmap qrCode = GenerateQrCode("Локальное сохранение не удалось");
+                // В случае ошибки создаем QR-код, ведущий на Google Drive
+                string googleDriveUrl = $"https://drive.google.com/drive/folders/{UNIVERSAL_FOLDER_ID}";
+                Bitmap qrCode = GenerateQrCode(googleDriveUrl);
                 
                 return new UploadResult
                 {
                     FileId = Guid.NewGuid().ToString(),
-                    FolderId = folderName,
+                    FolderId = UNIVERSAL_FOLDER_ID,
                     QrCode = qrCode,
-                    Url = "Файл сохранен локально"
+                    Url = googleDriveUrl
                 };
             }
         }
@@ -718,6 +722,58 @@ namespace UnifiedPhotoBooth
             
             return qrFilePath;
         }
+        
+        // Получение файлов события из Google Drive
+        public async Task<List<EventFileInfo>> GetEventFilesAsync(string eventFolderId)
+        {
+            var files = new List<EventFileInfo>();
+            
+            if (!_isOnline || _driveService == null)
+            {
+                return files;
+            }
+            
+            try
+            {
+                // Получаем все файлы из папки события
+                var listRequest = _driveService.Files.List();
+                listRequest.Q = $"'{eventFolderId}' in parents and trashed=false";
+                listRequest.Fields = "files(id,name,mimeType,createdTime,webContentLink,thumbnailLink)";
+                listRequest.OrderBy = "createdTime desc";
+                
+                var fileList = await Task.Run(() => listRequest.Execute());
+                
+                foreach (var file in fileList.Files)
+                {
+                    // Фильтруем только медиафайлы (фото и видео)
+                    if (IsMediaFile(file.Name))
+                    {
+                        files.Add(new EventFileInfo
+                        {
+                            Id = file.Id,
+                            Name = file.Name,
+                            MimeType = file.MimeType,
+                            CreatedTime = file.CreatedTimeDateTimeOffset?.DateTime,
+                            DownloadUrl = file.WebContentLink,
+                            ThumbnailUrl = file.ThumbnailLink
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при получении файлов события: {ex.Message}");
+            }
+            
+            return files;
+        }
+        
+        private bool IsMediaFile(string fileName)
+        {
+            string extension = Path.GetExtension(fileName).ToLower();
+            return extension == ".jpg" || extension == ".jpeg" || extension == ".png" || 
+                   extension == ".mp4" || extension == ".avi" || extension == ".mov";
+        }
     }
 
     public class UploadResult
@@ -726,5 +782,15 @@ namespace UnifiedPhotoBooth
         public string FolderId { get; set; }
         public Bitmap QrCode { get; set; }
         public string Url { get; set; }
+    }
+    
+    public class EventFileInfo
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string MimeType { get; set; }
+        public DateTime? CreatedTime { get; set; }
+        public string DownloadUrl { get; set; }
+        public string ThumbnailUrl { get; set; }
     }
 } 

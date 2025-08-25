@@ -10,6 +10,8 @@ using System.Windows.Navigation;
 using System.Threading.Tasks;
 using System.Printing;
 using System.Windows.Documents;
+using System.Windows.Media.Effects;
+using QRCoder;
 
 namespace UnifiedPhotoBooth
 {
@@ -17,11 +19,13 @@ namespace UnifiedPhotoBooth
     {
         private const string PhotosDir = "photos";
         private const string RecordingsDir = "recordings";
-        private const int ThumbnailSize = 200;
+        private const int ThumbnailSize = 260;
+        private string _eventFolderId;
         
-        public GalleryPage()
+        public GalleryPage(string eventFolderId = null)
         {
             InitializeComponent();
+            _eventFolderId = eventFolderId;
             Loaded += GalleryPage_Loaded;
         }
         
@@ -30,24 +34,49 @@ namespace UnifiedPhotoBooth
             LoadGalleryItems();
         }
         
-        private void LoadGalleryItems()
+        // Публичный метод для обновления галереи извне
+        public void RefreshGallery()
+        {
+            LoadGalleryItems();
+        }
+        
+        private async void LoadGalleryItems()
         {
             try
             {
                 galleryPanel.Children.Clear();
                 
-                // Загружаем фотографии
-                LoadMediaFiles(PhotosDir, ".jpg", "Фото");
+                // Собираем все медиафайлы в один список
+                var allMediaFiles = new List<MediaFileInfo>();
                 
-                // Загружаем видео
-                LoadMediaFiles(RecordingsDir, ".mp4", "Видео");
+                if (string.IsNullOrEmpty(_eventFolderId))
+                {
+                    // Если событие не выбрано, показываем только локальные файлы
+                    LoadLocalFiles(allMediaFiles);
+                }
+                else
+                {
+                    // Если событие выбрано, загружаем ТОЛЬКО файлы из Google Drive для этого события
+                    await LoadEventFiles(allMediaFiles);
+                }
+                
+                // Сортируем все файлы по дате создания (сначала новые)
+                var sortedFiles = allMediaFiles.OrderByDescending(f => f.CreationTime).ToList();
+                
+                // Создаем элементы галереи для каждого файла
+                foreach (var mediaFile in sortedFiles)
+                {
+                    CreateGalleryItem(mediaFile);
+                }
                 
                 // Если нет элементов, показываем сообщение
                 if (galleryPanel.Children.Count == 0)
                 {
                     TextBlock noItemsText = new TextBlock
                     {
-                        Text = "Нет доступных фотографий или видео",
+                        Text = string.IsNullOrEmpty(_eventFolderId) 
+                            ? "Нет доступных фотографий или видео" 
+                            : "Нет файлов в выбранном событии",
                         FontSize = 18,
                         Foreground = Brushes.Gray,
                         HorizontalAlignment = HorizontalAlignment.Center,
@@ -64,136 +93,293 @@ namespace UnifiedPhotoBooth
             }
         }
         
-        private void LoadMediaFiles(string directory, string extension, string typeLabel)
+        private void LoadLocalFiles(List<MediaFileInfo> allMediaFiles)
         {
-            if (!Directory.Exists(directory))
+            // Добавляем локальные фотографии
+            if (Directory.Exists(PhotosDir))
             {
-                return;
+                var photoFiles = Directory.GetFiles(PhotosDir, "*.jpg")
+                    .Select(f => new FileInfo(f))
+                    .Select(f => new MediaFileInfo
+                    {
+                        FilePath = f.FullName,
+                        FileName = f.Name,
+                        CreationTime = f.CreationTime,
+                        Type = "Фото",
+                        Extension = ".jpg",
+                        Source = "Локальный"
+                    });
+                allMediaFiles.AddRange(photoFiles);
             }
             
-            // Получаем файлы и сортируем их по дате создания (сначала новые)
-            var files = Directory.GetFiles(directory, $"*{extension}")
-                .Select(f => new FileInfo(f))
-                .OrderByDescending(f => f.CreationTime)
-                .ToList();
-            
-            foreach (var file in files)
+            // Добавляем локальные видео
+            if (Directory.Exists(RecordingsDir))
             {
-                // Проверяем, существует ли связанный QR-код
-                string qrFilePath = Path.Combine(
-                    file.DirectoryName, 
-                    Path.GetFileNameWithoutExtension(file.Name) + "_qr.png");
-                
-                bool hasQrCode = File.Exists(qrFilePath);
-                
-                // Создаем элемент галереи
-                Grid itemGrid = new Grid
-                {
-                    Width = ThumbnailSize,
-                    Height = ThumbnailSize + 50, // Дополнительное пространство для метки
-                    Margin = new Thickness(10)
-                };
-                
-                // Контейнер для миниатюры
-                Border thumbnailBorder = new Border
-                {
-                    Width = ThumbnailSize,
-                    Height = ThumbnailSize,
-                    BorderBrush = Brushes.LightGray,
-                    BorderThickness = new Thickness(1),
-                    VerticalAlignment = VerticalAlignment.Top
-                };
-                
-                // Изображение миниатюры
-                Image thumbnailImage = new Image
-                {
-                    Stretch = Stretch.UniformToFill
-                };
-                
-                // Загружаем миниатюру
-                if (extension == ".jpg")
-                {
-                    try
+                var videoFiles = Directory.GetFiles(RecordingsDir, "*.mp4")
+                    .Concat(Directory.GetFiles(RecordingsDir, "*.avi"))
+                    .Select(f => new FileInfo(f))
+                    .Select(f => new MediaFileInfo
                     {
-                        BitmapImage bitmap = new BitmapImage();
-                        bitmap.BeginInit();
-                        bitmap.UriSource = new Uri(file.FullName);
-                        bitmap.DecodePixelWidth = ThumbnailSize;
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmap.EndInit();
-                        thumbnailImage.Source = bitmap;
-                    }
-                    catch
+                        FilePath = f.FullName,
+                        FileName = f.Name,
+                        CreationTime = f.CreationTime,
+                        Type = "Видео",
+                        Extension = Path.GetExtension(f.Name).ToLower(),
+                        Source = "Локальный"
+                    });
+                allMediaFiles.AddRange(videoFiles);
+            }
+        }
+        
+        private async Task LoadEventFiles(List<MediaFileInfo> allMediaFiles)
+        {
+            try
+            {
+                // Создаем экземпляр GoogleDriveService для загрузки файлов события
+                var driveService = new GoogleDriveService();
+                
+                // Загружаем файлы из Google Drive для выбранного события
+                var eventFiles = await driveService.GetEventFilesAsync(_eventFolderId);
+                
+                foreach (var file in eventFiles)
+                {
+                    var mediaFile = new MediaFileInfo
                     {
-                        // В случае ошибки загрузки изображения используем заглушку
-                        thumbnailImage.Source = new BitmapImage(new Uri("pack://application:,,,/Resources/no_image.png", UriKind.Absolute));
-                    }
+                        FilePath = file.DownloadUrl, // URL для скачивания
+                        FileName = file.Name,
+                        CreationTime = file.CreatedTime ?? DateTime.Now,
+                        Type = GetFileType(file.Name),
+                        Extension = Path.GetExtension(file.Name).ToLower(),
+                        Source = "Google Drive",
+                        FileId = file.Id
+                    };
+                    allMediaFiles.Add(mediaFile);
                 }
-                else
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при загрузке файлов события: {ex.Message}");
+                // При ошибке НЕ загружаем локальные файлы, чтобы избежать дублирования
+                // Просто возвращаем пустой список
+            }
+        }
+        
+        private string GetFileType(string fileName)
+        {
+            string extension = Path.GetExtension(fileName).ToLower();
+            switch (extension)
+            {
+                case ".jpg":
+                case ".jpeg":
+                case ".png":
+                case ".bmp":
+                    return "Фото";
+                case ".mp4":
+                case ".avi":
+                case ".mov":
+                    return "Видео";
+                default:
+                    return "Файл";
+            }
+        }
+        
+        private class MediaFileInfo
+        {
+            public string FilePath { get; set; }
+            public string FileName { get; set; }
+            public DateTime CreationTime { get; set; }
+            public string Type { get; set; }
+            public string Extension { get; set; }
+            public string Source { get; set; } = "Локальный"; // "Локальный" или "Google Drive"
+            public string FileId { get; set; } // ID файла в Google Drive
+        }
+        
+        private void CreateGalleryItem(MediaFileInfo mediaFile)
+        {
+            // Проверяем, существует ли связанный QR-код
+            string qrFilePath = "";
+            bool hasQrCode = false;
+            
+            if (mediaFile.Source == "Локальный")
+            {
+                qrFilePath = Path.Combine(
+                    Path.GetDirectoryName(mediaFile.FilePath), 
+                    Path.GetFileNameWithoutExtension(mediaFile.FileName) + "_qr.png");
+                hasQrCode = File.Exists(qrFilePath);
+            }
+            else
+            {
+                // Для файлов из Google Drive QR-код не нужен, так как они уже загружены
+                hasQrCode = false;
+            }
+            
+            // Создаем элемент галереи (карточка)
+            Border card = new Border
+            {
+                Width = ThumbnailSize,
+                Height = ThumbnailSize + 60,
+                Margin = new Thickness(12),
+                Background = new SolidColorBrush(Color.FromRgb(32, 32, 32)),
+                CornerRadius = new CornerRadius(10),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(60, 60, 60)),
+                BorderThickness = new Thickness(1),
+                Effect = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    BlurRadius = 10,
+                    ShadowDepth = 2,
+                    Opacity = 0.3
+                }
+            };
+            
+            Grid cardGrid = new Grid();
+            card.Child = cardGrid;
+            
+            // Верх: миниатюра
+            Border thumbnailBorder = new Border
+            {
+                Width = ThumbnailSize,
+                Height = ThumbnailSize,
+                CornerRadius = new CornerRadius(10, 10, 0, 0),
+                ClipToBounds = true
+            };
+            
+            // Изображение миниатюры
+            Image thumbnailImage = new Image
+            {
+                Stretch = Stretch.UniformToFill
+            };
+            
+            // Загружаем миниатюру
+            if (mediaFile.Type == "Фото")
+            {
+                try
+                {
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    
+                    if (mediaFile.Source == "Google Drive")
+                    {
+                        // Для файлов из Google Drive используем URL
+                        bitmap.UriSource = new Uri(mediaFile.FilePath);
+                    }
+                    else
+                    {
+                        // Для локальных файлов используем путь к файлу
+                        bitmap.UriSource = new Uri(mediaFile.FilePath);
+                    }
+                    
+                    bitmap.DecodePixelWidth = ThumbnailSize;
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.EndInit();
+                    thumbnailImage.Source = bitmap;
+                }
+                catch
+                {
+                    // В случае ошибки загрузки изображения используем заглушку
+                    CreatePlaceholderImage(thumbnailImage, "ФОТО");
+                }
+            }
+            else if (mediaFile.Type == "Видео")
+            {
+                try
                 {
                     // Для видео используем значок видео
                     thumbnailImage.Source = new BitmapImage(new Uri("pack://application:,,,/Resources/video_icon.png", UriKind.Absolute));
                 }
-                
-                thumbnailBorder.Child = thumbnailImage;
-                
-                // Метка с типом и датой
-                TextBlock infoText = new TextBlock
+                catch
                 {
-                    Text = $"{typeLabel} - {file.CreationTime.ToString("dd.MM.yyyy HH:mm")}",
-                    TextWrapping = TextWrapping.Wrap,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Bottom,
-                    Margin = new Thickness(0, ThumbnailSize + 5, 0, 0)
+                    // В случае ошибки загрузки иконки видео используем заглушку
+                    CreatePlaceholderImage(thumbnailImage, "ВИДЕО");
+                }
+            }
+            
+            thumbnailBorder.Child = thumbnailImage;
+            
+            // Низ: подпись
+            Border captionBar = new Border
+            {
+                Background = new SolidColorBrush(Color.FromRgb(24, 24, 24)),
+                Height = 60,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                CornerRadius = new CornerRadius(0, 0, 10, 10)
+            };
+                
+                StackPanel captionPanel = new StackPanel
+                {
+                    Orientation = Orientation.Vertical,
+                    Margin = new Thickness(10, 6, 10, 6)
                 };
                 
-                // Добавляем элементы в сетку
-                itemGrid.Children.Add(thumbnailBorder);
-                itemGrid.Children.Add(infoText);
+                TextBlock titleText = new TextBlock
+                {
+                    Text = $"{mediaFile.Type} ({mediaFile.Source})",
+                    Foreground = Brushes.White,
+                    FontWeight = FontWeights.SemiBold,
+                    FontSize = 14
+                };
+                
+                TextBlock dateText = new TextBlock
+                {
+                    Text = mediaFile.CreationTime.ToString("dd.MM.yyyy HH:mm"),
+                    Foreground = Brushes.Gray,
+                    FontSize = 12
+                };
+                
+                captionPanel.Children.Add(titleText);
+                captionPanel.Children.Add(dateText);
+                captionBar.Child = captionPanel;
+                
+                // Слои в карточке
+                cardGrid.Children.Add(thumbnailBorder);
+                cardGrid.Children.Add(captionBar);
                 
                 // Создаем объект с информацией о медиафайле и QR-коде
                 var mediaInfo = new MediaInfo
                 {
-                    FilePath = file.FullName,
-                    QrCodePath = hasQrCode ? qrFilePath : null
+                    FilePath = mediaFile.FilePath,
+                    QrCodePath = hasQrCode ? qrFilePath : null,
+                    Source = mediaFile.Source
                 };
                 
                 // Обработчик нажатия
-                itemGrid.Tag = mediaInfo;
-                itemGrid.MouseLeftButtonDown += GalleryItem_Click;
-                itemGrid.Cursor = System.Windows.Input.Cursors.Hand;
+                card.Tag = mediaInfo;
+                card.MouseLeftButtonDown += GalleryItem_Click;
+                card.Cursor = System.Windows.Input.Cursors.Hand;
                 
                 // Добавляем элемент в галерею
-                galleryPanel.Children.Add(itemGrid);
-            }
+                galleryPanel.Children.Add(card);
         }
         
         private class MediaInfo
         {
             public string FilePath { get; set; }
             public string QrCodePath { get; set; }
+            public string Source { get; set; }
         }
         
         private void GalleryItem_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (sender is Grid grid && grid.Tag is MediaInfo mediaInfo)
+            if (sender is Border border && border.Tag is MediaInfo mediaInfo)
             {
                 string filePath = mediaInfo.FilePath;
                 string qrCodePath = mediaInfo.QrCodePath;
+                string source = mediaInfo.Source;
                 
                 // Определяем тип файла
-                bool isVideo = filePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase);
+                bool isVideo = filePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) || 
+                              filePath.EndsWith(".avi", StringComparison.OrdinalIgnoreCase);
                 
                 // Открываем страницу с результатом
                 if (isVideo)
                 {
                     // Для видео
-                    NavigationService.Navigate(new VideoResultPage(filePath, qrCodePath));
+                    NavigationService.Navigate(new VideoResultPage(filePath, qrCodePath, _eventFolderId));
                 }
                 else
                 {
                     // Для фото
-                    NavigationService.Navigate(new PhotoResultPage(filePath, qrCodePath));
+                    NavigationService.Navigate(new PhotoResultPage(filePath, qrCodePath, _eventFolderId));
                 }
             }
         }
@@ -203,6 +389,44 @@ namespace UnifiedPhotoBooth
             // Возвращаемся на главную страницу
             NavigationService.GoBack();
         }
+        
+        private void CreatePlaceholderImage(Image image, string text)
+        {
+            try
+            {
+                // Создаем заглушку программно
+                var renderTarget = new RenderTargetBitmap(ThumbnailSize, ThumbnailSize, 96, 96, PixelFormats.Pbgra32);
+                var visual = new DrawingVisual();
+                
+                using (var context = visual.RenderOpen())
+                {
+                    // Фон
+                    context.DrawRectangle(new SolidColorBrush(Color.FromRgb(64, 64, 64)), null, 
+                        new Rect(0, 0, ThumbnailSize, ThumbnailSize));
+                    
+                    // Текст
+                    var textBlock = new FormattedText(text, 
+                        System.Globalization.CultureInfo.CurrentCulture, 
+                        FlowDirection.LeftToRight, 
+                        new Typeface("Arial"), 24, Brushes.White, VisualTreeHelper.GetDpi(visual).PixelsPerDip);
+                    
+                    var textRect = new Rect((ThumbnailSize - textBlock.Width) / 2, 
+                        (ThumbnailSize - textBlock.Height) / 2, 
+                        textBlock.Width, textBlock.Height);
+                    
+                    context.DrawText(textBlock, new Point(textRect.X, textRect.Y));
+                }
+                
+                renderTarget.Render(visual);
+                image.Source = renderTarget;
+            }
+            catch
+            {
+                // Если не удалось создать заглушку программно, используем простой цветной прямоугольник
+                var bitmap = new WriteableBitmap(ThumbnailSize, ThumbnailSize, 96, 96, PixelFormats.Bgr32, null);
+                image.Source = bitmap;
+            }
+        }
     }
     
     // Вспомогательный класс для отображения результата фото
@@ -210,18 +434,27 @@ namespace UnifiedPhotoBooth
     {
         private string _imagePath;
         private string _qrCodePath;
+        private string _eventFolderId;
         
-        public PhotoResultPage(string imagePath, string qrCodePath = null)
+        public PhotoResultPage(string imagePath, string qrCodePath = null, string eventFolderId = null)
         {
             _imagePath = imagePath;
             _qrCodePath = qrCodePath;
+            _eventFolderId = eventFolderId;
             
             Grid grid = new Grid();
             
-            // Изображение
+            // Изображение (загружаем полностью в память, чтобы не держать файл заблокированным)
+            var bmp = new BitmapImage();
+            bmp.BeginInit();
+            bmp.CacheOption = BitmapCacheOption.OnLoad;
+            bmp.UriSource = new Uri(imagePath, UriKind.Absolute);
+            bmp.EndInit();
+            // Убираем вызов Freeze(), который может вызывать ошибки
+            // bmp.Freeze();
             Image image = new Image
             {
-                Source = new BitmapImage(new Uri(imagePath, UriKind.Absolute)),
+                Source = bmp,
                 Stretch = Stretch.Uniform,
                 Margin = new Thickness(20)
             };
@@ -240,12 +473,14 @@ namespace UnifiedPhotoBooth
             // Кнопка "Поделиться"
             Button btnShare = new Button
             {
-                Content = "Поделиться QR",
+                Content = "Поделиться",
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Bottom,
                 Margin = new Thickness(10),
                 Padding = new Thickness(10, 5, 10, 5),
-                Visibility = string.IsNullOrEmpty(_qrCodePath) ? Visibility.Collapsed : Visibility.Visible
+                Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)),
+                Foreground = Brushes.White,
+                FontWeight = FontWeights.Bold
             };
             btnShare.Click += BtnShare_Click;
             
@@ -277,15 +512,69 @@ namespace UnifiedPhotoBooth
         
         private void BtnShare_Click(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(_qrCodePath) && File.Exists(_qrCodePath))
+            try
             {
-                // Показываем страницу с QR-кодом, используя сохраненный файл QR-кода
-                NavigationService.Navigate(new QRCodePage(_qrCodePath, false, true));
+                // Показываем индикатор загрузки
+                ((Button)sender).IsEnabled = false;
+                ((Button)sender).Content = "Загрузка...";
+                
+                if (!string.IsNullOrEmpty(_qrCodePath) && File.Exists(_qrCodePath))
+                {
+                    // Показываем страницу с QR-кодом, используя сохраненный файл QR-кода
+                    NavigationService.Navigate(new QRCodePage(_qrCodePath, false, true));
+                }
+                else
+                {
+                    // Создаем QR-код напрямую, ведущий на Google Drive
+                    var driveService = new GoogleDriveService();
+                    string fileName = Path.GetFileName(_imagePath);
+                    
+                    // Создаем QR-код, ведущий на универсальную папку Google Drive
+                    string googleDriveUrl = "https://drive.google.com/drive/folders/1FR92J38OPdLZoCaKKZ6lW7EucdGtG624";
+                    
+                    // Генерируем QR-код
+                    var qrGenerator = new QRCoder.QRCodeGenerator();
+                    var qrCodeData = qrGenerator.CreateQrCode(googleDriveUrl, QRCoder.QRCodeGenerator.ECCLevel.H);
+                    var qrCode = new QRCoder.QRCode(qrCodeData);
+                    
+                    // Получаем настройки QR-кода
+                    var appSettings = SettingsWindow.AppSettings;
+                    System.Drawing.Color qrForeColor = System.Drawing.ColorTranslator.FromHtml(appSettings.QrForegroundColor);
+                    System.Drawing.Color qrBackColor = System.Drawing.ColorTranslator.FromHtml(appSettings.QrBackgroundColor);
+                    
+                    // Создаем QR-код с настраиваемыми цветами
+                    var qrBitmap = qrCode.GetGraphic(20, qrForeColor, qrBackColor, false);
+                    
+                    // Изменяем размер QR-кода
+                    int size = appSettings.QrCodeSize;
+                    var resizedQrBitmap = new System.Drawing.Bitmap(size, size);
+                    using (var g = System.Drawing.Graphics.FromImage(resizedQrBitmap))
+                    {
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g.DrawImage(qrBitmap, new System.Drawing.Rectangle(0, 0, size, size));
+                    }
+                    
+                    // Сохраняем QR-код локально
+                    string qrFilePath = Path.Combine(
+                        Path.GetDirectoryName(_imagePath),
+                        Path.GetFileNameWithoutExtension(fileName) + "_qr.png");
+                    
+                    resizedQrBitmap.Save(qrFilePath, System.Drawing.Imaging.ImageFormat.Png);
+                    
+                    // Показываем QR-код
+                    NavigationService.Navigate(new QRCodePage(qrFilePath, false, true));
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("QR-код не найден для этого файла.", "Информация", 
-                               MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Ошибка при создании QR-кода: {ex.Message}", "Ошибка", 
+                               MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                // Восстанавливаем кнопку
+                ((Button)sender).IsEnabled = true;
+                ((Button)sender).Content = "Поделиться";
             }
         }
         
@@ -483,12 +772,14 @@ namespace UnifiedPhotoBooth
     {
         private string _videoPath;
         private string _qrCodePath;
+        private string _eventFolderId;
         private MediaElement _mediaElement;
         
-        public VideoResultPage(string videoPath, string qrCodePath = null)
+        public VideoResultPage(string videoPath, string qrCodePath = null, string eventFolderId = null)
         {
             _videoPath = videoPath;
             _qrCodePath = qrCodePath;
+            _eventFolderId = eventFolderId;
             
             Grid grid = new Grid();
             
@@ -568,17 +859,75 @@ namespace UnifiedPhotoBooth
             NavigationService.GoBack();
         }
         
-        private void BtnShare_Click(object sender, RoutedEventArgs e)
+        private async void BtnShare_Click(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(_qrCodePath) && File.Exists(_qrCodePath))
+            try
             {
-                // Показываем страницу с QR-кодом, используя сохраненный файл QR-кода
-                NavigationService.Navigate(new QRCodePage(_qrCodePath, true, true));
+                // Показываем индикатор загрузки
+                ((Button)sender).IsEnabled = false;
+                ((Button)sender).Content = "Загрузка...";
+                
+                if (!string.IsNullOrEmpty(_qrCodePath) && File.Exists(_qrCodePath))
+                {
+                    // Показываем страницу с QR-кодом, используя сохраненный файл QR-кода
+                    NavigationService.Navigate(new QRCodePage(_qrCodePath, true, true));
+                }
+                else
+                {
+                    // Создаем новый QR-код и загружаем файл
+                    var driveService = new GoogleDriveService();
+                    string fileName = Path.GetFileName(_videoPath);
+                    string folderName = $"VideoBooth_{DateTime.Now:yyyyMMdd_HHmmss}";
+
+                    // Останавливаем воспроизведение, чтобы снять возможные блокировки файла
+                    try { _mediaElement?.Stop(); } catch { }
+
+                    // Копируем видео во временный файл, чтобы избежать блокировок
+                    string tempCopy = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid() + System.IO.Path.GetExtension(_videoPath));
+                    try
+                    {
+                        using (var fs = new FileStream(_videoPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var outFs = new FileStream(tempCopy, FileMode.Create, FileAccess.Write, FileShare.Read))
+                        {
+                            await fs.CopyToAsync(outFs);
+                        }
+
+                        var result = await driveService.UploadVideoAsync(tempCopy, folderName, _eventFolderId);
+                        
+                        if (result != null && result.QrCode != null)
+                        {
+                            // Сохраняем QR-код локально
+                            string qrFilePath = Path.Combine(
+                                Path.GetDirectoryName(_videoPath),
+                                Path.GetFileNameWithoutExtension(fileName) + "_qr.png");
+                            
+                            result.QrCode.Save(qrFilePath, System.Drawing.Imaging.ImageFormat.Png);
+                            
+                            // Показываем QR-код
+                            NavigationService.Navigate(new QRCodePage(qrFilePath, true, true));
+                        }
+                        else
+                        {
+                            MessageBox.Show("Не удалось создать QR-код для этого файла.", "Ошибка", 
+                                           MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    finally
+                    {
+                        try { System.IO.File.Delete(tempCopy); } catch { }
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("QR-код не найден для этого файла.", "Информация", 
-                               MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Ошибка при создании QR-кода: {ex.Message}", "Ошибка", 
+                               MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                // Восстанавливаем кнопку
+                ((Button)sender).IsEnabled = true;
+                ((Button)sender).Content = "Поделиться QR";
             }
         }
         

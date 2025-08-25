@@ -88,7 +88,7 @@ namespace UnifiedPhotoBooth
     public partial class SettingsWindow : Window
     {
         // Статические настройки приложения
-        public static AppSettings AppSettings { get; private set; } = new AppSettings();
+        public static AppSettings AppSettings { get; set; } = new AppSettings();
         
         // Флаг для обозначения того, было ли окно настроек инициализировано
         private static bool _isInitialized = false;
@@ -825,10 +825,14 @@ namespace UnifiedPhotoBooth
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Строка для кнопок
             
             // Создаем канву для отображения шаблона и областей
+            // Масштабируем канву до фиксированного размера 1200x1800 для соответствия финальному коллажу
+            double canvasWidth = 1200;
+            double canvasHeight = 1800;
+            
             Canvas canvas = new Canvas
             {
-                Width = _frameTemplateImage.PixelWidth,
-                Height = _frameTemplateImage.PixelHeight,
+                Width = canvasWidth,
+                Height = canvasHeight,
                 Background = new ImageBrush(_frameTemplateImage)
             };
             
@@ -1960,8 +1964,10 @@ namespace UnifiedPhotoBooth
             int positionIndex = 1;
             if (AppSettings.PhotoPositions != null && AppSettings.PhotoPositions.Count > 0)
             {
+                System.Diagnostics.Debug.WriteLine($"Загружаем {AppSettings.PhotoPositions.Count} существующих позиций:");
                 foreach (var position in AppSettings.PhotoPositions)
                 {
+                    System.Diagnostics.Debug.WriteLine($"Загружаем позицию {positionIndex}: X={position.X}, Y={position.Y}, Width={position.Width}, Height={position.Height}");
                     AddPositionRect(position.X, position.Y, position.Width, position.Height, positionIndex);
                     positionSelector.Items.Add($"Область {positionIndex}");
                     positionIndex++;
@@ -2036,6 +2042,8 @@ namespace UnifiedPhotoBooth
                     double y = Canvas.GetTop(posRect.Rectangle);
                     double width = posRect.Rectangle.Width;
                     double height = posRect.Rectangle.Height;
+                    
+                    System.Diagnostics.Debug.WriteLine($"Сохранение позиции: X={x}, Y={y}, Width={width}, Height={height}");
                     
                     AppSettings.PhotoPositions.Add(new PhotoPosition
                     {
@@ -3246,6 +3254,7 @@ namespace UnifiedPhotoBooth
         public int RecordingDuration { get; set; } = 15;
         public int VideoCountdownTime { get; set; } = 3;
         public int MicrophoneIndex { get; set; } = 0;
+        public bool UseMicrophone { get; set; } = true;
         public string OverlayImagePath { get; set; }
         public double VideoFps { get; set; } = 30.0; // Частота кадров для записи видео
         public string VideoCodec { get; set; } = "Auto"; // Кодек для записи видео

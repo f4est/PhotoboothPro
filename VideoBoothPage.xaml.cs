@@ -27,7 +27,8 @@ namespace UnifiedPhotoBooth
         
         private VideoCapture _capture;
         private DispatcherTimer _previewTimer;
-        private bool _previewRunning;
+        private System.Threading.CancellationTokenSource _captureCts;
+        private System.Threading.Tasks.Task _captureTask;
         
         private VideoWriter _videoWriter;
         private bool _isRecording;
@@ -43,11 +44,16 @@ namespace UnifiedPhotoBooth
         private string _audioFilePath;
         
         private bool _isPlaying;
+        private WaveInEvent _audioCapture;
+        private WaveFileWriter _audioWriter;
         
         private Action _onCountdownComplete;
         
         // Добавляем поле для хранения пути к временному видеофайлу
         private string _tempVideoPath;
+        
+        // Добавляем поле для отслеживания режима отображения (превью или видео)
+        private bool _showingPreview = true;
         
         // Добавляем поля для контроля времени записи
         private int _framesRecorded;
@@ -57,6 +63,12 @@ namespace UnifiedPhotoBooth
         // Добавляем поля для записи кадров
         private Mat _currentFrame;
         private DispatcherTimer _recordingFrameTimer;
+        
+        // Поля для точной записи видео
+        private System.Threading.Timer _recordingFrameTimer; // Высокоточный таймер для записи
+        private DateTime _recordingStartTime;
+        private Mat _lastFrame; // Буфер для последнего кадра
+        private readonly object _frameLock = new object(); // Блокировка для потокобезопасности
         
         public VideoBoothPage(GoogleDriveService driveService, string eventFolderId = null)
         {
@@ -71,12 +83,9 @@ namespace UnifiedPhotoBooth
                 txtEventName.Text = _eventName;
             }
             
-            // Инициализация таймеров
-            _previewTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(33) // Будет обновлено в StartPreview
-            };
-            _previewTimer.Tick += PreviewTimer_Tick;
+            // Инициализация таймера предпросмотра (больше не управляет захватом кадров)
+            _previewTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) };
+            _previewTimer.Tick += (s, e) => { /* зарезервировано */ };
             
             
             
@@ -144,7 +153,6 @@ namespace UnifiedPhotoBooth
         {
             try
             {
-                // Инициализация камеры
                 _capture = new VideoCapture(SettingsWindow.AppSettings.CameraIndex);
                 if (!_capture.IsOpened())
                 {
@@ -224,31 +232,37 @@ namespace UnifiedPhotoBooth
         
         private void StopPreview()
         {
-            _previewRunning = false;
-            _previewTimer.Stop();
-            
+            _captureCts?.Cancel();
+            try { _captureTask?.Wait(500); } catch {}
+            _captureTask = null;
+
             _capture?.Dispose();
             _capture = null;
         }
         
 
         
-        private void PreviewTimer_Tick(object sender, EventArgs e)
+        private void RecordingFrameTimer_Tick(object state)
         {
-            if (!_previewRunning || _capture == null || !_capture.IsOpened())
+            if (!_isRecording || _videoWriter == null || !_videoWriter.IsOpened())
                 return;
             
             try
             {
-                using (var frame = new Mat())
+                lock (_frameLock)
                 {
-                    if (_capture.Read(frame))
+                    if (_lastFrame != null && !_lastFrame.Empty())
                     {
-                        // Применяем поворот, если необходимо
-                        ApplyRotation(frame);
+                        // Записываем кадр в видео
+                        Mat frameForRecording = new Mat();
+                        Cv2.Resize(_lastFrame, frameForRecording, _videoWriter.FrameSize);
+                        _videoWriter.Write(frameForRecording);
+                        frameForRecording.Dispose();
                         
-                        // Применяем зеркальное отображение, если включено
-                        if (SettingsWindow.AppSettings.MirrorMode)
+                        _framesRecorded++;
+                        
+                        // Логируем прогресс каждые 30 кадров
+                        if (_framesRecorded % 30 == 0)
                         {
                             Cv2.Flip(frame, frame, FlipMode.Y);
                         }
@@ -289,8 +303,72 @@ namespace UnifiedPhotoBooth
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка в PreviewTimer_Tick: {ex.Message}");
-                // Продолжаем работу даже при ошибке
+                System.Diagnostics.Debug.WriteLine($"Ошибка при записи кадра в видео: {ex.Message}");
+            }
+        }
+        
+        private void CaptureLoop(System.Threading.CancellationToken token)
+        {
+            // Определяем целевой FPS для предпросмотра и записи
+            double cameraFps = SettingsWindow.AppSettings.VideoFps;
+            if (cameraFps <= 0)
+            {
+                cameraFps = _capture.Get(OpenCvSharp.VideoCaptureProperties.Fps);
+                if (cameraFps <= 0) cameraFps = 30.0;
+            }
+
+            var frameInterval = TimeSpan.FromMilliseconds(System.Math.Max(1, 1000.0 / cameraFps));
+
+            while (!token.IsCancellationRequested && _capture != null && _capture.IsOpened())
+            {
+                try
+                {
+                    using (var frame = new Mat())
+                    {
+                        if (!_capture.Read(frame) || frame.Empty())
+                        {
+                            System.Threading.Thread.Sleep(1);
+                            continue;
+                        }
+
+                        ApplyRotation(frame);
+                        if (SettingsWindow.AppSettings.MirrorMode)
+                        {
+                            Cv2.Flip(frame, frame, FlipMode.Y);
+                        }
+
+                        Mat processed = AdjustAspectRatio(frame, 1200.0 / 1800.0);
+                        ApplyOverlay(processed);
+
+                        // Пишем кадр сразу при захвате — без потери кадров
+                        if (_isRecording && _videoWriter != null && _videoWriter.IsOpened())
+                        {
+                            var recMat = new Mat();
+                            Cv2.Resize(processed, recMat, _videoWriter.FrameSize);
+                            _videoWriter.Write(recMat);
+                            recMat.Dispose();
+                            _framesRecorded++;
+                        }
+
+                        // Обновляем предпросмотр всегда (не ограничиваем частотой)
+                        var bmp = BitmapSourceConverter.ToBitmapSource(processed);
+                        // Важно: замораживаем BitmapSource, чтобы безопасно передать его в UI-поток
+                        if (bmp.CanFreeze)
+                        {
+                            bmp.Freeze();
+                        }
+                        Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            imgPreview.Source = bmp;
+                        }));
+
+                        if (processed != frame) processed.Dispose();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Ошибка в CaptureLoop: {ex.Message}");
+                }
             }
         }
         
@@ -457,8 +535,8 @@ namespace UnifiedPhotoBooth
                 string recordingsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "recordings");
                 Directory.CreateDirectory(recordingsDir);
                 
-                // Генерируем имя файла на основе текущей даты и времени
-                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                // Генерируем имя файла на основе текущей даты и времени с миллисекундами для уникальности
+                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
                 string videoFileName = $"video_{timestamp}.mp4";
                 string videoPath = Path.Combine(recordingsDir, videoFileName);
                 
@@ -591,6 +669,13 @@ namespace UnifiedPhotoBooth
                     _recordingTime = TimeSpan.Zero;
                     txtRecordingTime.Text = "00:00";
                     
+                    // Запускаем высокоточный таймер для записи кадров
+                    int frameIntervalMs = (int)(1000.0 / fps);
+                    _recordingFrameTimer = new System.Threading.Timer(RecordingFrameTimer_Tick, null, 0, frameIntervalMs);
+                    
+                    // Запускаем запись аудио
+                    StartAudioRecording();
+                    
                     // Запускаем таймер для обновления времени записи
                     _recordingTimer.Start();
                     
@@ -712,6 +797,11 @@ namespace UnifiedPhotoBooth
                     _videoWriter = null;
                 }
                 
+                // Логируем статистику записи
+                var recordingDuration = DateTime.Now - _recordingStartTime;
+                var actualFps = _framesRecorded / recordingDuration.TotalSeconds;
+                System.Diagnostics.Debug.WriteLine($"Запись завершена: {_framesRecorded} кадров за {recordingDuration.TotalSeconds:F2} сек, FPS: {actualFps:F2} (целевой: {_targetFps})");
+                
                 // Проверяем, существует ли видеофайл и имеет ли он размер
                 bool videoExists = File.Exists(_recordingFilePath) && new FileInfo(_recordingFilePath).Length > 0;
                 
@@ -724,15 +814,39 @@ namespace UnifiedPhotoBooth
                 }
                 
                 // Показываем статус
-                ShowStatus("Подготовка видео", "Пожалуйста, подождите...");
+                ShowStatus("Подготовка видео", "Объединение видео и аудио...");
                 
-                // Запускаем обработку видео в отдельном потоке
+                // Запускаем обработку видео (слияние с аудио и приведение к MP4) в отдельном потоке
                 Task.Run(() =>
                 {
                     try
                     {
+                        bool audioExists = !string.IsNullOrEmpty(_audioFilePath) && File.Exists(_audioFilePath) && new FileInfo(_audioFilePath).Length > 0;
+                        string sourceVideoPath = _recordingFilePath;
+                        string ext = Path.GetExtension(sourceVideoPath)?.ToLowerInvariant();
+
+                        if (audioExists)
+                        {
+                            string dir = Path.GetDirectoryName(sourceVideoPath);
+                            string nameNoExt = Path.GetFileNameWithoutExtension(sourceVideoPath);
+                            string mergedPath = Path.Combine(dir ?? string.Empty, $"{nameNoExt}_with_audio.mp4");
+
+                            // Сливаем видео и аудио с использованием FFmpeg
+                            MergeVideoAndAudio(sourceVideoPath, _audioFilePath, mergedPath);
+
+                            if (File.Exists(mergedPath) && new FileInfo(mergedPath).Length > 0)
+                            {
+                                try { File.Delete(sourceVideoPath); } catch { }
+                                try { if (!string.IsNullOrEmpty(_audioFilePath)) File.Delete(_audioFilePath); } catch { }
+                                _recordingFilePath = mergedPath; // Используем файл со звуком далее (воспроизведение/поделиться)
+                            }
+                        }
+
+                        // Сохраняем видео локально и загружаем на Google Drive
                         Dispatcher.Invoke(() =>
                         {
+                            SaveVideoLocally();
+                            UploadVideoToGoogleDriveAsync();
                             FinalizeVideoProcessing();
                         });
                     }
@@ -926,6 +1040,66 @@ namespace UnifiedPhotoBooth
             });
         }
         
+        private void SaveVideoLocally()
+        {
+            try
+            {
+                // Создаем папку для сохранения, если её нет
+                string videosDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "VideoBooth");
+                if (!Directory.Exists(videosDir))
+                {
+                    Directory.CreateDirectory(videosDir);
+                }
+                
+                // Генерируем уникальное имя файла
+                string fileName = $"VideoBooth_{DateTime.Now:yyyyMMdd_HHmmss}.mp4";
+                string localVideoPath = Path.Combine(videosDir, fileName);
+                
+                // Копируем видео в локальную папку
+                if (File.Exists(_recordingFilePath))
+                {
+                    File.Copy(_recordingFilePath, localVideoPath, true);
+                    System.Diagnostics.Debug.WriteLine($"Видео сохранено локально: {localVideoPath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при сохранении видео локально: {ex.Message}");
+            }
+        }
+        
+        private async void UploadVideoToGoogleDriveAsync()
+        {
+            // Запускаем загрузку в отдельном потоке, чтобы не блокировать UI
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    if (_driveService != null && _driveService.IsOnline && File.Exists(_recordingFilePath))
+                    {
+                        // Загружаем на Google Drive
+                        string folderName = $"VideoBooth_{DateTime.Now:yyyyMMdd_HHmmss}";
+                        var result = await _driveService.UploadVideoAsync(_recordingFilePath, folderName, _eventFolderId);
+                        
+                        // Сохраняем QR-код локально рядом с видео
+                        if (result.QrCode != null)
+                        {
+                            string videosDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "VideoBooth");
+                            string qrPath = Path.Combine(videosDir, $"VideoBooth_{DateTime.Now:yyyyMMdd_HHmmss}_qr.png");
+                            result.QrCode.Save(qrPath, System.Drawing.Imaging.ImageFormat.Png);
+                        }
+                        
+                        System.Diagnostics.Debug.WriteLine("Видео успешно загружено на Google Drive");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Ошибка при загрузке видео на Google Drive: {ex.Message}");
+                    // Не показываем ошибку пользователю, так как это фоновый процесс
+                }
+            });
+        }
+        
         // Метод для финализации обработки видео и обновления UI
         private void FinalizeVideoProcessing()
         {
@@ -944,9 +1118,12 @@ namespace UnifiedPhotoBooth
                 UpdateShareButtonVisibility();
                 
                 btnPlayPause.Visibility = System.Windows.Visibility.Visible;
+                btnTogglePreview.Visibility = System.Windows.Visibility.Visible;
                 
-                // Показываем превью
-                imgPreview.Visibility = System.Windows.Visibility.Collapsed;
+                // Показываем превью по умолчанию, но готовы к переключению на видео
+                _showingPreview = true;
+                imgPreview.Visibility = System.Windows.Visibility.Visible;
+                mediaPlayer.Visibility = System.Windows.Visibility.Collapsed;
                 
                 try
                 {
@@ -1173,72 +1350,60 @@ namespace UnifiedPhotoBooth
                     ShowStatus("Обработка видео", "Объединение видео и аудио. Это может занять несколько минут...");
                 });
                 
-                // Сначала попробуем просто скопировать видео без звука, чтобы обеспечить наличие файла
-                string tempOutputPath = Path.Combine(
-                    Path.GetDirectoryName(outputPath),
-                    $"temp_{Path.GetFileName(outputPath)}");
+                // Выбираем стратегию: если исходник MP4 — пробуем копировать видео-поток; иначе перекодируем видео
+                bool isMp4Source = string.Equals(Path.GetExtension(videoPath), ".mp4", StringComparison.OrdinalIgnoreCase);
+                string argumentsPrimary = isMp4Source
+                    ? $"-y -i \"{videoPath}\" -i \"{audioPath}\" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -shortest \"{outputPath}\""
+                    : $"-y -i \"{videoPath}\" -i \"{audioPath}\" -map 0:v:0 -map 1:a:0 -c:v libx264 -preset veryfast -pix_fmt yuv420p -c:a aac -b:a 192k -shortest \"{outputPath}\"";
                 
-                // Копируем видео
-                File.Copy(videoPath, tempOutputPath, true);
-                
-                // Проверяем, что копия создана
-                if (!File.Exists(tempOutputPath))
-                {
-                    throw new Exception("Не удалось создать копию видеофайла.");
-                }
-                
-                // Используем более простую команду FFmpeg
-                string arguments = $"-i \"{videoPath}\" -i \"{audioPath}\" -c:v copy -c:a aac -strict experimental -shortest \"{outputPath}\"";
-                
-                // Создаем команду для FFmpeg
-                ProcessStartInfo startInfo = new ProcessStartInfo
+                var startInfo = new ProcessStartInfo
                 {
                     FileName = ffmpegPath,
-                    Arguments = arguments,
+                    Arguments = argumentsPrimary,
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     RedirectStandardError = true
                 };
                 
-                // Запускаем процесс с таймаутом
                 using (Process process = Process.Start(startInfo))
                 {
-                    // Читаем вывод ошибок асинхронно
-                    var errorBuilder = new System.Text.StringBuilder();
-                    process.ErrorDataReceived += (sender, e) => {
-                        if (!string.IsNullOrEmpty(e.Data))
-                        {
-                            errorBuilder.AppendLine(e.Data);
-                        }
-                    };
-                    process.BeginErrorReadLine();
-                    
-                    // Ждем завершения процесса с таймаутом в 2 минуты
-                    if (!process.WaitForExit(120000))
+                    string err = process.StandardError.ReadToEnd();
+                    System.Diagnostics.Debug.WriteLine($"FFmpeg mux log: {err}");
+                    if (!process.WaitForExit(180000))
                     {
                         try { process.Kill(); } catch { }
-                        
-                        // Если процесс не завершился, используем копию видео без звука
-                        File.Copy(tempOutputPath, outputPath, true);
+                        throw new TimeoutException("FFmpeg превысил время ожидания при объединении аудио и видео");
                     }
-                    else if (process.ExitCode != 0)
+                    if (process.ExitCode != 0 || !File.Exists(outputPath) || new FileInfo(outputPath).Length == 0)
                     {
-                        // Если процесс завершился с ошибкой, используем копию видео без звука
-                        File.Copy(tempOutputPath, outputPath, true);
+                        // Пытаемся форсировать перекодирование как резервный вариант
+                        var fallbackInfo = new ProcessStartInfo
+                        {
+                            FileName = ffmpegPath,
+                            Arguments = $"-y -i \"{videoPath}\" -i \"{audioPath}\" -map 0:v:0 -map 1:a:0 -c:v libx264 -preset veryfast -pix_fmt yuv420p -c:a aac -b:a 192k -shortest \"{outputPath}\"",
+                            CreateNoWindow = true,
+                            UseShellExecute = false,
+                            RedirectStandardError = true
+                        };
+                        using (var p2 = Process.Start(fallbackInfo))
+                        {
+                            string err2 = p2.StandardError.ReadToEnd();
+                            System.Diagnostics.Debug.WriteLine($"FFmpeg fallback mux log: {err2}");
+                            if (!p2.WaitForExit(180000) || p2.ExitCode != 0)
+                            {
+                                throw new Exception("Не удалось объединить видео и аудио с помощью FFmpeg");
+                            }
+                        }
                     }
                 }
                 
-                // Удаляем временный файл
-                try { File.Delete(tempOutputPath); } catch { }
-                
-                // Проверяем, создался ли файл
                 if (!File.Exists(outputPath))
                 {
-                    throw new FileNotFoundException("Выходной файл не был создан");
+                    throw new FileNotFoundException("Выходной файл не был создан FFmpeg");
                 }
                 
                 Dispatcher.Invoke(() => {
-                    ShowStatus("Завершение", "Видео успешно обработано!");
+                    ShowStatus("Завершение", "Видео со звуком готово!");
                 });
             }
             catch (Exception ex)
@@ -1359,6 +1524,7 @@ namespace UnifiedPhotoBooth
                 btnReset.Visibility = Visibility.Collapsed;
                 btnShare.Visibility = Visibility.Collapsed;
                 btnPlayPause.Visibility = Visibility.Collapsed;
+                btnTogglePreview.Visibility = Visibility.Collapsed;
                 
                 // Удаляем временные файлы
                 try
@@ -1397,6 +1563,7 @@ namespace UnifiedPhotoBooth
                 btnReset.IsEnabled = false;
                 btnShare.IsEnabled = false;
                 btnPlayPause.IsEnabled = false;
+                btnTogglePreview.IsEnabled = false;
                 
                 // Загружаем видео в Google Drive
                 string folderName = $"VideoBooth_{System.DateTime.Now:yyyyMMdd_HHmmss}";
@@ -1429,6 +1596,7 @@ namespace UnifiedPhotoBooth
             catch (System.Exception ex)
             {
                 ShowError($"Ошибка при загрузке видео: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка в BtnShare_Click: {ex.Message}");
             }
             finally
             {
@@ -1436,6 +1604,45 @@ namespace UnifiedPhotoBooth
                 btnReset.IsEnabled = true;
                 btnShare.IsEnabled = true;
                 btnPlayPause.IsEnabled = true;
+                btnTogglePreview.IsEnabled = true;
+            }
+        }
+        
+        private void BtnTogglePreview_Click(object sender, RoutedEventArgs e)
+        {
+            if (_showingPreview)
+            {
+                // Переключаемся на видео
+                _showingPreview = false;
+                imgPreview.Visibility = Visibility.Collapsed;
+                mediaPlayer.Visibility = Visibility.Visible;
+                btnTogglePreview.Content = "📷";
+                btnTogglePreview.ToolTip = "Показать превью камеры";
+                
+                // Воспроизводим видео, если оно не воспроизводится
+                if (mediaPlayer.Source != null && !_isPlaying)
+                {
+                    mediaPlayer.Play();
+                    _isPlaying = true;
+                    btnPlayPause.Content = "⏸";
+                }
+            }
+            else
+            {
+                // Переключаемся на превью
+                _showingPreview = true;
+                imgPreview.Visibility = Visibility.Visible;
+                mediaPlayer.Visibility = Visibility.Collapsed;
+                btnTogglePreview.Content = "📹";
+                btnTogglePreview.ToolTip = "Показать записанное видео";
+                
+                // Останавливаем воспроизведение видео
+                if (_isPlaying)
+                {
+                    mediaPlayer.Pause();
+                    _isPlaying = false;
+                    btnPlayPause.Content = "▶";
+                }
             }
         }
         
@@ -1692,6 +1899,71 @@ namespace UnifiedPhotoBooth
                     }
                 }
                 UpdateFpsInfo(usedFps);
+            }
+        }
+        
+        private void StartAudioRecording()
+        {
+            try
+            {
+                if (SettingsWindow.AppSettings.UseMicrophone)
+                {
+                    _audioCapture = new WaveInEvent
+                    {
+                        DeviceNumber = SettingsWindow.AppSettings.MicrophoneIndex,
+                        WaveFormat = new WaveFormat(44100, 16, 1),
+                        BufferMilliseconds = 50
+                    };
+                    
+                    _audioCapture.DataAvailable += AudioCapture_DataAvailable;
+                    _audioWriter = new WaveFileWriter(_audioFilePath, _audioCapture.WaveFormat);
+                    _audioCapture.StartRecording();
+                    
+                    System.Diagnostics.Debug.WriteLine("Запись аудио начата");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при запуске записи аудио: {ex.Message}");
+            }
+        }
+        
+        private void StopAudioRecording()
+        {
+            try
+            {
+                if (_audioCapture != null)
+                {
+                    _audioCapture.StopRecording();
+                    _audioCapture.DataAvailable -= AudioCapture_DataAvailable;
+                    _audioCapture.Dispose();
+                    _audioCapture = null;
+                }
+                
+                if (_audioWriter != null)
+                {
+                    _audioWriter.Dispose();
+                    _audioWriter = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при остановке записи аудио: {ex.Message}");
+            }
+        }
+        
+        private void AudioCapture_DataAvailable(object sender, WaveInEventArgs e)
+        {
+            try
+            {
+                if (_audioWriter != null && e.BytesRecorded > 0)
+                {
+                    _audioWriter.Write(e.Buffer, 0, e.BytesRecorded);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при записи аудио данных: {ex.Message}");
             }
         }
     }
