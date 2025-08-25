@@ -1,0 +1,605 @@
+<Page
+	x:Class="KingAIPhotoBoothPro.Pages.ActivationKing.Prefab.SamplePromptPickerPrefab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages.ActivationKing.Prefab" xmlns:math="http://hexinnovation.com/math" xmlns:mrgn="clr-namespace:KingAIPhotoBoothPro.Class"
+	Title="SamplePromptPickerPrefab"
+	Loaded="Page_Loaded">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary
+					Source="/KingAIPhotoBoothPro;component/Pages/Theme/Dictionary.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+			<math:MathConverter
+				x:Key="math" />
+			<mrgn:MarginLeftConverter
+				x:Key="marginLeftConverter" />
+			<mrgn:SpecificMarginConverter
+				x:Key="specificMarginConverter" />
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid
+		Name="GridMain">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition
+				Width="753*" />
+			<ColumnDefinition
+				Width="64*" />
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition
+				Height="64*" />
+			<RowDefinition
+				Height="1105*" />
+		</Grid.RowDefinitions>
+		<Grid
+			Name="InsideGrid"
+			Column="0"
+			Row="1">
+			<UIElement.Effect>
+				<DropShadowEffect
+					Color="Black"
+					Opacity="0.12"
+					BlurRadius="60"
+					ShadowDepth="24"
+					Direction="320" />
+			</UIElement.Effect>
+			<Grid.RowDefinitions>
+				<RowDefinition
+					Height="15*" />
+				<RowDefinition
+					Height="{Binding ElementName=InsideGrid, Path=ActualWidth}" />
+				<RowDefinition
+					Height="70*" />
+				<RowDefinition
+					Height="100*" />
+				<RowDefinition
+					Height="84*" />
+				<RowDefinition
+					Height="278*" />
+				<RowDefinition
+					Height="175*" />
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition
+					Width="22*" />
+				<ColumnDefinition
+					Width="709*" />
+				<ColumnDefinition
+					Width="22*" />
+			</Grid.ColumnDefinitions>
+			<Grid
+				RowSpan="10"
+				ColumnSpan="10">
+				<Border
+					Background="#FAFBFB"
+					CornerRadius="8" />
+			</Grid>
+			<Grid
+				Name="imageGrid"
+				Row="1"
+				Column="1">
+				<Border
+					Background="#D9D9D9">
+					<Grid>
+						<TextBlock
+							Name="BackgroundText"
+							Text="Add Your New Background Image"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							FontFamily="{StaticResource MontserratBold}"
+							FontSize="{DynamicResource FontSizeHeading3}"
+							Foreground="#82868C" />
+					</Grid>
+				</Border>
+				<Image
+					Name="prefabImage"
+					Stretch="UniformToFill"
+					VerticalAlignment="Center"
+					HorizontalAlignment="Center" />
+				<Button
+					Name="AddButton"
+					Background="#00FFFFFF"
+					BorderBrush="#00FFFFFF"
+					Margin="10"
+					HorizontalAlignment="Right"
+					VerticalAlignment="Bottom"
+					Width="{Binding ElementName=imageGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*240/709+1}"
+					Height="{Binding ElementName=AddButton, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*92/240+1}"
+					Click="AddBackground_Click">
+					<FrameworkElement.Style>
+						<Style
+							TargetType="{x:Type Button}">
+							<Setter
+								Property="Template">
+								<Setter.Value>
+									<ControlTemplate
+										TargetType="{x:Type Button}">
+										<Border
+											Name="AddButtonBorder"
+											CornerRadius="12"
+											Background="#3B82F6">
+											<ContentPresenter
+												HorizontalAlignment="Center"
+												VerticalAlignment="Center" />
+										</Border>
+									</ControlTemplate>
+								</Setter.Value>
+							</Setter>
+							<Style.Triggers>
+								<Trigger
+									Property="UIElement.IsMouseOver"
+									Value="True">
+									<Setter
+										Property="UIElement.Opacity"
+										Value="0.7" />
+								</Trigger>
+							</Style.Triggers>
+						</Style>
+					</FrameworkElement.Style>
+					<StackPanel
+						Orientation="Horizontal"
+						HorizontalAlignment="Center"
+						VerticalAlignment="Center">
+						<Path
+							Data="{StaticResource PlusIcon}"
+							Stroke="#FFFFFFFF"
+							Stretch="Uniform"
+							StrokeThickness="3"
+							Fill="#FFFFFFFF"
+							Width="{Binding ElementName=AddButton, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*44/240+1}" />
+						<TextBlock
+							Text="New"
+							Foreground="#FFFFFFFF"
+							FontSize="{DynamicResource FontSizeTextRegular}"
+							FontFamily="{StaticResource MontserratBold}"
+							VerticalAlignment="Center"
+							Margin="{Binding ElementName=AddButton, Path=ActualWidth, Converter={StaticResource marginLeftConverter}, ConverterParameter=0.1}" />
+					</StackPanel>
+				</Button>
+			</Grid>
+			<Grid
+				Name="TitleHeaderGrid"
+				Row="2"
+				Column="1">
+				<TextBlock
+					Text="Title"
+					FontFamily="{StaticResource PromptBold}"
+					VerticalAlignment="Center"
+					FontSize="{DynamicResource FontSizeTextTitle}"
+					Foreground="#707270" />
+			</Grid>
+			<Grid
+				Name="TitleTextBoxGrid"
+				Row="3"
+				Column="1">
+				<Border
+					BorderBrush="#BABFC5"
+					BorderThickness="2"
+					CornerRadius="4">
+					<TextBox
+						Name="txtSamplePromptTitle"
+						Grid.Column="1"
+						Margin="10,0,0,0"
+						BorderBrush="#00FFFFFF"
+						Background="#00FFFFFF"
+						BorderThickness="0"
+						Text="Write Title"
+						TextAlignment="Left"
+						FontFamily="{StaticResource PromptMedium}"
+						Foreground="#82868C"
+						FontSize="{DynamicResource FontSizeTextSmall}"
+						VerticalContentAlignment="Center"
+						HorizontalContentAlignment="Center"
+						TextChanged="TxtSamplePromptTitle_TextChanged" />
+				</Border>
+			</Grid>
+			<Grid
+				Name="PromptHeaderGrid"
+				Row="4"
+				Column="1">
+				<TextBlock
+					Name="PromptHeaderText"
+					Text="Prompt"
+					VerticalAlignment="Center"
+					FontFamily="{StaticResource PromptBold}"
+					FontSize="{DynamicResource FontSizeTextTitle}"
+					Foreground="#707270" />
+			</Grid>
+			<Grid
+				Name="PromptTextBoxGrid"
+				Row="5"
+				Column="1">
+				<Border
+					BorderBrush="#BABFC5"
+					BorderThickness="2"
+					CornerRadius="4">
+					<TextBox
+						Name="txtSamplePromptPrompt"
+						Grid.Column="1"
+						Margin="10"
+						BorderBrush="#00FFFFFF"
+						Background="#00FFFFFF"
+						BorderThickness="0"
+						Text="Write Prompt"
+						TextAlignment="Left"
+						FontFamily="{StaticResource PromptMedium}"
+						Foreground="#82868C"
+						FontSize="{DynamicResource FontSizeTextSmall}"
+						VerticalContentAlignment="Top"
+						HorizontalContentAlignment="Center"
+						TextWrapping="Wrap"
+						ScrollViewer.VerticalScrollBarVisibility="Auto"
+						TextChanged="TxtSamplePromptPrompt_TextChanged" />
+				</Border>
+			</Grid>
+			<Grid
+				Row="6"
+				Column="1">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="233*" />
+					<ColumnDefinition
+						Width="107*" />
+					<ColumnDefinition
+						Width="373*" />
+				</Grid.ColumnDefinitions>
+				<Grid
+					Column="0">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="32*" />
+						<RowDefinition
+							Height="80*" />
+						<RowDefinition
+							Height="63*" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="80*" />
+						<ColumnDefinition
+							Width="24*" />
+						<ColumnDefinition
+							Width="25*" />
+						<ColumnDefinition
+							Width="24*" />
+						<ColumnDefinition
+							Width="80*" />
+					</Grid.ColumnDefinitions>
+					<Border
+						Name="PreviousPromptButtonBorder"
+						Background="#00FFFFFF"
+						Grid.Row="1"
+						Grid.Column="0">
+						<Button
+							Name="PreviousPromptButton"
+							VerticalAlignment="Center"
+							HorizontalAlignment="Center"
+							Background="#00FFFFFF"
+							BorderThickness="0"
+							BorderBrush="#00FFFFFF"
+							Width="{Binding ElementName=PreviousPromptButtonBorder, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1+1}"
+							Height="{Binding ElementName=PreviousPromptButtonBorder, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*1+1}"
+							Click="ButtonPreviousVariant_Click">
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Grid>
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition
+															Width="27*" />
+														<ColumnDefinition
+															Width="30*" />
+														<ColumnDefinition
+															Width="27*" />
+													</Grid.ColumnDefinitions>
+													<Border
+														Grid.RowSpan="10"
+														Grid.ColumnSpan="10"
+														Background="#BDDDFF"
+														CornerRadius="10" />
+													<Path
+														Grid.Column="1"
+														Data="{StaticResource BackIcon}"
+														Stroke="#3B82F6"
+														Stretch="Uniform"
+														StrokeThickness="1"
+														Fill="#3B82F6" />
+												</Grid>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.7" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+					</Border>
+					<TextBlock
+						Name="promptIndexText"
+						Text="1"
+						VerticalAlignment="Center"
+						HorizontalAlignment="Center"
+						Grid.Column="2"
+						Grid.Row="1"
+						FontFamily="{StaticResource PromptBold}"
+						FontSize="{DynamicResource FontSizeTextTitle}"
+						Foreground="#707270" />
+					<Border
+						Name="NextPromptButtonBorder"
+						Background="#00FFFFFF"
+						Grid.Row="1"
+						Grid.Column="4">
+						<Button
+							VerticalAlignment="Center"
+							HorizontalAlignment="Center"
+							Grid.Row="1"
+							Grid.Column="5"
+							Background="#00FFFFFF"
+							BorderThickness="0"
+							BorderBrush="#00FFFFFF"
+							Width="{Binding ElementName=NextPromptButtonBorder, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1+1}"
+							Height="{Binding ElementName=NextPromptButtonBorder, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*1+1}"
+							Click="ButtonNextVariant_Click">
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Grid>
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition
+															Width="27*" />
+														<ColumnDefinition
+															Width="30*" />
+														<ColumnDefinition
+															Width="27*" />
+													</Grid.ColumnDefinitions>
+													<Border
+														Grid.RowSpan="10"
+														Grid.ColumnSpan="10"
+														Background="#BDDDFF"
+														CornerRadius="10" />
+													<Path
+														Grid.Column="1"
+														Data="{StaticResource NextIcon}"
+														Stroke="#3B82F6"
+														Stretch="Uniform"
+														StrokeThickness="1"
+														Fill="#3B82F6" />
+												</Grid>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.7" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+					</Border>
+				</Grid>
+				<Grid
+					Column="2">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="24*" />
+						<RowDefinition
+							Height="96*" />
+						<RowDefinition
+							Height="55*" />
+					</Grid.RowDefinitions>
+					<Grid
+						Row="1">
+						<Button
+							Name="AddVariantButton"
+							Grid.Column="6"
+							Grid.Row="1"
+							Background="#00FFFFFF"
+							BorderBrush="#00FFFFFF"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							Width="{Binding ElementName=imageGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*373/709+1}"
+							Height="{Binding ElementName=AddVariantButton, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*96/373+1}"
+							Click="AddVariant_Click">
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Border
+													Name="AddButtonBorder"
+													CornerRadius="12"
+													Background="#3B82F6">
+													<ContentPresenter
+														HorizontalAlignment="Center"
+														VerticalAlignment="Center" />
+												</Border>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.7" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+							<StackPanel
+								Orientation="Horizontal"
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center">
+								<Path
+									Data="{StaticResource PlusIcon}"
+									Stroke="#FFFFFFFF"
+									Stretch="Uniform"
+									StrokeThickness="3"
+									Fill="#FFFFFFFF"
+									Width="{Binding ElementName=AddButton, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*44/240+1}" />
+								<TextBlock
+									Text="Add Variant"
+									Foreground="#FFFFFFFF"
+									FontSize="{DynamicResource FontSizeButtonSmall}"
+									FontFamily="{StaticResource MontserratBold}"
+									VerticalAlignment="Center"
+									Margin="{Binding ElementName=AddButton, Path=ActualWidth, Converter={StaticResource marginLeftConverter}, ConverterParameter=0.1}" />
+							</StackPanel>
+						</Button>
+					</Grid>
+				</Grid>
+			</Grid>
+		</Grid>
+		<Button
+			Name="AddPromptButton"
+			Grid.Column="0"
+			Grid.Row="1"
+			Background="#00FFFFFF"
+			BorderBrush="#00FFFFFF"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Top"
+			Width="{Binding ElementName=imageGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*500/709+1}"
+			Height="{Binding ElementName=AddPromptButton, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*140/500+1}"
+			Margin="{Binding ElementName=imageGrid, Path=ActualHeight, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=top,0.353}"
+			Click="AddPrompt_Click">
+			<FrameworkElement.Style>
+				<Style
+					TargetType="{x:Type Button}">
+					<Setter
+						Property="Template">
+						<Setter.Value>
+							<ControlTemplate
+								TargetType="{x:Type Button}">
+								<Border
+									Name="AddButtonBorder"
+									CornerRadius="12"
+									Background="#3B82F6">
+									<ContentPresenter
+										HorizontalAlignment="Center"
+										VerticalAlignment="Center" />
+								</Border>
+							</ControlTemplate>
+						</Setter.Value>
+					</Setter>
+					<Style.Triggers>
+						<Trigger
+							Property="UIElement.IsMouseOver"
+							Value="True">
+							<Setter
+								Property="UIElement.Opacity"
+								Value="0.7" />
+						</Trigger>
+					</Style.Triggers>
+				</Style>
+			</FrameworkElement.Style>
+			<StackPanel
+				Orientation="Horizontal"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center">
+				<Path
+					Data="{StaticResource PlusIcon}"
+					Stroke="#FFFFFFFF"
+					Stretch="Uniform"
+					StrokeThickness="3"
+					Fill="#FFFFFFFF"
+					Width="{Binding ElementName=AddButton, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*44/240+1}" />
+				<TextBlock
+					Text="ADD PROMPT"
+					Foreground="#FFFFFFFF"
+					FontSize="{DynamicResource FontSizeTextSmall}"
+					FontFamily="{StaticResource PromptBold}"
+					VerticalAlignment="Center"
+					Margin="{Binding ElementName=AddButton, Path=ActualWidth, Converter={StaticResource marginLeftConverter}, ConverterParameter=0.1}" />
+			</StackPanel>
+		</Button>
+		<Button
+			Name="DeleteButton"
+			VerticalAlignment="Bottom"
+			HorizontalAlignment="Left"
+			Grid.Column="3"
+			Background="#00FFFFFF"
+			BorderBrush="#00FFFFFF"
+			Margin="-20,20,20,-20"
+			Click="DeleteButton_Click">
+			<FrameworkElement.Style>
+				<Style
+					TargetType="{x:Type Button}">
+					<Setter
+						Property="Template">
+						<Setter.Value>
+							<ControlTemplate
+								TargetType="{x:Type Button}">
+								<Border
+									Background="{TemplateBinding Background}">
+									<ContentPresenter
+										HorizontalAlignment="Center"
+										VerticalAlignment="Center" />
+								</Border>
+							</ControlTemplate>
+						</Setter.Value>
+					</Setter>
+					<Style.Triggers>
+						<Trigger
+							Property="UIElement.IsMouseOver"
+							Value="True">
+							<Setter
+								Property="UIElement.Opacity"
+								Value="0.5" />
+						</Trigger>
+					</Style.Triggers>
+				</Style>
+			</FrameworkElement.Style>
+			<Grid
+				Name="DeleteButtonInsideGrid">
+				<Grid>
+					<Path
+						Name="Circle"
+						Data="{StaticResource CircleIcon}"
+						Stretch="Uniform"
+						Fill="#FFFF0000">
+						<UIElement.Effect>
+							<DropShadowEffect
+								Color="Black"
+								Opacity="0.5"
+								BlurRadius="20"
+								ShadowDepth="5"
+								Direction="320" />
+						</UIElement.Effect>
+					</Path>
+				</Grid>
+				<Grid>
+					<Path
+						Data="{StaticResource XIcon}"
+						Stretch="Uniform"
+						Fill="#FFFFFFFF"
+						Margin="{Binding ElementName=DeleteButtonInsideGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+				</Grid>
+			</Grid>
+		</Button>
+	</Grid>
+</Page>

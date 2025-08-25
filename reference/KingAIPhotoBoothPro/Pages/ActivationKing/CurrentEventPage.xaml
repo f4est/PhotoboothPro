@@ -1,0 +1,775 @@
+<Page
+	x:Class="KingAIPhotoBoothPro.Pages.ActivationKing.CurrentEventPage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages.ActivationKing" xmlns:modals="clr-namespace:KingAIPhotoBoothPro.Modals" xmlns:math="http://hexinnovation.com/math"
+	Title="CurrentEventPage"
+	Loaded="Page_Loaded">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<math:MathConverter
+				x:Key="math" />
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid
+		Name="Properties">
+		<Border
+			Grid.RowSpan="10"
+			Grid.ColumnSpan="10"
+			Background="#FFFFFFFF"
+			CornerRadius="{DynamicResource SectionCornerRadius}"
+			Opacity="1">
+			<UIElement.Effect>
+				<DropShadowEffect
+					Opacity="0.25"
+					BlurRadius="20"
+					ShadowDepth="10" />
+			</UIElement.Effect>
+			<Border.BorderBrush>
+				<LinearGradientBrush
+					EndPoint="0.5,1"
+					StartPoint="0.5,0">
+					<GradientStop
+						Color="White"
+						Offset="0" />
+					<GradientStop
+						Color="#FFD5D5D5"
+						Offset="1" />
+				</LinearGradientBrush>
+			</Border.BorderBrush>
+		</Border>
+		<Image
+			Visibility="Hidden"
+			Source="/Images/Templates/CurrentEvent.png"
+			Opacity="0.7"
+			VerticalAlignment="Center"
+			Margin="0,35" />
+		<Grid>
+			<Grid
+				Column="1">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="88*" />
+					<ColumnDefinition
+						Width="2486*" />
+					<ColumnDefinition
+						Width="88*" />
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition
+						Height="{Binding ElementName=Properties, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.075+1}" />
+					<RowDefinition
+						Height="80*" />
+					<RowDefinition
+						Height="390*" />
+					<RowDefinition
+						Height="120*" />
+					<RowDefinition
+						Height="133*" />
+					<RowDefinition
+						Height="107*" />
+				</Grid.RowDefinitions>
+				<TextBlock
+					Name="CurrentEventLabel"
+					Grid.Column="1"
+					Style="{StaticResource SectionHeadingTextStyle}">Current Event</TextBlock>
+				<Grid
+					Column="1">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="10*" />
+						<RowDefinition
+							Height="18*" />
+						<RowDefinition
+							Height="10*" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="0*" />
+						<ColumnDefinition
+							Width="0*" />
+						<ColumnDefinition
+							Width="0*" />
+						<ColumnDefinition
+							Width="0*" />
+						<ColumnDefinition
+							Width="6*" />
+						<ColumnDefinition
+							Width="2*" />
+						<ColumnDefinition
+							Width="0.05*" />
+						<ColumnDefinition
+							Width="2*" />
+					</Grid.ColumnDefinitions>
+					<Grid
+						Column="4"
+						RowSpan="3">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition
+								Width="5*" />
+							<ColumnDefinition
+								Width="1*" />
+						</Grid.ColumnDefinitions>
+						<Image
+							Name="eventQR"
+							Grid.Column="1"
+							Visibility="Hidden"
+							Source="/Images/QR.png" />
+					</Grid>
+					<Button
+						Name="archiveMedia"
+						Grid.Column="5"
+						Grid.Row="1"
+						BorderThickness="0"
+						Content="Export All Media"
+						Foreground="#FFFFFFFF"
+						FontFamily="{StaticResource MontserratSemiBold}"
+						FontSize="{DynamicResource FontSizeButtonPrimary}"
+						Background="#FE632F"
+						Click="archiveMedia_Click">
+						<FrameworkElement.Style>
+							<Style
+								TargetType="{x:Type Button}">
+								<Setter
+									Property="Template">
+									<Setter.Value>
+										<ControlTemplate
+											TargetType="{x:Type Button}">
+											<Border
+												Name="borderCreateButton"
+												Background="#15C5CE"
+												CornerRadius="{Binding ElementName=borderCreateButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.5+1}">
+												<ContentPresenter
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center" />
+											</Border>
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
+								<Style.Triggers>
+									<Trigger
+										Property="UIElement.IsMouseOver"
+										Value="True">
+										<Setter
+											Property="UIElement.Opacity"
+											Value="0.7" />
+									</Trigger>
+								</Style.Triggers>
+							</Style>
+						</FrameworkElement.Style>
+					</Button>
+					<ProgressBar
+						Name="progressBarWorker"
+						Grid.Row="2"
+						Grid.Column="5"
+						Visibility="Visible"
+						Value="0"
+						BorderThickness="0"
+						Height="10"
+						Margin="20,0,20,0">
+						<FrameworkElement.Style>
+							<Style
+								TargetType="{x:Type ProgressBar}">
+								<Setter
+									Property="Foreground"
+									Value="#15C5CE" />
+								<Setter
+									Property="Background"
+									Value="#FFFFFF" />
+								<Setter
+									Property="Template">
+									<Setter.Value>
+										<ControlTemplate
+											TargetType="{x:Type ProgressBar}">
+											<Border
+												CornerRadius="00"
+												Background="{TemplateBinding Background}"
+												BorderBrush="{TemplateBinding BorderBrush}"
+												BorderThickness="{TemplateBinding BorderThickness}">
+												<Grid
+													Name="PART_Track">
+													<Rectangle
+														Name="PART_Indicator"
+														HorizontalAlignment="Left"
+														Fill="{TemplateBinding Foreground}">
+														<UIElement.OpacityMask>
+															<LinearGradientBrush
+																StartPoint="0,0"
+																EndPoint="1,0">
+																<GradientStop
+																	Color="#00000000"
+																	Offset="0" />
+																<GradientStop
+																	Color="#FFFFFFFF"
+																	Offset="1" />
+															</LinearGradientBrush>
+														</UIElement.OpacityMask>
+													</Rectangle>
+												</Grid>
+											</Border>
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
+							</Style>
+						</FrameworkElement.Style>
+					</ProgressBar>
+					<Button
+						Name="btnToMedias"
+						Grid.Column="7"
+						Grid.Row="1"
+						BorderThickness="0"
+						Content="View Medias"
+						Foreground="#FFFFFFFF"
+						FontFamily="{StaticResource MontserratSemiBold}"
+						FontSize="{DynamicResource FontSizeButtonPrimary}"
+						Click="btnToMedias_Click">
+						<Control.Background>
+							<LinearGradientBrush
+								EndPoint="0.5,1"
+								StartPoint="0,0">
+								<GradientStop
+									Color="#FF234C90"
+									Offset="1" />
+								<GradientStop
+									Color="#FFF82BCB"
+									Offset="0" />
+							</LinearGradientBrush>
+						</Control.Background>
+						<FrameworkElement.Style>
+							<Style
+								TargetType="{x:Type Button}">
+								<Setter
+									Property="Template">
+									<Setter.Value>
+										<ControlTemplate
+											TargetType="{x:Type Button}">
+											<Border
+												Name="borderCreateButton"
+												CornerRadius="{Binding ElementName=borderCreateButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.5+1}">
+												<Border.Background>
+													<LinearGradientBrush
+														EndPoint="0.5,1"
+														StartPoint="0,0">
+														<GradientStop
+															Color="#FF234C90"
+															Offset="1" />
+														<GradientStop
+															Color="#FFF82BCB"
+															Offset="0" />
+													</LinearGradientBrush>
+												</Border.Background>
+												<ContentPresenter
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center" />
+											</Border>
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
+								<Style.Triggers>
+									<Trigger
+										Property="UIElement.IsMouseOver"
+										Value="True">
+										<Setter
+											Property="UIElement.Opacity"
+											Value="0.7" />
+									</Trigger>
+								</Style.Triggers>
+							</Style>
+						</FrameworkElement.Style>
+					</Button>
+				</Grid>
+				<Grid
+					Row="0"
+					ColumnSpan="10"
+					Column="0">
+					<Border
+						BorderBrush="#BABFC5"
+						BorderThickness="0,0,0,1" />
+				</Grid>
+				<Grid
+					Name="EventInfoGrid"
+					Row="2"
+					Column="1">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="1102*" />
+						<ColumnDefinition
+							Width="1400*" />
+					</Grid.ColumnDefinitions>
+					<Border
+						Grid.ColumnSpan="10"
+						BorderBrush="#15C5CE"
+						BorderThickness="1"
+						CornerRadius="{DynamicResource BannerCornerRadius}" />
+					<Grid
+						Column="0">
+						<Grid.RowDefinitions>
+							<RowDefinition
+								Height="40*" />
+							<RowDefinition
+								Height="80*" />
+							<RowDefinition
+								Height="20*" />
+							<RowDefinition
+								Height="60*" />
+							<RowDefinition
+								Height="20*" />
+							<RowDefinition
+								Height="40*" />
+							<RowDefinition
+								Height="20*" />
+						</Grid.RowDefinitions>
+						<TextBlock
+							Name="txtEventName"
+							Grid.Row="1"
+							Foreground="#707070"
+							FontFamily="{StaticResource PromptSemiBold}"
+							FontSize="{DynamicResource FontSizeTextTitle}"
+							Grid.Column="0"
+							VerticalAlignment="Center"
+							Margin="{Binding ElementName=EventInfoGrid, Path=ActualWidth, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=left,0.015}">New Event Name</TextBlock>
+						<TextBlock
+							Name="txtEventMotto"
+							Grid.Row="3"
+							Grid.Column="1"
+							Foreground="{DynamicResource UIGrayButton}"
+							FontFamily="{StaticResource PromptRegular}"
+							VerticalAlignment="Center"
+							FontSize="{DynamicResource FontSizeTextRegular}"
+							Margin="{Binding ElementName=EventInfoGrid, Path=ActualWidth, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=left,0.015}">New Event Motto</TextBlock>
+						<TextBlock
+							Name="txtEventCreatedTime"
+							Grid.Column="1"
+							Grid.Row="5"
+							Foreground="#82868C"
+							FontFamily="{StaticResource PromptRegular}"
+							VerticalAlignment="Center"
+							HorizontalAlignment="Left"
+							FontSize="{DynamicResource FontSizeButtonSmall}"
+							Margin="{Binding ElementName=EventInfoGrid, Path=ActualWidth, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=left,0.015}">02.03.2021</TextBlock>
+					</Grid>
+					<Grid
+						Column="1">
+						<Grid.RowDefinitions>
+							<RowDefinition
+								Height="48*" />
+							<RowDefinition
+								Height="90*" />
+							<RowDefinition
+								Height="105*" />
+						</Grid.RowDefinitions>
+						<Grid
+							Row="1">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="449*" />
+								<ColumnDefinition
+									Width="24*" />
+								<ColumnDefinition
+									Width="409*" />
+								<ColumnDefinition
+									Width="24*" />
+								<ColumnDefinition
+									Width="414*" />
+								<ColumnDefinition
+									Width="48*" />
+							</Grid.ColumnDefinitions>
+							<Grid
+								Name="MediaCollected"
+								Column="0">
+								<Grid.RowDefinitions>
+									<RowDefinition
+										Height="24*" />
+									<RowDefinition
+										Height="64*" />
+									<RowDefinition
+										Height="24*" />
+								</Grid.RowDefinitions>
+								<Border
+									Grid.RowSpan="10"
+									Grid.ColumnSpan="10"
+									Background="#FAFBFB" />
+								<Grid
+									Row="1">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition
+											Width="24*" />
+										<ColumnDefinition
+											Width="64*" />
+										<ColumnDefinition
+											Width="24*" />
+										<ColumnDefinition
+											Width="316*" />
+									</Grid.ColumnDefinitions>
+									<Border
+										Name="iconBack"
+										Grid.Column="1"
+										Background="#3A70E2"
+										CornerRadius="10"
+										Width="{Binding ElementName=iconBack, Path=ActualHeight}">
+										<Path
+											Name="MediaCollectedImg"
+											StrokeThickness="0"
+											Stretch="Uniform"
+											Fill="#BDDDFF"
+											Margin="{Binding ElementName=MediaCollectedImg, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=-x/32}">
+											<Path.Data>
+												<GeometryGroup>
+													<RectangleGeometry
+														Rect="0,0,64,64"
+														RadiusX="10"
+														RadiusY="10" />
+													<Geometry>M44.9061 21.6305H42.5038L41.9032 19.7537C41.5138 18.6524 40.7916 17.6995 39.8366 17.027C38.8816 16.3544 37.741 15.9955 36.573 16H26.9636C25.7841 16.0022 24.6351 16.3748 23.6787 17.0652C22.7224 17.7555 22.0069 18.7287 21.6334 19.8475L21.0328 21.7244H18.6305C17.1372 21.7244 15.7051 22.3176 14.6491 23.3735C13.5932 24.4294 13 25.8616 13 27.3549V42.3695C13 43.8628 13.5932 45.2949 14.6491 46.3509C15.7051 47.4068 17.1372 48 18.6305 48H44.9061C46.3994 48 47.8316 47.4068 48.8875 46.3509C49.9434 45.2949 50.5366 43.8628 50.5366 42.3695V27.3549C50.5491 26.6076 50.4126 25.8653 50.1353 25.1713C49.8579 24.4774 49.4451 23.8455 48.921 23.3127C48.3969 22.7799 47.772 22.3567 47.0827 22.0679C46.3934 21.7791 45.6535 21.6304 44.9061 21.6305ZM46.7829 42.2757C46.7829 42.7734 46.5852 43.2508 46.2332 43.6028C45.8813 43.9548 45.4039 44.1525 44.9061 44.1525H18.6305C18.1327 44.1525 17.6553 43.9548 17.3034 43.6028C16.9514 43.2508 16.7537 42.7734 16.7537 42.2757V27.261C16.7537 26.7633 16.9514 26.2859 17.3034 25.9339C17.6553 25.5819 18.1327 25.3842 18.6305 25.3842H22.3842C22.7934 25.4056 23.1984 25.2924 23.5373 25.0619C23.8762 24.8315 24.1304 24.4964 24.261 24.1079L25.2745 21.0299C25.4004 20.6572 25.6403 20.3334 25.9602 20.1044C26.2802 19.8754 26.664 19.7527 27.0575 19.7537H36.6668C37.0603 19.7527 37.4441 19.8754 37.7641 20.1044C38.084 20.3334 38.3239 20.6572 38.4498 21.0299L39.4633 24.1079C39.5837 24.4659 39.8094 24.7793 40.1108 25.007C40.4121 25.2347 40.7752 25.3661 41.1525 25.3842H44.9061C45.4039 25.3842 45.8813 25.5819 46.2332 25.9339C46.5852 26.2859 46.7829 26.7633 46.7829 27.261V42.2757ZM31.7683 25.3842C30.2835 25.3842 28.832 25.8245 27.5975 26.6494C26.3629 27.4743 25.4007 28.6468 24.8324 30.0186C24.2642 31.3904 24.1156 32.8998 24.4052 34.3561C24.6949 35.8124 25.4099 37.1501 26.4598 38.2C27.5097 39.2499 28.8474 39.9649 30.3037 40.2546C31.76 40.5443 33.2694 40.3956 34.6412 39.8274C36.013 39.2592 37.1855 38.2969 38.0104 37.0624C38.8353 35.8278 39.2756 34.3763 39.2756 32.8915C39.2756 30.9004 38.4847 28.9909 37.0768 27.583C35.6689 26.1751 33.7594 25.3842 31.7683 25.3842V25.3842ZM31.7683 36.6452C31.0259 36.6452 30.3002 36.425 29.6829 36.0126C29.0656 35.6001 28.5845 35.0139 28.3004 34.328C28.0163 33.6421 27.9419 32.8874 28.0868 32.1592C28.2316 31.4311 28.5891 30.7622 29.1141 30.2373C29.639 29.7123 30.3079 29.3548 31.036 29.21C31.7641 29.0651 32.5189 29.1395 33.2048 29.4236C33.8907 29.7077 34.4769 30.1888 34.8894 30.8061C35.3018 31.4234 35.522 32.1491 35.522 32.8915C35.522 33.887 35.1265 34.8418 34.4225 35.5458C33.7186 36.2497 32.7638 36.6452 31.7683 36.6452Z</Geometry>
+												</GeometryGroup>
+											</Path.Data>
+										</Path>
+									</Border>
+									<TextBlock
+										Grid.Column="3"
+										VerticalAlignment="Center"
+										HorizontalAlignment="Left"
+										TextAlignment="Left"
+										Foreground="#707270">
+										<Span
+											Name="ImageNumberText"
+											FontFamily="{StaticResource MontserratBold}"
+											FontSize="{DynamicResource FontSizeTextTitle}"
+											FontWeight="Bold">0</Span> <Run
+											Text="" /> <Span
+											FontSize="{DynamicResource FontSizeTextSmall}"
+											FontFamily="{StaticResource MontserratMedium}">Media Collected</Span></TextBlock>
+								</Grid>
+							</Grid>
+							<Grid
+								Name="MediaShared"
+								Column="2">
+								<Grid.RowDefinitions>
+									<RowDefinition
+										Height="24*" />
+									<RowDefinition
+										Height="64*" />
+									<RowDefinition
+										Height="24*" />
+								</Grid.RowDefinitions>
+								<Border
+									Grid.RowSpan="10"
+									Grid.ColumnSpan="10"
+									Background="#FAFBFB" />
+								<Grid
+									Row="1">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition
+											Width="24*" />
+										<ColumnDefinition
+											Width="64*" />
+										<ColumnDefinition
+											Width="24*" />
+										<ColumnDefinition
+											Width="278*" />
+									</Grid.ColumnDefinitions>
+									<Border
+										Grid.Column="1"
+										Background="#0C9D61"
+										CornerRadius="10"
+										Width="{Binding ElementName=iconBack, Path=ActualHeight}">
+										<Path
+											Name="MediaSharedImg"
+											StrokeThickness="0"
+											Stretch="Uniform"
+											Fill="#C0E5D1"
+											Margin="{Binding ElementName=MediaCollectedImg, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=-x/32}">
+											<Path.Data>
+												<GeometryGroup>
+													<RectangleGeometry
+														Rect="0,0,64,64"
+														RadiusX="10"
+														RadiusY="10" />
+													<Geometry>M45.4076 35.1968C44.9831 35.1968 44.5761 35.3654 44.2759 35.6656C43.9758 35.9657 43.8072 36.3728 43.8072 36.7972V43.1988C43.8072 43.6233 43.6386 44.0303 43.3384 44.3305C43.0383 44.6306 42.6312 44.7992 42.2068 44.7992H19.8012C19.3767 44.7992 18.9697 44.6306 18.6695 44.3305C18.3694 44.0303 18.2008 43.6233 18.2008 43.1988V27.851L27.6111 37.2773C28.5114 38.1764 29.7317 38.6815 31.004 38.6815C32.2763 38.6815 33.4966 38.1764 34.3968 37.2773L37.0215 34.6527C37.3229 34.3513 37.4922 33.9426 37.4922 33.5164C37.4922 33.0902 37.3229 32.6815 37.0215 32.3801C36.7201 32.0787 36.3114 31.9094 35.8852 31.9094C35.459 31.9094 35.0503 32.0787 34.7489 32.3801L32.1243 35.0048C31.8251 35.298 31.4229 35.4622 31.004 35.4622C30.5851 35.4622 30.1829 35.298 29.8837 35.0048L20.4574 25.5944H31.004C31.4284 25.5944 31.8355 25.4258 32.1356 25.1257C32.4358 24.8255 32.6044 24.4185 32.6044 23.994C32.6044 23.5696 32.4358 23.1625 32.1356 22.8624C31.8355 22.5622 31.4284 22.3936 31.004 22.3936H19.8012C18.5278 22.3936 17.3066 22.8995 16.4062 23.7999C15.5058 24.7003 15 25.9215 15 27.1948V43.1988C15 44.4722 15.5058 45.6934 16.4062 46.5938C17.3066 47.4942 18.5278 48 19.8012 48H42.2068C43.4801 48 44.7013 47.4942 45.6017 46.5938C46.5021 45.6934 47.008 44.4722 47.008 43.1988V36.7972C47.008 36.3728 46.8394 35.9657 46.5392 35.6656C46.2391 35.3654 45.832 35.1968 45.4076 35.1968ZM48.1443 21.2573L43.3431 16.4561C43.1909 16.3104 43.0114 16.1962 42.8149 16.1201C42.4253 15.96 41.9883 15.96 41.5986 16.1201C41.4022 16.1962 41.2227 16.3104 41.0705 16.4561L36.2693 21.2573C35.9679 21.5587 35.7986 21.9674 35.7986 22.3936C35.7986 22.8198 35.9679 23.2285 36.2693 23.5299C36.5707 23.8313 36.9794 24.0006 37.4056 24.0006C37.8318 24.0006 38.2405 23.8313 38.5419 23.5299L40.6064 21.4494V30.3956C40.6064 30.8201 40.775 31.2271 41.0751 31.5273C41.3753 31.8274 41.7823 31.996 42.2068 31.996C42.6312 31.996 43.0383 31.8274 43.3384 31.5273C43.6386 31.2271 43.8072 30.8201 43.8072 30.3956V21.4494L45.8717 23.5299C46.0205 23.6799 46.1975 23.799 46.3925 23.8802C46.5875 23.9615 46.7967 24.0033 47.008 24.0033C47.2192 24.0033 47.4284 23.9615 47.6235 23.8802C47.8185 23.799 47.9955 23.6799 48.1443 23.5299C48.2943 23.3811 48.4133 23.2041 48.4946 23.0091C48.5758 22.8141 48.6177 22.6049 48.6177 22.3936C48.6177 22.1823 48.5758 21.9732 48.4946 21.7781C48.4133 21.5831 48.2943 21.4061 48.1443 21.2573Z</Geometry>
+												</GeometryGroup>
+											</Path.Data>
+										</Path>
+									</Border>
+									<TextBlock
+										Grid.Column="3"
+										VerticalAlignment="Center"
+										HorizontalAlignment="Left"
+										TextAlignment="Left"
+										Foreground="#707270">
+										<Span
+											Name="MailNumberText"
+											FontFamily="{StaticResource MontserratBold}"
+											FontSize="{DynamicResource FontSizeTextTitle}"
+											FontWeight="Bold">0</Span> <Run
+											Text="" /> <Span
+											FontSize="{DynamicResource FontSizeTextSmall}"
+											FontFamily="{StaticResource MontserratMedium}">Media Shared</Span></TextBlock>
+								</Grid>
+							</Grid>
+							<Grid
+								Name="MediaPrinted"
+								Column="4">
+								<Grid.RowDefinitions>
+									<RowDefinition
+										Height="24*" />
+									<RowDefinition
+										Height="64*" />
+									<RowDefinition
+										Height="24*" />
+								</Grid.RowDefinitions>
+								<Border
+									Grid.RowSpan="10"
+									Grid.ColumnSpan="10"
+									Background="#FAFBFB" />
+								<Grid
+									Row="1">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition
+											Width="24*" />
+										<ColumnDefinition
+											Width="64*" />
+										<ColumnDefinition
+											Width="24*" />
+										<ColumnDefinition
+											Width="284*" />
+									</Grid.ColumnDefinitions>
+									<Border
+										Grid.Column="1"
+										Background="#FE632F"
+										CornerRadius="10"
+										Width="{Binding ElementName=iconBack, Path=ActualHeight}">
+										<Path
+											Name="MediaPrintedImg"
+											StrokeThickness="0"
+											Stretch="Uniform"
+											Fill="#FFE1D6"
+											Margin="{Binding ElementName=MediaCollectedImg, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=-x/32}">
+											<Path.Data>
+												<GeometryGroup>
+													<RectangleGeometry
+														Rect="0,0,64,64"
+														RadiusX="10"
+														RadiusY="10" />
+													<Geometry>M24 28.8C23.6835 28.8 23.3742 28.8938 23.1111 29.0696C22.848 29.2455 22.6429 29.4953 22.5218 29.7877C22.4007 30.0801 22.369 30.4018 22.4307 30.7121C22.4925 31.0225 22.6449 31.3076 22.8686 31.5314C23.0924 31.7551 23.3775 31.9075 23.6879 31.9693C23.9982 32.031 24.3199 31.9993 24.6123 31.8782C24.9047 31.7571 25.1545 31.552 25.3304 31.2889C25.5062 31.0258 25.6 30.7165 25.6 30.4C25.6 29.9757 25.4314 29.5687 25.1314 29.2686C24.8313 28.9686 24.4243 28.8 24 28.8ZM43.2 22.4H41.6V17.6C41.6 17.1757 41.4314 16.7687 41.1314 16.4686C40.8313 16.1686 40.4243 16 40 16H24C23.5757 16 23.1687 16.1686 22.8686 16.4686C22.5686 16.7687 22.4 17.1757 22.4 17.6V22.4H20.8C19.527 22.4 18.3061 22.9057 17.4059 23.8059C16.5057 24.7061 16 25.927 16 27.2V36.8C16 38.073 16.5057 39.2939 17.4059 40.1941C18.3061 41.0943 19.527 41.6 20.8 41.6H22.4V46.4C22.4 46.8243 22.5686 47.2313 22.8686 47.5314C23.1687 47.8314 23.5757 48 24 48H40C40.4243 48 40.8313 47.8314 41.1314 47.5314C41.4314 47.2313 41.6 46.8243 41.6 46.4V41.6H43.2C44.473 41.6 45.6939 41.0943 46.5941 40.1941C47.4943 39.2939 48 38.073 48 36.8V27.2C48 25.927 47.4943 24.7061 46.5941 23.8059C45.6939 22.9057 44.473 22.4 43.2 22.4ZM25.6 19.2H38.4V22.4H25.6V19.2ZM38.4 44.8H25.6V38.4H38.4V44.8ZM44.8 36.8C44.8 37.2243 44.6314 37.6313 44.3314 37.9314C44.0313 38.2314 43.6243 38.4 43.2 38.4H41.6V36.8C41.6 36.3757 41.4314 35.9687 41.1314 35.6686C40.8313 35.3686 40.4243 35.2 40 35.2H24C23.5757 35.2 23.1687 35.3686 22.8686 35.6686C22.5686 35.9687 22.4 36.3757 22.4 36.8V38.4H20.8C20.3757 38.4 19.9687 38.2314 19.6686 37.9314C19.3686 37.6313 19.2 37.2243 19.2 36.8V27.2C19.2 26.7757 19.3686 26.3687 19.6686 26.0686C19.9687 25.7686 20.3757 25.6 20.8 25.6H43.2C43.6243 25.6 44.0313 25.7686 44.3314 26.0686C44.6314 26.3687 44.8 26.7757 44.8 27.2V36.8Z</Geometry>
+												</GeometryGroup>
+											</Path.Data>
+										</Path>
+									</Border>
+									<TextBlock
+										Grid.Column="3"
+										VerticalAlignment="Center"
+										HorizontalAlignment="Left"
+										TextAlignment="Left"
+										Foreground="#707270">
+										<Span
+											Name="PrintNumberText"
+											FontFamily="{StaticResource MontserratBold}"
+											FontSize="{DynamicResource FontSizeTextSmall}"
+											FontWeight="Bold">0</Span> <Run
+											Text="" /> <Span
+											FontSize="{DynamicResource FontSizeTextSmall}"
+											FontFamily="{StaticResource MontserratMedium}">Media Printed</Span></TextBlock>
+								</Grid>
+							</Grid>
+						</Grid>
+					</Grid>
+				</Grid>
+				<StackPanel
+					Name="buttons"
+					Orientation="Horizontal"
+					Grid.Row="4"
+					Grid.Column="1">
+					<Button
+						Name="btnArchive"
+						Grid.Column="1"
+						BorderThickness="0"
+						Content="Close and Start New Event"
+						Foreground="#FFFFFFFF"
+						FontFamily="{StaticResource MontserratSemiBold}"
+						FontSize="{DynamicResource FontSizeButtonPrimary}"
+						Background="{StaticResource UIRedButton}"
+						Margin="0,0,10,0"
+						Width="{Binding ElementName=buttons, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.3}"
+						Click="ArchiveEventClicked">
+						<FrameworkElement.Style>
+							<Style
+								TargetType="{x:Type Button}">
+								<Setter
+									Property="Template">
+									<Setter.Value>
+										<ControlTemplate
+											TargetType="{x:Type Button}">
+											<Border
+												Name="borderCreateButton"
+												Background="{TemplateBinding Background}"
+												CornerRadius="{Binding ElementName=borderCreateButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.5+1}">
+												<ContentPresenter
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center" />
+											</Border>
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
+								<Style.Triggers>
+									<Trigger
+										Property="UIElement.IsMouseOver"
+										Value="True">
+										<Setter
+											Property="UIElement.Opacity"
+											Value="0.7" />
+									</Trigger>
+								</Style.Triggers>
+							</Style>
+						</FrameworkElement.Style>
+					</Button>
+				</StackPanel>
+				<StackPanel
+					Name="buttons2"
+					Orientation="Horizontal"
+					HorizontalAlignment="Right"
+					Grid.Row="4"
+					Grid.Column="1">
+					<Button
+						Name="btnEditEvent"
+						Grid.Column="3"
+						BorderThickness="0"
+						Content="Edit Event"
+						Foreground="#FFFFFFFF"
+						FontFamily="{StaticResource MontserratSemiBold}"
+						FontSize="{DynamicResource FontSizeButtonPrimary}"
+						Margin="0,0,10,0"
+						Width="{Binding ElementName=buttons, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}"
+						Click="EditEventClicked">
+						<FrameworkElement.Style>
+							<Style
+								TargetType="{x:Type Button}">
+								<Setter
+									Property="Template">
+									<Setter.Value>
+										<ControlTemplate
+											TargetType="{x:Type Button}">
+											<Border
+												Name="borderCreateButton"
+												Background="#F4AA0B"
+												CornerRadius="{Binding ElementName=borderCreateButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.5+1}">
+												<ContentPresenter
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center" />
+											</Border>
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
+								<Style.Triggers>
+									<Trigger
+										Property="UIElement.IsMouseOver"
+										Value="True">
+										<Setter
+											Property="UIElement.Opacity"
+											Value="0.7" />
+									</Trigger>
+								</Style.Triggers>
+							</Style>
+						</FrameworkElement.Style>
+					</Button>
+					<Button
+						Name="btnCopy"
+						Grid.Column="5"
+						BorderThickness="0"
+						Content="Copy Event"
+						Foreground="#FFFFFFFF"
+						FontFamily="{StaticResource MontserratSemiBold}"
+						FontSize="{DynamicResource FontSizeButtonPrimary}"
+						Background="#FE632F"
+						Width="{Binding ElementName=buttons, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}"
+						Click="CopyEventClicked">
+						<FrameworkElement.Style>
+							<Style
+								TargetType="{x:Type Button}">
+								<Setter
+									Property="Template">
+									<Setter.Value>
+										<ControlTemplate
+											TargetType="{x:Type Button}">
+											<Border
+												Name="borderCreateButton"
+												Background="#15C5CE"
+												CornerRadius="{Binding ElementName=borderCreateButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.5+1}">
+												<ContentPresenter
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center" />
+											</Border>
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
+								<Style.Triggers>
+									<Trigger
+										Property="UIElement.IsMouseOver"
+										Value="True">
+										<Setter
+											Property="UIElement.Opacity"
+											Value="0.7" />
+									</Trigger>
+								</Style.Triggers>
+							</Style>
+						</FrameworkElement.Style>
+					</Button>
+				</StackPanel>
+			</Grid>
+			<Grid
+				Column="1">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="1*" />
+					<ColumnDefinition
+						Width="1*" />
+					<ColumnDefinition
+						Width="1*" />
+				</Grid.ColumnDefinitions>
+				<Grid
+					Name="MediaCollected2"
+					Column="0">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="16*" />
+						<RowDefinition
+							Height="10*" />
+						<RowDefinition
+							Height="9*" />
+						<RowDefinition
+							Height="12*" />
+					</Grid.RowDefinitions>
+					<Grid
+						Row="1" />
+				</Grid>
+				<Grid
+					Name="MediaShared2"
+					Column="1">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="16*" />
+						<RowDefinition
+							Height="10*" />
+						<RowDefinition
+							Height="9*" />
+						<RowDefinition
+							Height="12*" />
+					</Grid.RowDefinitions>
+					<Grid
+						Row="1" />
+				</Grid>
+				<Grid
+					Name="MediaPrinted2"
+					Column="2">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="16*" />
+						<RowDefinition
+							Height="10*" />
+						<RowDefinition
+							Height="9*" />
+						<RowDefinition
+							Height="12*" />
+					</Grid.RowDefinitions>
+					<Grid
+						Row="1" />
+				</Grid>
+			</Grid>
+		</Grid>
+	</Grid>
+</Page>

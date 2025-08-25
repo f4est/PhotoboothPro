@@ -1,0 +1,407 @@
+<local:SettingsSubPage
+	x:Class="KingAIPhotoBoothPro.Pages.ActivationKing.SharingPage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:localUI="clr-namespace:KingAIPhotoBoothPro.Class.UI" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages.ActivationKing" xmlns:math="http://hexinnovation.com/math" xmlns:class="clr-namespace:KingAIPhotoBoothPro.Class"
+	Loaded="Page_Loaded"
+	Title="SharingPage">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<math:MathConverter
+				x:Key="math" />
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid
+		Name="gridMain">
+		<Grid.RowDefinitions>
+			<RowDefinition
+				Height="0" />
+			<RowDefinition
+				Height="1*" />
+			<RowDefinition
+				Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02+1}" />
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition
+				Width="150*" />
+			<ColumnDefinition
+				Width="2662*" />
+			<ColumnDefinition
+				Width="128*" />
+		</Grid.ColumnDefinitions>
+		<Grid
+			Row="1"
+			Column="1">
+			<ScrollViewer
+				Name="ScrollViewMain"
+				VerticalScrollBarVisibility="Auto"
+				HorizontalScrollBarVisibility="Disabled">
+				<i:Interaction.Behaviors>
+					<localUI:ScrollViewerDragBehavior />
+				</i:Interaction.Behaviors>
+				<StackPanel
+					Orientation="Vertical"
+					Margin="0,0,20,0">
+					<Grid
+						Name="SharingSettingsGrid"
+						Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.18}">
+						<class:SectionTemplate
+							Template="{StaticResource SectionTemplateKey}"
+							Content="Sharing Options"
+							Background="#FFFFFFFF"
+							BorderBrush="#BABFC5"
+							Grid.RowSpan="5"
+							Grid.ColumnSpan="5" />
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.0757+1}" />
+								<RowDefinition
+									Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.194+1}" />
+							</Grid.RowDefinitions>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="80*" />
+								<ColumnDefinition
+									Width="2574*" />
+							</Grid.ColumnDefinitions>
+							<Grid
+								Row="1"
+								Column="1">
+								<Grid
+									Row="1">
+									<Grid.RowDefinitions>
+										<RowDefinition
+											Height="80*" />
+										<RowDefinition
+											Height="73*" />
+										<RowDefinition
+											Height="48*" />
+										<RowDefinition
+											Height="80*" />
+										<RowDefinition
+											Height="82*" />
+										<RowDefinition
+											Height="60*" />
+										<RowDefinition
+											Height="122*" />
+									</Grid.RowDefinitions>
+									<Grid
+										Row="1" />
+									<Grid
+										Row="0">
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition
+												Width="305*" />
+											<ColumnDefinition
+												Width="120*" />
+											<ColumnDefinition
+												Width="320*" />
+											<ColumnDefinition
+												Width="120*" />
+											<ColumnDefinition
+												Width="307*" />
+											<ColumnDefinition
+												Width="120*" />
+											<ColumnDefinition
+												Width="307*" />
+											<ColumnDefinition
+												Width="120*" />
+											<ColumnDefinition
+												Width="427*" />
+											<ColumnDefinition
+												Width="436*" />
+										</Grid.ColumnDefinitions>
+										<Frame
+											Name="MailCheckFrame"
+											Grid.Column="0"
+											HorizontalAlignment="Left" />
+										<Frame
+											Name="SMSCheckFrame"
+											Grid.Column="4" />
+										<Frame
+											Name="QRCheckFrame"
+											Grid.Column="6" />
+										<Frame
+											Name="SaveAsCheckFrame"
+											Grid.Column="8" />
+									</Grid>
+									<Grid
+										Row="2">
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition
+												Width="64*" />
+											<ColumnDefinition
+												Width="24*" />
+											<ColumnDefinition
+												Width="1688*" />
+											<ColumnDefinition
+												Width="806*" />
+										</Grid.ColumnDefinitions>
+										<Grid
+											Column="0">
+											<Path
+												Data="{StaticResource InfoIcon}"
+												Stroke="#82868C"
+												Stretch="Uniform"
+												StrokeThickness="0"
+												Fill="{DynamicResource UIWarningColor}"
+												VerticalAlignment="Center"
+												HorizontalAlignment="Center"
+												Width="{Binding ElementName=PrintNumberAdd, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.3+1}" />
+										</Grid>
+										<TextBlock
+											Grid.Column="2"
+											Grid.ColumnSpan="3"
+											HorizontalAlignment="Left"
+											Foreground="{DynamicResource UIGray}"
+											Style="{DynamicResource TextStyleInfo}"
+											Text="When you switch the toggles on, the settings of the related share option will appear." />
+									</Grid>
+								</Grid>
+							</Grid>
+						</Grid>
+					</Grid>
+					<Grid
+						Height="20" />
+					<Grid
+						Name="MailSettingsGrid"
+						Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.5}">
+						<class:SectionTemplate
+							Template="{StaticResource SectionTemplateKey}"
+							Content="Mail Settings"
+							Background="#FFFFFFFF"
+							BorderBrush="#BABFC5"
+							Grid.RowSpan="5"
+							Grid.ColumnSpan="5" />
+						<Grid
+							Margin="0,10,0,0">
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.06}" />
+								<RowDefinition
+									Height="1*" />
+								<RowDefinition
+									Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02+1}" />
+							</Grid.RowDefinitions>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="1*" />
+								<ColumnDefinition
+									Width="26*" />
+								<ColumnDefinition
+									Width="1*" />
+							</Grid.ColumnDefinitions>
+							<Grid
+								Row="1"
+								Column="1">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition
+										Width="1*" />
+									<ColumnDefinition
+										Width="1*" />
+								</Grid.ColumnDefinitions>
+								<StackPanel
+									Orientation="Vertical"
+									VerticalAlignment="Top">
+									<Frame
+										Name="senderMailAddressFrame"
+										Grid.Row="1"
+										Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.08+1}" />
+									<Frame
+										Name="mailBodyFrame"
+										Grid.Row="6"
+										Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.08+1}" />
+									<Frame
+										Name="senderHostFrame"
+										Grid.Row="3"
+										Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.08+1}" />
+									<Frame
+										Name="mailTestInputFrame"
+										Grid.Row="7"
+										Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.08+1}" />
+									<Grid
+										Row="8"
+										Height="{DynamicResource UIInputHeight}">
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition
+												Width="3*" />
+											<ColumnDefinition
+												Width="8*" />
+										</Grid.ColumnDefinitions>
+										<Button
+											Name="MailTestButton"
+											Grid.Row="1"
+											Content="Test Mail"
+											Style="{DynamicResource ButtonStyle}"
+											Click="MailTestButton_Click" />
+									</Grid>
+								</StackPanel>
+								<StackPanel
+									Grid.Column="2"
+									Orientation="Vertical">
+									<Frame
+										Name="senderMailPasswordFrame"
+										Grid.Row="2"
+										Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.08+1}" />
+									<Frame
+										Name="subjectFrame"
+										Grid.Row="5"
+										Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.08+1}" />
+									<Frame
+										Name="senderPortFrame"
+										Grid.Row="4"
+										Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.08+1}" />
+								</StackPanel>
+							</Grid>
+						</Grid>
+					</Grid>
+					<Grid
+						Height="20" />
+					<Grid
+						Name="SMSSettingsGrid"
+						Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.45+1}">
+						<class:SectionTemplate
+							Template="{StaticResource SectionTemplateKey}"
+							Content="SMS Settings"
+							Background="#FFFFFFFF"
+							BorderBrush="#BABFC5"
+							Grid.RowSpan="5"
+							Grid.ColumnSpan="5" />
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.06}" />
+								<RowDefinition
+									Height="1*" />
+								<RowDefinition
+									Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02+1}" />
+							</Grid.RowDefinitions>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="1*" />
+								<ColumnDefinition
+									Width="26*" />
+								<ColumnDefinition
+									Width="1*" />
+							</Grid.ColumnDefinitions>
+							<Grid
+								Row="1"
+								Column="1"
+								Margin="0,10,0,0">
+								<Grid.RowDefinitions>
+									<RowDefinition
+										Height="4*" />
+									<RowDefinition
+										Height="0*" />
+									<RowDefinition
+										Height="4*" />
+									<RowDefinition
+										Height="0*" />
+									<RowDefinition
+										Height="4*" />
+									<RowDefinition
+										Height="0*" />
+									<RowDefinition
+										Height="4*" />
+									<RowDefinition
+										Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02+1}" />
+									<RowDefinition
+										Height="2*" />
+									<RowDefinition
+										Height="0*" />
+								</Grid.RowDefinitions>
+								<Frame
+									Name="SMSAuthTokenFrame" />
+								<Frame
+									Name="SMSSidFrame"
+									Grid.Row="2" />
+								<Frame
+									Name="SMSHostNumberFrame"
+									Grid.Row="4" />
+								<Frame
+									Name="SMSTestNumberFrame"
+									Grid.Row="6" />
+								<Grid
+									Name="SMSTestButtonGrid"
+									Row="8">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition
+											Width="5*" />
+										<ColumnDefinition
+											Width="8*" />
+										<ColumnDefinition
+											Width="10*" />
+									</Grid.ColumnDefinitions>
+									<Button
+										Name="SMSTestButton"
+										Content="Test SMS"
+										Style="{DynamicResource ButtonStyle}"
+										Click="SMSTestButton_Click" />
+								</Grid>
+							</Grid>
+						</Grid>
+					</Grid>
+					<Grid
+						Height="20" />
+					<Grid
+						Name="LPPDSettingsGrid"
+						Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.49+1}">
+						<class:SectionTemplate
+							Template="{StaticResource SectionTemplateKey}"
+							Content="LPPD Settings"
+							Background="#FFFFFFFF"
+							BorderBrush="#BABFC5"
+							Grid.RowSpan="5"
+							Grid.ColumnSpan="5" />
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.06}" />
+								<RowDefinition
+									Height="1*" />
+								<RowDefinition
+									Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02+1}" />
+							</Grid.RowDefinitions>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="1*" />
+								<ColumnDefinition
+									Width="26*" />
+								<ColumnDefinition
+									Width="1*" />
+							</Grid.ColumnDefinitions>
+							<Grid
+								Row="1"
+								Column="1"
+								Margin="0,10,0,0">
+								<Grid.RowDefinitions>
+									<RowDefinition
+										Height="1*" />
+									<RowDefinition
+										Height="3*" />
+									<RowDefinition
+										Height="10*" />
+									<RowDefinition
+										Height="33*" />
+									<RowDefinition
+										Height="4*" />
+								</Grid.RowDefinitions>
+								<Frame
+									Name="LPPDActiveFrame"
+									Grid.Row="1"
+									HorizontalAlignment="Left" />
+								<Frame
+									Name="LPPDTitleFrame"
+									Grid.Row="2"
+									HorizontalAlignment="Left" />
+								<Frame
+									Name="LPPDInputFrame"
+									Grid.Row="3" />
+							</Grid>
+						</Grid>
+					</Grid>
+					<Grid
+						Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.03+1}" />
+				</StackPanel>
+			</ScrollViewer>
+		</Grid>
+	</Grid>
+</local:SettingsSubPage>

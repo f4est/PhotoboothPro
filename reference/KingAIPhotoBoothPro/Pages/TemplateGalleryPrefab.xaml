@@ -1,0 +1,117 @@
+<Page
+	x:Class="KingAIPhotoBoothPro.Pages.TemplateGalleryPrefab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages" xmlns:math="http://hexinnovation.com/math"
+	Title="TemplateGalleryPrefab"
+	Unloaded="Page_Unloaded">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<math:MathConverter
+				x:Key="math" />
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid
+		Name="gridMain">
+		<Border
+			Name="mask"
+			CornerRadius="{DynamicResource UICornerRadius}"
+			Background="#FFFFFFFF" />
+		<Image
+			Name="AIBackgroundImage"
+			Margin="15"
+			Source="/Images/Samples/PartyOldManMask.jpg"
+			Stretch="Fill">
+			<UIElement.OpacityMask>
+				<VisualBrush
+					Visual="{Binding ElementName=mask}" />
+			</UIElement.OpacityMask>
+		</Image>
+		<Border
+			Name="borderSmooth"
+			Margin="-5"
+			BorderThickness="10"
+			CornerRadius="{DynamicResource UICornerRadius}">
+			<Border.BorderBrush>
+				<LinearGradientBrush
+					EndPoint="0.5,1"
+					StartPoint="0.5,0">
+					<GradientStop
+						Color="White"
+						Offset="0" />
+					<GradientStop
+						Color="#FFD5D5D5"
+						Offset="1" />
+				</LinearGradientBrush>
+			</Border.BorderBrush>
+		</Border>
+		<Button
+			Name="AIBackgroundButton"
+			BorderThickness="0"
+			Margin="0,0,0,0"
+			Click="AIBackgroundButton_Click">
+			<UIElement.OpacityMask>
+				<ImageBrush
+					ImageSource="{Binding ElementName=GalleryImage}" />
+			</UIElement.OpacityMask>
+			<Control.Background>
+				<ImageBrush
+					x:Name="AIBackgroundButtonBrush"
+					ImageSource="{Binding ElementName=GalleryImage}">
+					<Brush.Transform>
+						<TransformGroup>
+							<ScaleTransform />
+							<SkewTransform />
+							<RotateTransform />
+							<TranslateTransform
+								X="0" />
+						</TransformGroup>
+					</Brush.Transform>
+					<Brush.RelativeTransform>
+						<TransformGroup>
+							<ScaleTransform
+								CenterY="0.5"
+								CenterX="0.5" />
+							<SkewTransform
+								CenterX="0.5"
+								CenterY="0.5" />
+							<RotateTransform
+								CenterX="0.5"
+								CenterY="0.5" />
+							<TranslateTransform
+								X="0" />
+						</TransformGroup>
+					</Brush.RelativeTransform>
+				</ImageBrush>
+			</Control.Background>
+			<FrameworkElement.Style>
+				<Style
+					TargetType="{x:Type Button}">
+					<Setter
+						Property="Background"
+						Value="#FFFFFFFF" />
+					<Setter
+						Property="Template">
+						<Setter.Value>
+							<ControlTemplate
+								TargetType="{x:Type Button}">
+								<Border
+									Background="{TemplateBinding Background}">
+									<ContentPresenter
+										HorizontalAlignment="Center"
+										VerticalAlignment="Center" />
+								</Border>
+							</ControlTemplate>
+						</Setter.Value>
+					</Setter>
+					<Style.Triggers>
+						<Trigger
+							Property="UIElement.IsMouseOver"
+							Value="True">
+							<Setter
+								Property="UIElement.Opacity"
+								Value="0.5" />
+						</Trigger>
+					</Style.Triggers>
+				</Style>
+			</FrameworkElement.Style>
+		</Button>
+	</Grid>
+</Page>

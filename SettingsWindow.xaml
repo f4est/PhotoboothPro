@@ -212,15 +212,23 @@
                     
                     <TextBlock Text="Частота кадров (FPS):" Grid.Row="3" Grid.Column="0" 
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <ComboBox x:Name="cbVideoFps" Grid.Row="3" Grid.Column="1" 
-                              Margin="0,5" Height="30" VerticalContentAlignment="Center">
-                        <ComboBoxItem Content="15" Tag="15"/>
-                        <ComboBoxItem Content="24" Tag="24"/>
-                        <ComboBoxItem Content="25" Tag="25"/>
-                        <ComboBoxItem Content="30" Tag="30" IsSelected="True"/>
-                        <ComboBoxItem Content="50" Tag="50"/>
-                        <ComboBoxItem Content="60" Tag="60"/>
-                    </ComboBox>
+                    <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
+                        <ComboBox x:Name="cbVideoFps" Width="150" Height="30" 
+                                  VerticalContentAlignment="Center" Margin="0,0,5,0"
+                                  SelectionChanged="CbVideoFps_SelectionChanged">
+                            <ComboBoxItem Content="Авто (рекомендуется)" Tag="Auto" IsSelected="True"/>
+                            <ComboBoxItem Content="15" Tag="15"/>
+                            <ComboBoxItem Content="24" Tag="24"/>
+                            <ComboBoxItem Content="25" Tag="25"/>
+                            <ComboBoxItem Content="30" Tag="30"/>
+                            <ComboBoxItem Content="50" Tag="50"/>
+                            <ComboBoxItem Content="60" Tag="60"/>
+                            <ComboBoxItem Content="Вручную" Tag="Manual"/>
+                        </ComboBox>
+                        <TextBox x:Name="txtManualFps" Width="80" Height="30" 
+                                 VerticalContentAlignment="Center" Text="30.0"
+                                 IsEnabled="False" ToolTip="Введите FPS вручную"/>
+                    </StackPanel>
                     
                     <TextBlock Text="Кодек видео:" Grid.Row="4" Grid.Column="0" 
                                VerticalAlignment="Center" Margin="0,0,10,0"/>

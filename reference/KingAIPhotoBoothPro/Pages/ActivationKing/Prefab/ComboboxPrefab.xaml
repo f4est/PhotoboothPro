@@ -1,0 +1,100 @@
+<Page
+	x:Class="KingAIPhotoBoothPro.Pages.ActivationKing.Prefab.ComboboxPrefab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:sys="clr-namespace:System;assembly=mscorlib" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Class" xmlns:math="http://hexinnovation.com/math" xmlns:lottie="clr-namespace:LottieSharp.WPF;assembly=LottieSharp"
+	Title="ComboboxPrefab" xmlns:prefab="clr-namespace:KingAIPhotoBoothPro.Pages.ActivationKing.Prefab"
+	Loaded="Page_Loaded">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<math:MathConverter
+				x:Key="math" />
+			<local:AlternationToThicknessConverter
+				x:Key="alternationToThicknessConverter" />
+			<local:NegativeValueConverter
+				x:Key="NegativeValueConverter" />
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid
+		Name="gridComboPrefab"
+		VerticalAlignment="Top"
+		Margin="0,10,0,0">
+		<StackPanel
+			VerticalAlignment="Top"
+			Width="auto">
+			<TextBlock
+				Name="txtFile"
+				Grid.Row="0"
+				VerticalAlignment="Top"
+				Style="{DynamicResource TextStylePropertyTitle}"
+				Margin="0,-0,0,5">Select</TextBlock>
+			<Grid
+				Name="gridColumn"
+				Row="2"
+				Column="0"
+				Width="auto"
+				Height="{DynamicResource UIInputHeight}"
+				VerticalAlignment="Bottom">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="5*" />
+					<ColumnDefinition
+						Width="1*" />
+					<ColumnDefinition
+						Width="5*" />
+				</Grid.ColumnDefinitions>
+				<ComboBox
+					Name="ComboNameBox"
+					Style="{StaticResource combobox_style}"
+					SelectionChanged="ComboNameBox_SelectionChanged"
+					DropDownClosed="ComboNameBox_DropDownClosed" />
+				<Grid
+					Name="loadingGifGrid"
+					Row="1"
+					Visibility="Collapsed">
+					<Border
+						Background="#FF000000"
+						Opacity="0.5"
+						CornerRadius="{DynamicResource UICornerRadius}" />
+					<Grid
+						Name="LoadingContainer">
+						<lottie:LottieAnimationView
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							AutoPlay="True"
+							FileName="Animations/LoadingDots.json"
+							RepeatCount="-1"
+							Width="{Binding ElementName=LoadingContainer, Path=ActualWidth}"
+							Height="{Binding ElementName=LoadingContainer, Path=ActualHeight}" />
+					</Grid>
+				</Grid>
+				<Grid
+					Column="1"
+					Row="1"
+					Height="{Binding ElementName=ComboNameBox, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x}">
+					<Path
+						Name="infoIcon"
+						Grid.Row="1"
+						Stretch="Uniform"
+						Fill="#82868C"
+						Margin="8">
+						<Path.Data>
+							<GeometryGroup>
+								<Geometry>M0.5 30C0.5 13.7072 13.7072 0.5 30 0.5C46.2928 0.5 59.5 13.7072 59.5 30C59.5 46.292 46.294 59.4987 30.0023 59.5C25.0095 59.5075 20.1005 58.2424 15.7372 55.8283L3.67461 58.0746C3.18849 58.1651 2.68899 58.0103 2.33934 57.6606C1.98969 57.311 1.83482 56.8115 1.92535 56.3254L4.17163 44.263C1.83138 40.0361 0.5 35.169 0.5 30ZM30 3.5C15.364 3.5 3.5 15.3641 3.5 30C3.5 34.8283 4.79063 39.3551 7.04456 43.2485C7.22402 43.5585 7.28662 43.9224 7.22105 44.2746L5.27494 54.725L15.7254 52.7789C16.0774 52.7134 16.4412 52.7759 16.7511 52.9552C20.7769 55.2841 25.3469 56.507 29.9977 56.5L30 56.5C44.6359 56.5 56.5 44.6359 56.5 30C56.5 15.3641 44.6359 3.5 30 3.5Z</Geometry>
+								<Geometry>M30 13.5C31.3807 13.5 32.5 14.6193 32.5 16L32.5 17C32.5 18.3807 31.3807 19.5 30 19.5C28.6193 19.5 27.5 18.3807 27.5 17L27.5 16C27.5 14.6193 28.6193 13.5 30 13.5Z</Geometry>
+								<Geometry>M30 23.5C31.3807 23.5 32.5 24.6193 32.5 26L32.5 43C32.5 44.3807 31.3807 45.5 30 45.5C28.6193 45.5 27.5 44.3807 27.5 43L27.5 26C27.5 24.6193 28.6193 23.5 30 23.5Z</Geometry>
+							</GeometryGroup>
+						</Path.Data>
+					</Path>
+				</Grid>
+				<TextBlock
+					Name="txtDesc"
+					Grid.Column="2"
+					Grid.Row="3"
+					Foreground="#82868C"
+					FontFamily="{StaticResource PromptExtraLight}"
+					VerticalAlignment="Center"
+					FontSize="{DynamicResource FontSizeTextSmall}"
+					Text="Event Name will be shown in the main display area"
+					TextWrapping="WrapWithOverflow" />
+			</Grid>
+		</StackPanel>
+	</Grid>
+</Page>

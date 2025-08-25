@@ -55,6 +55,12 @@
     <None Update="Resources\video_icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\app_icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="frames\*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <!-- Копирование нативных библиотек в выходной каталог -->
@@ -63,6 +69,16 @@
       <NativeLibs Include="$(NuGetPackageRoot)opencvsharp4.runtime.win\4.8.0.20230708\runtimes\win-x64\native\*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(NativeLibs)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <!-- Копирование дополнительных файлов -->
+  <Target Name="CopyAdditionalFiles" AfterTargets="Publish">
+    <ItemGroup>
+      <AppIconFiles Include="Resources\app_icon.ico" />
+      <FrameFiles Include="frames\*.png" />
+    </ItemGroup>
+    <Copy SourceFiles="@(AppIconFiles)" DestinationFolder="$(PublishDir)Resources" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(FrameFiles)" DestinationFolder="$(PublishDir)frames" SkipUnchangedFiles="true" />
   </Target>
 
 </Project> 

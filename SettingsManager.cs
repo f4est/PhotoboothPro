@@ -20,8 +20,7 @@ namespace UnifiedPhotoBooth
             try
             {
                 System.Diagnostics.Debug.WriteLine($"Сохранение настроек. Индекс камеры: {settings.CameraIndex}");
-                
-                System.Diagnostics.Debug.WriteLine($"Сохранение настроек. Индекс камеры: {settings.CameraIndex}");
+                System.Diagnostics.Debug.WriteLine($"Сохранение настроек. VideoFps: {settings.VideoFps}, UseAutoFps: {settings.UseAutoFps}");
                 
                 // Создаем директорию, если она не существует
                 if (!Directory.Exists(SettingsFolder))
@@ -40,6 +39,20 @@ namespace UnifiedPhotoBooth
                 // Сериализуем настройки в JSON
                 string json = JsonSerializer.Serialize(settings, options);
                 System.Diagnostics.Debug.WriteLine($"Настройки сериализованы в JSON, размер: {json.Length} байт");
+                System.Diagnostics.Debug.WriteLine($"Сохранение: VideoFps = {settings.VideoFps}, UseAutoFps = {settings.UseAutoFps}");
+                
+                // Проверяем, что JSON содержит правильные значения FPS
+                if (json.Contains("\"VideoFps\":"))
+                {
+                    int fpsIndex = json.IndexOf("\"VideoFps\":");
+                    int fpsEndIndex = json.IndexOf(",", fpsIndex);
+                    if (fpsEndIndex == -1) fpsEndIndex = json.IndexOf("}", fpsIndex);
+                    if (fpsEndIndex > fpsIndex)
+                    {
+                        string fpsSection = json.Substring(fpsIndex, fpsEndIndex - fpsIndex);
+                        System.Diagnostics.Debug.WriteLine($"JSON содержит FPS секцию: {fpsSection}");
+                    }
+                }
                 
                 // Используем атомарную запись через временный файл
                 string tempPath = SettingsFilePath + ".tmp";
@@ -57,6 +70,12 @@ namespace UnifiedPhotoBooth
                     
                     File.Move(tempPath, SettingsFilePath);
                     System.Diagnostics.Debug.WriteLine($"Настройки успешно сохранены в {SettingsFilePath}");
+                    
+                    // Проверяем, что файл действительно содержит правильные значения
+                    string savedJson = File.ReadAllText(SettingsFilePath, System.Text.Encoding.UTF8);
+                    var savedSettings = JsonSerializer.Deserialize<AppSettings>(savedJson, options);
+                    System.Diagnostics.Debug.WriteLine($"Проверка сохраненного файла: VideoFps = {savedSettings.VideoFps}, UseAutoFps = {savedSettings.UseAutoFps}");
+                    
                     return true;
                 }
                 
@@ -122,6 +141,21 @@ namespace UnifiedPhotoBooth
                 ValidateSettings(settings);
                 
                 System.Diagnostics.Debug.WriteLine($"Настройки успешно загружены. Индекс камеры: {settings.CameraIndex}");
+                System.Diagnostics.Debug.WriteLine($"Загрузка: VideoFps = {settings.VideoFps}, UseAutoFps = {settings.UseAutoFps}");
+                
+                // Проверяем, что JSON содержит правильные значения FPS
+                if (json.Contains("\"VideoFps\":"))
+                {
+                    int fpsIndex = json.IndexOf("\"VideoFps\":");
+                    int fpsEndIndex = json.IndexOf(",", fpsIndex);
+                    if (fpsEndIndex == -1) fpsEndIndex = json.IndexOf("}", fpsIndex);
+                    if (fpsEndIndex > fpsIndex)
+                    {
+                        string fpsSection = json.Substring(fpsIndex, fpsEndIndex - fpsIndex);
+                        System.Diagnostics.Debug.WriteLine($"Загруженный JSON содержит FPS секцию: {fpsSection}");
+                    }
+                }
+                
                 return settings;
             }
             catch (Exception ex)

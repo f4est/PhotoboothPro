@@ -1,0 +1,24 @@
+<Page
+	x:Class="KingAIPhotoBoothPro.Pages.ActivationKing.Prefab.TogglePrefab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages.ActivationKing.Prefab" xmlns:class="clr-namespace:KingAIPhotoBoothPro.Class"
+	Title="TogglePrefab"
+	Loaded="Page_Loaded">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<class:SpecificMarginConverter
+				x:Key="SpecificMarginConverter" />
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid>
+		<ToggleButton
+			Name="toggleElement"
+			Style="{StaticResource CustomToggleButtonStyle}"
+			Content="garasr"
+			FontFamily="{StaticResource PromptMedium}"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Top"
+			FontSize="{DynamicResource FontSizeTextRegular}"
+			Foreground="{DynamicResource UIGrayDark}"
+			Checked="ToggleElement_Checked"
+			Unchecked="ToggleElement_Unchecked" />
+	</Grid>
+</Page>

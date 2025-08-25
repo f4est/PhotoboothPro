@@ -1,0 +1,86 @@
+<Page
+	x:Class="KingAIPhotoBoothPro.Pages.ActivationKing.Prefab.ImagePrefab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages.ActivationKing.Prefab" xmlns:converter="clr-namespace:KingAIPhotoBoothPro.Class" xmlns:math="http://hexinnovation.com/math"
+	Title="ImagePrefab">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<math:MathConverter
+				x:Key="math" />
+			<converter:SpecificMarginConverter
+				x:Key="SpecificMarginConverter" />
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid
+		Name="imageGrid"
+		Visibility="Visible">
+		<Image
+			Name="image"
+			Grid.ColumnSpan="10"
+			Grid.RowSpan="10"
+			Stretch="Fill"
+			Source="{Binding TemplateImage}" />
+		<Rectangle
+			Name="border"
+			Stroke="#3B82F6"
+			StrokeDashArray="5,2"
+			StrokeThickness="5"
+			Grid.ColumnSpan="5"
+			Grid.RowSpan="5"
+			Visibility="Hidden" />
+		<Button
+			Name="buttonTopLeft"
+			Grid.Column="0"
+			Grid.Row="0"
+			MinWidth="15"
+			MinHeight="15"
+			Background="#3B82F6"
+			Opacity="0.7"
+			HorizontalAlignment="Left"
+			Visibility="Hidden"
+			VerticalAlignment="Top"
+			Width="{Binding ElementName=imageGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.05+1}"
+			Height="{Binding ElementName=imageGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.05+1}"
+			Margin="{Binding ElementName=buttonTopLeft, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=-x*1}" />
+		<Button
+			Name="buttonTopRight"
+			Grid.Column="4"
+			Grid.Row="0"
+			MinWidth="15"
+			MinHeight="15"
+			Background="#3B82F6"
+			Opacity="0.7"
+			HorizontalAlignment="Right"
+			Visibility="Hidden"
+			VerticalAlignment="Top"
+			Width="{Binding ElementName=imageGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.05+1}"
+			Height="{Binding ElementName=imageGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.05+1}"
+			Margin="{Binding ElementName=buttonTopRight, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=-x*1}" />
+		<Button
+			Name="buttonBottomRight"
+			Grid.Column="4"
+			Grid.Row="4"
+			MinWidth="15"
+			MinHeight="15"
+			Background="#3B82F6"
+			Opacity="0.7"
+			HorizontalAlignment="Right"
+			Visibility="Hidden"
+			VerticalAlignment="Bottom"
+			Width="{Binding ElementName=imageGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.05+1}"
+			Height="{Binding ElementName=imageGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.05+1}"
+			Margin="{Binding ElementName=buttonBottomRight, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=-x*1}" />
+		<Button
+			Name="buttonBottomLeft"
+			Grid.Column="0"
+			Grid.Row="4"
+			MinWidth="15"
+			MinHeight="15"
+			Background="#3B82F6"
+			Opacity="0.7"
+			HorizontalAlignment="Left"
+			Visibility="Hidden"
+			VerticalAlignment="Bottom"
+			Width="{Binding ElementName=imageGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.05+1}"
+			Height="{Binding ElementName=imageGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.05+1}"
+			Margin="{Binding ElementName=buttonBottomLeft, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=-x*1}" />
+	</Grid>
+</Page>

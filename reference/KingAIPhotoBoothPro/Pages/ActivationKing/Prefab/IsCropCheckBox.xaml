@@ -1,0 +1,113 @@
+<Page
+	x:Class="KingAIPhotoBoothPro.Pages.ActivationKing.Prefab.IsCropCheckBox" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages.ActivationKing.Prefab" xmlns:math="http://hexinnovation.com/math"
+	Title="IsCropCheckBox"
+	Loaded="Page_Loaded">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<math:MathConverter
+				x:Key="math" />
+			<Style
+				TargetType="{x:Type CheckBox}"
+				x:Key="{x:Type CheckBox}">
+				<Setter
+					Property="Foreground"
+					Value="#3B82F6" />
+				<Setter
+					Property="Template">
+					<Setter.Value>
+						<ControlTemplate
+							TargetType="{x:Type CheckBox}">
+							<Grid
+								Background="#00FFFFFF">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition
+										Width="48*" />
+									<ColumnDefinition
+										Width="15*" />
+									<ColumnDefinition
+										Width="Auto" />
+								</Grid.ColumnDefinitions>
+								<Border
+									Name="checkBoxBorder"
+									BorderBrush="#BABFC5"
+									BorderThickness="2"
+									Background="#FFFFFFFF"
+									CornerRadius="2"
+									Width="{DynamicResource CheckBoxHeight}"
+									Height="{DynamicResource CheckBoxHeight}"
+									Margin="0"
+									Visibility="Visible" />
+								<Path
+									Name="checkedImage"
+									StrokeThickness="0"
+									Stretch="Uniform"
+									Fill="#3B82F6"
+									Visibility="Hidden"
+									Width="{DynamicResource CheckBoxHeight}"
+									Height="{DynamicResource CheckBoxHeight}">
+									<Path.Data>
+										<GeometryGroup>
+											<RectangleGeometry
+												Rect="0,0,36,36"
+												RadiusX="6"
+												RadiusY="6" />
+											<Geometry>M26.7783 11.7968C27.3641 12.3825 27.3641 13.3323 26.7783 13.9181L16.4926 24.2038C15.9068 24.7896 14.957 24.7896 14.3713 24.2038L9.2284 19.0609C8.64262 18.4752 8.64262 17.5254 9.2284 16.9396C9.81419 16.3538 10.7639 16.3538 11.3497 16.9396L15.4319 21.0218L24.657 11.7968C25.2428 11.211 26.1925 11.211 26.7783 11.7968Z</Geometry>
+										</GeometryGroup>
+									</Path.Data>
+								</Path>
+								<Grid
+									Column="1"
+									Width="{Binding ElementName=checkedImage, Path=ActualWidth, ConverterParameter=x*15/48, Converter={StaticResource math}}" />
+								<Grid
+									Name="contentGrid"
+									Column="2">
+									<ContentPresenter
+										HorizontalAlignment="Center"
+										VerticalAlignment="Center"
+										SnapsToDevicePixels="True"
+										RecognizesAccessKey="True"
+										TextBlock.Foreground="#707270"
+										TextBlock.FontSize="{DynamicResource FontSizeTextSmall}" />
+								</Grid>
+							</Grid>
+							<ControlTemplate.Triggers>
+								<Trigger
+									Property="ToggleButton.IsChecked"
+									Value="True">
+									<Setter
+										TargetName="checkedImage"
+										Property="Visibility"
+										Value="Visible" />
+								</Trigger>
+								<Trigger
+									Property="ToggleButton.IsChecked"
+									Value="{x:Null}">
+									<Setter
+										TargetName="checkedImage"
+										Property="Visibility"
+										Value="Hidden" />
+								</Trigger>
+							</ControlTemplate.Triggers>
+						</ControlTemplate>
+					</Setter.Value>
+				</Setter>
+			</Style>
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid
+		Name="mainGrid"
+		HorizontalAlignment="Left">
+		<CheckBox
+			Name="CheckElement"
+			VerticalAlignment="Center"
+			HorizontalAlignment="Center"
+			Content="Photo"
+			HorizontalContentAlignment="Center"
+			VerticalContentAlignment="Center"
+			FontFamily="{StaticResource PromptRegular}"
+			Foreground="{DynamicResource UIGrayDark}"
+			FontSize="{DynamicResource FontSizeTextSmall}"
+			Checked="CheckElement_Checked"
+			Unchecked="CheckElement_Unchecked" />
+	</Grid>
+</Page>

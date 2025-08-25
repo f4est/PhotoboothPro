@@ -1,0 +1,982 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+    <ProjectGuid>{F16B2ADF-9B4D-42CF-8759-29706EE948D7}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>KingAIPhotoBoothPro</RootNamespace>
+    <AssemblyName>KingAIPhotoBoothPro</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60DC8134-EBA5-43B8-BCC9-BB4BC16C2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>KingAIPhotoBoothPro.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Accord.Video.DirectShow">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\Accord.Video.DirectShow.dll</HintPath>
+    </Reference>
+    <Reference Include="AWSSDK.Rekognition">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\AWSSDK.Rekognition.dll</HintPath>
+    </Reference>
+    <Reference Include="CameraControl.Core">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\CameraControl.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="CameraControl.Devices">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\CameraControl.Devices.dll</HintPath>
+    </Reference>
+    <Reference Include="ColorPicker">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\ColorPicker.dll</HintPath>
+    </Reference>
+    <Reference Include="FFmpeg.NET">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\FFmpeg.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="Kaliko.ImageLibrary">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\Kaliko.ImageLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="LottieSharp">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\LottieSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Magick.NET-Q16-AnyCPU">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\Magick.NET-Q16-AnyCPU.dll</HintPath>
+    </Reference>
+    <Reference Include="Magick.NET.Core">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\Magick.NET.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenCvSharp">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\OpenCvSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenCvSharp.Extensions">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\OpenCvSharp.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenCvSharp.WpfExtensions">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\OpenCvSharp.WpfExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="QRCoder">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\QRCoder.dll</HintPath>
+    </Reference>
+    <Reference Include="ReachFramework" />
+    <Reference Include="SendGrid">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\SendGrid.dll</HintPath>
+    </Reference>
+    <Reference Include="ShaderEffectLibrary">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\ShaderEffectLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.MediaFoundation">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\SharpDX.MediaFoundation.dll</HintPath>
+    </Reference>
+    <Reference Include="SimpleWifi">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\SimpleWifi.dll</HintPath>
+    </Reference>
+    <Reference Include="Stripe.net">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\Stripe.net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Management">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\System.Management.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Printing" />
+    <Reference Include="System.Runtime.WindowsRuntime">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\System.Runtime.WindowsRuntime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Text.Json">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\System.Windows.Forms.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Interactivity">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="TermControls">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\TermControls.dll</HintPath>
+    </Reference>
+    <Reference Include="Twilio">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\Twilio.dll</HintPath>
+    </Reference>
+    <Reference Include="VideoProcessorLibrary">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\VideoProcessorLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="Vlc.DotNet.Wpf">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\Vlc.DotNet.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="websocket-sharp">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\websocket-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Windows" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="Xceed.Wpf.Toolkit">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\Xceed.Wpf.Toolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="Zack.OpenCVSharp.Ext">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ActivationKing\AIPhotoBoothPro\Zack.OpenCVSharp.Ext.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsFormsIntegration" />
+    <Reference Include="MathConverter" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="mscorlib" />
+    <Reference Include="WPFMediaKit" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ActivationKingWindow.xaml.cs">
+      <DependentUpon>ActivationKingWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ApplicationPage.cs" />
+    <Compile Include="BmsEngine.cs" />
+    <Compile Include="BoolToVisibilityConverter.cs" />
+    <Compile Include="CameraSettingsWindows.cs" />
+    <Compile Include="Class\ActivationKing\BehaviorExtensions.cs" />
+    <Compile Include="Class\ActivationKing\EnumExtensions.cs" />
+    <Compile Include="Class\ActivationKing\EventArchiveItemScript.cs" />
+    <Compile Include="Class\ActivationKing\ExtensionMethod.cs" />
+    <Compile Include="Class\ActivationKing\GenericResponse.cs" />
+    <Compile Include="Class\ActivationKing\OperationalEvent.cs" />
+    <Compile Include="Class\ActivationKing\TimedAction.cs" />
+    <Compile Include="Class\AlternationToThicknessConverter.cs" />
+    <Compile Include="Class\AppVersionControl.cs" />
+    <Compile Include="Class\ButtonIcon.cs" />
+    <Compile Include="Class\CameraControlClass.cs" />
+    <Compile Include="Class\ConnectedGoPro.cs" />
+    <Compile Include="Class\DataType.cs" />
+    <Compile Include="Class\DeviceInfo.cs" />
+    <Compile Include="Class\EventMediaClass.cs" />
+    <Compile Include="Class\FTPUpload.cs" />
+    <Compile Include="Class\GoProCameraControlClass.cs" />
+    <Compile Include="Class\Helper\BunnyCDNHelper.cs" />
+    <Compile Include="Class\Helper\ConfigReader.cs" />
+    <Compile Include="Class\Helper\CurrencyMinorUnit.cs" />
+    <Compile Include="Class\Helper\FluxAIHelper.cs" />
+    <Compile Include="Class\Helper\HashGenerator.cs" />
+    <Compile Include="Class\Helper\ImageHelper.cs" />
+    <Compile Include="Class\Helper\KukaUdpMessenger.cs" />
+    <Compile Include="Class\Helper\NewFrameEventArgs.cs" />
+    <Compile Include="Class\Helper\OpenCvCameraHelper.cs" />
+    <Compile Include="Class\Helper\PaymentOption.cs" />
+    <Compile Include="Class\Helper\PaymentScreen.cs" />
+    <Compile Include="Class\Helper\PaymentWaitResult.cs" />
+    <Compile Include="Class\Helper\Settings.cs" />
+    <Compile Include="Class\Helper\SMSInfo.cs" />
+    <Compile Include="Class\Helper\StripeCheckoutHelper.cs" />
+    <Compile Include="Class\Helper\StripeController.cs" />
+    <Compile Include="Class\Helper\TwilioHelper.cs" />
+    <Compile Include="Class\Helper\VariationMediaHelper.cs" />
+    <Compile Include="Class\HTTPHelper.cs" />
+    <Compile Include="Class\IndexConverter.cs" />
+    <Compile Include="Class\LiveViewClass.cs" />
+    <Compile Include="Class\MarginLeftConverter.cs" />
+    <Compile Include="Class\MarginTopBottomConverter.cs" />
+    <Compile Include="Class\MediaClassBase.cs" />
+    <Compile Include="Class\MediaType.cs" />
+    <Compile Include="Class\MonoFunctionPhotoBoothController.cs" />
+    <Compile Include="Class\NegativeValueConverter.cs" />
+    <Compile Include="Class\PaperSize.cs" />
+    <Compile Include="Class\PaperSizeData.cs" />
+    <Compile Include="Class\PaperSizeEnum.cs" />
+    <Compile Include="Class\ParseGif.cs" />
+    <Compile Include="Class\ReplaceGreenScreenFilter.cs" />
+    <Compile Include="Class\ScreenHeightPercentageConverter.cs" />
+    <Compile Include="Class\SectionTemplate.cs" />
+    <Compile Include="Class\ShaderEffects.cs" />
+    <Compile Include="Class\SpecificMarginConverter.cs" />
+    <Compile Include="Class\SystemDeviceEnumerator.cs" />
+    <Compile Include="Class\TemplateClass.cs" />
+    <Compile Include="Class\TemplateJsonObject.cs" />
+    <Compile Include="Class\TemplateObject.cs" />
+    <Compile Include="Class\TemplateType.cs" />
+    <Compile Include="Class\UI\CustomGrid.cs" />
+    <Compile Include="Class\UI\FaceSelectionElement.cs" />
+    <Compile Include="Class\UI\ScrollViewerDragBehavior.cs" />
+    <Compile Include="Class\UI\SegmentedButton.cs" />
+    <Compile Include="Class\VideoInputDevice.cs" />
+    <Compile Include="Class\Webcam.cs" />
+    <Compile Include="Class\WebcamControlClass.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="Debug.cs" />
+    <Compile Include="EmailValidator.cs" />
+    <Compile Include="EncryptString.cs" />
+    <Compile Include="Helper\SafeDateTimeConverter.cs" />
+    <Compile Include="Interfaces\ICameraMotionPlatform.cs" />
+    <Compile Include="KingTween.cs" />
+    <Compile Include="MailClass.cs" />
+    <Compile Include="MessageBoxWindow.xaml.cs">
+      <DependentUpon>MessageBoxWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Modals\AccountInfo.cs" />
+    <Compile Include="Modals\AiEffectLocal.cs" />
+    <Compile Include="Modals\Api\AIBackgroundModals.cs" />
+    <Compile Include="Modals\Api\AIBeautifierModals.cs" />
+    <Compile Include="Modals\Api\AIEffectModals.cs" />
+    <Compile Include="Modals\Api\AiMotion\AiImageMotionGetResultRequest.cs" />
+    <Compile Include="Modals\Api\AiMotion\AiImageMotionInput.cs" />
+    <Compile Include="Modals\Api\AiMotion\AiImageMotionOutput.cs" />
+    <Compile Include="Modals\Api\AiMotion\AiImageMotionRunRequest.cs" />
+    <Compile Include="Modals\Api\AiMotion\AiImageMotionRunResponse.cs" />
+    <Compile Include="Modals\Api\CDNUploadRequest.cs" />
+    <Compile Include="Modals\Api\ChromaKeyModals.cs" />
+    <Compile Include="Modals\Api\DiscordMessageModals.cs" />
+    <Compile Include="Modals\Api\EventDataResponse.cs" />
+    <Compile Include="Modals\Api\FluxAIModals.cs" />
+    <Compile Include="Modals\Api\ForgotUnlockDashboardModals.cs" />
+    <Compile Include="Modals\Api\MediaSaveModal.cs" />
+    <Compile Include="Modals\Api\MediaVariationModals.cs" />
+    <Compile Include="Modals\Api\StripeSession.cs" />
+    <Compile Include="Modals\Api\UpdateFaceSwapTargetRequest.cs" />
+    <Compile Include="Modals\Api\UploadFaceSwapTargetRequest.cs" />
+    <Compile Include="Modals\Api\UploadFaceSwapTargetResponse.cs" />
+    <Compile Include="Modals\Api\WordPortraitModals.cs" />
+    <Compile Include="Modals\App.cs" />
+    <Compile Include="Modals\AppInfo.cs" />
+    <Compile Include="Modals\ApplicationActivityLogRequest.cs" />
+    <Compile Include="Modals\AppSettings.cs" />
+    <Compile Include="Modals\AppToken.cs" />
+    <Compile Include="Modals\Base.cs" />
+    <Compile Include="Modals\EmbeddedFont.cs" />
+    <Compile Include="Modals\EventApplication.cs" />
+    <Compile Include="Modals\EventDataRequest.cs" />
+    <Compile Include="Modals\FaceSwapTarget.cs" />
+    <Compile Include="Modals\FileInformation.cs" />
+    <Compile Include="Modals\GenderType.cs" />
+    <Compile Include="Modals\LicenceLoginRequest.cs" />
+    <Compile Include="Modals\LicenceLoginResponse.cs" />
+    <Compile Include="Modals\LicenceLoginResultCodes.cs" />
+    <Compile Include="Modals\MailData.cs" />
+    <Compile Include="Modals\MailInfo.cs" />
+    <Compile Include="Modals\MailPrintDataRequest.cs" />
+    <Compile Include="Modals\MediaData.cs" />
+    <Compile Include="Modals\MediaVariationData.cs" />
+    <Compile Include="Modals\ParticipantInformation.cs" />
+    <Compile Include="Modals\PrintData.cs" />
+    <Compile Include="Modals\PrinterInfo.cs" />
+    <Compile Include="Modals\SocialAccount.cs" />
+    <Compile Include="Modals\TemplateGalleryTarget.cs" />
+    <Compile Include="Modals\Webcam\ICreateDevEnum.cs" />
+    <Compile Include="Modals\Webcam\IPropertyBag.cs" />
+    <Compile Include="Modals\WordPortraitModal.cs" />
+    <Compile Include="NavButton.cs" />
+    <Compile Include="Pages\ActivationKing\AIEffectPage.xaml.cs">
+      <DependentUpon>AIEffectPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\AIMode.cs" />
+    <Compile Include="Pages\ActivationKing\CreateEventPage.xaml.cs">
+      <DependentUpon>CreateEventPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\CurrentEventPage.xaml.cs">
+      <DependentUpon>CurrentEventPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\FaceSwap.xaml.cs">
+      <DependentUpon>FaceSwap.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\FontWindow.xaml.cs">
+      <DependentUpon>FontWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\LanguagePage.xaml.cs">
+      <DependentUpon>LanguagePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\MainSettingsPage.xaml.cs">
+      <DependentUpon>MainSettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Mode.cs" />
+    <Compile Include="Pages\ActivationKing\Prefab\AIEffectPrefab.xaml.cs">
+      <DependentUpon>AIEffectPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\CheckBoxPrefab.xaml.cs">
+      <DependentUpon>CheckBoxPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\ColorPickerPrefab.xaml.cs">
+      <DependentUpon>ColorPickerPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\ComboboxPrefab.xaml.cs">
+      <DependentUpon>ComboboxPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\EventPrefab.xaml.cs">
+      <DependentUpon>EventPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\FaceSwapImagePickerPrefab.xaml.cs">
+      <DependentUpon>FaceSwapImagePickerPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\FileBrowserPrefab.xaml.cs">
+      <DependentUpon>FileBrowserPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\FolderBrowserPrefab.xaml.cs">
+      <DependentUpon>FolderBrowserPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\ImagePickerPrefab.xaml.cs">
+      <DependentUpon>ImagePickerPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\ImagePrefab.xaml.cs">
+      <DependentUpon>ImagePrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\InputBoxPrefab.xaml.cs">
+      <DependentUpon>InputBoxPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\IsCropCheckBox.xaml.cs">
+      <DependentUpon>IsCropCheckBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\MultiLineInputPrefab.xaml.cs">
+      <DependentUpon>MultiLineInputPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\PhotoPrefab.xaml.cs">
+      <DependentUpon>PhotoPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\SamplePromptPickerPrefab.xaml.cs">
+      <DependentUpon>SamplePromptPickerPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\SegmentedPrefab.xaml.cs">
+      <DependentUpon>SegmentedPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\SliderPrefab.xaml.cs">
+      <DependentUpon>SliderPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\TextPrefab.xaml.cs">
+      <DependentUpon>TextPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\TogglePrefab.xaml.cs">
+      <DependentUpon>TogglePrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\Prefab\VideoPickerPrefab.xaml.cs">
+      <DependentUpon>VideoPickerPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\PrinterPage.xaml.cs">
+      <DependentUpon>PrinterPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\SamplePromptsPage.xaml.cs">
+      <DependentUpon>SamplePromptsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\SettingsSubPage.cs" />
+    <Compile Include="Pages\ActivationKing\SharingPage.xaml.cs">
+      <DependentUpon>SharingPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\TemplatePage.xaml.cs">
+      <DependentUpon>TemplatePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\TemplatePageVideo.xaml.cs">
+      <DependentUpon>TemplatePageVideo.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\ThemePage.xaml.cs">
+      <DependentUpon>ThemePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ActivationKing\WordCloudPage.xaml.cs">
+      <DependentUpon>WordCloudPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\AIBackgroundPrefab.xaml.cs">
+      <DependentUpon>AIBackgroundPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\AIEffectGalleryPage.xaml.cs">
+      <DependentUpon>AIEffectGalleryPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\AIEffectGalleryPrefab.xaml.cs">
+      <DependentUpon>AIEffectGalleryPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\AIPrompGalleryPage.xaml.cs">
+      <DependentUpon>AIPrompGalleryPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\AISharing.xaml.cs">
+      <DependentUpon>AISharing.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Behaviors\ScrollViewerBottomBehavior.cs" />
+    <Compile Include="Pages\DashboardPage.cs" />
+    <Compile Include="Pages\DSLR.xaml.cs">
+      <DependentUpon>DSLR.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\DSLRGif.xaml.cs">
+      <DependentUpon>DSLRGif.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\DSLRPhoto.xaml.cs">
+      <DependentUpon>DSLRPhoto.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\DSLRVideo.xaml.cs">
+      <DependentUpon>DSLRVideo.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\EventManagementPage.cs" />
+    <Compile Include="Pages\FaceSwapBackgroundGallery.xaml.cs">
+      <DependentUpon>FaceSwapBackgroundGallery.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\FileDetails.cs" />
+    <Compile Include="Pages\Gallery.xaml.cs">
+      <DependentUpon>Gallery.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\GalleryPrefab.xaml.cs">
+      <DependentUpon>GalleryPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\GoProVideo.xaml.cs">
+      <DependentUpon>GoProVideo.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\HomeButton.cs" />
+    <Compile Include="Pages\Login.cs" />
+    <Compile Include="Pages\PaymentSession.cs" />
+    <Compile Include="Pages\SamplePrompt.cs" />
+    <Compile Include="Pages\SamplePromptData.cs" />
+    <Compile Include="Pages\SamplePromptDataXML.cs" />
+    <Compile Include="Pages\SamplePromptPrefab.xaml.cs">
+      <DependentUpon>SamplePromptPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SamplePromptXML.cs" />
+    <Compile Include="Pages\SecondWindow.xaml.cs">
+      <DependentUpon>SecondWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SettingsPage.cs" />
+    <Compile Include="Pages\SettingsSubPageEnum.cs" />
+    <Compile Include="Pages\TemplateGallery.xaml.cs">
+      <DependentUpon>TemplateGallery.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\TemplateGalleryPrefab.xaml.cs">
+      <DependentUpon>TemplateGalleryPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\VariationLoadingPrefab.xaml.cs">
+      <DependentUpon>VariationLoadingPrefab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PrintClass.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <DependentUpon>Settings.settings</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="RGB.cs" />
+    <Compile Include="Services\DobotRoboticArmService.cs" />
+    <Compile Include="Services\Motion360Platform.cs" />
+    <Compile Include="SessionData.cs" />
+    <Compile Include="UIElementExtensions.cs" />
+    <Compile Include="UpdateWindow.xaml.cs">
+      <DependentUpon>UpdateWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Variations\VariationMedia.cs" />
+    <Compile Include="Variations\VariationType.cs" />
+    <Compile Include="VideoWindow.xaml.cs">
+      <DependentUpon>VideoWindow.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="EDSDK.dll" />
+    <EmbeddedResource Include="EdsImage.dll" />
+    <EmbeddedResource Include="Fonts\Embedded\arial.ttf" />
+    <EmbeddedResource Include="Fonts\Embedded\BAUHS93.TTF" />
+    <EmbeddedResource Include="Fonts\Embedded\BROADW.TTF" />
+    <EmbeddedResource Include="Fonts\Embedded\BRUSHSCI.TTF" />
+    <EmbeddedResource Include="Fonts\Embedded\CHILLER.TTF" />
+    <EmbeddedResource Include="Fonts\Embedded\COPRGTL.TTF" />
+    <EmbeddedResource Include="Fonts\Embedded\PixelifySans-Regular.ttf" />
+    <EmbeddedResource Include="Properties\Resources.resources" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="app.manifest" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </ApplicationDefinition>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="ActivationKingWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MessageBoxWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\AIEffectPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\CreateEventPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\CurrentEventPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\dashboardpage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\eventmanagementpage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\FaceSwap.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\FontWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\LanguagePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\login.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\MainSettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\AIEffectPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\CheckBoxPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\ColorPickerPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\ComboboxPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\EventPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\FaceSwapImagePickerPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\FileBrowserPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\FolderBrowserPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\ImagePickerPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\ImagePrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\InputBoxPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\IsCropCheckBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\MultiLineInputPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\PhotoPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\SamplePromptPickerPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\SegmentedPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\SliderPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\TextPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\TogglePrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\Prefab\VideoPickerPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\PrinterPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\SamplePromptsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\settingspage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\SharingPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\TemplatePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\TemplatePageVideo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\ThemePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="pages\activationking\theme\activationkingthemedictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ActivationKing\WordCloudPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\AIBackgroundPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\AIEffectGalleryPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\AIEffectGalleryPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\AIPrompGalleryPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\AISharing.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\camerasettingswindows.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\DSLR.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\DSLRGif.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\DSLRPhoto.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\DSLRVideo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\FaceSwapBackgroundGallery.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Gallery.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\GalleryPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\GoProVideo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\SamplePromptPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\SecondWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\TemplateGallery.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\TemplateGalleryPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="pages\theme\dictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\VariationLoadingPrefab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UpdateWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="VideoWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="fonsuz_beyaz_son.ico" />
+    <Resource Include="fonts\arial.ttf" />
+    <Resource Include="fonts\bauhs93.ttf" />
+    <Resource Include="fonts\broadw.ttf" />
+    <Resource Include="fonts\brushsci.ttf" />
+    <Resource Include="fonts\chiller.ttf" />
+    <Resource Include="fonts\coprgtl.ttf" />
+    <Resource Include="fonts\montserrat-bold.ttf" />
+    <Resource Include="fonts\montserrat-medium.ttf" />
+    <Resource Include="fonts\montserrat-regular.ttf" />
+    <Resource Include="fonts\montserrat-semibold.ttf" />
+    <Resource Include="fonts\pixelifysans-variablefont.ttf" />
+    <Resource Include="fonts\prompt bold.ttf" />
+    <Resource Include="fonts\prompt-extralight.ttf" />
+    <Resource Include="fonts\prompt-medium.ttf" />
+    <Resource Include="fonts\prompt-semibold.ttf" />
+    <Resource Include="fonts\roboto-bold.ttf" />
+    <Resource Include="fonts\_prompt-regular.ttf" />
+    <Resource Include="images\appinfo_leftpanel_bg.png" />
+    <Resource Include="images\appinfo_leftpanel_cover.png" />
+    <Resource Include="images\appinfo_rightpanel_cover.png" />
+    <Resource Include="images\back icon.png" />
+    <Resource Include="images\background.png" />
+    <Resource Include="images\backgroundsettings.png" />
+    <Resource Include="images\banner_bg.png" />
+    <Resource Include="images\banner_image.png" />
+    <Resource Include="images\bg.png" />
+    <Resource Include="images\blackbutton.png" />
+    <Resource Include="images\boldgray.png" />
+    <Resource Include="images\bprofile.png" />
+    <Resource Include="images\browsebutton.png" />
+    <Resource Include="images\bticon.png" />
+    <Resource Include="images\button.png" />
+    <Resource Include="images\buttonblack.png" />
+    <Resource Include="images\buttonblackoverlay.png" />
+    <Resource Include="images\buttonblue.png" />
+    <Resource Include="images\buttongray.png" />
+    <Resource Include="images\buttonlayout.png" />
+    <Resource Include="images\buttonlayout2.png" />
+    <Resource Include="images\buttonlong.png" />
+    <Resource Include="images\button_emptyfill.png" />
+    <Resource Include="images\button_logout.png" />
+    <Resource Include="images\camera.png" />
+    <Resource Include="images\cameraicon.png" />
+    <Resource Include="images\cameramedia.png" />
+    <Resource Include="images\camerashadow.png" />
+    <Resource Include="images\cancelbutton.png" />
+    <Resource Include="images\check icon.png" />
+    <Resource Include="images\checkbox.png" />
+    <Resource Include="images\circleitem.png" />
+    <Resource Include="images\close.png" />
+    <Resource Include="images\closeicon.png" />
+    <Resource Include="images\closewhite.png" />
+    <Resource Include="images\colordropper.cur" />
+    <Resource Include="images\cover.png" />
+    <Resource Include="images\cube.png" />
+    <Resource Include="images\donebutton.png" />
+    <Resource Include="images\downloadcloud.png" />
+    <Resource Include="images\downloadlogo.png" />
+    <Resource Include="images\ellipse item.png" />
+    <Resource Include="images\ellipsecamera.png" />
+    <Resource Include="images\ellipsemail.png" />
+    <Resource Include="images\ellipseprint.png" />
+    <Resource Include="images\email icon.png" />
+    <Resource Include="images\emailbutton.png" />
+    <Resource Include="images\emergencystop.png" />
+    <Resource Include="images\error.png" />
+    <Resource Include="images\erroricon.png" />
+    <Resource Include="images\eventarchive_background_white.png" />
+    <Resource Include="images\functionbutton.png" />
+    <Resource Include="images\gallery.png" />
+    <Resource Include="images\gallerybackground.png" />
+    <Resource Include="images\galleryicon.png" />
+    <Resource Include="images\gif.png" />
+    <Resource Include="images\gificon.png" />
+    <Resource Include="images\gifshadow.png" />
+    <Resource Include="images\iconbackground.png" />
+    <Resource Include="images\importicon.png" />
+    <Resource Include="images\increase.png" />
+    <Resource Include="images\infobuttonback.png" />
+    <Resource Include="images\info_icon.png" />
+    <Resource Include="images\inputtextbg.png" />
+    <Resource Include="images\loadingblack2.png" />
+    <Resource Include="images\loadinglong.gif" />
+    <Resource Include="images\loadingsquare.png" />
+    <Resource Include="images\loginpage\activationkingbg.jpg" />
+    <Resource Include="images\loginpage\appinfo_leftpanel_covergreen.png" />
+    <Resource Include="images\loginpage\loginloadingbg.png" />
+    <Resource Include="images\loginpage\loginsectionbg.png" />
+    <Resource Include="images\logo.png" />
+    <Resource Include="images\mailmedia.png" />
+    <Resource Include="images\menuitemselected.png" />
+    <Resource Include="images\messageboxprefabref.png" />
+    <Resource Include="images\next.png" />
+    <Resource Include="images\no-internet.png" />
+    <Resource Include="images\oval layout.png" />
+    <Resource Include="images\overlay.png" />
+    <Resource Include="images\page-1.png" />
+    <Resource Include="images\payment\downloadpay.png" />
+    <Resource Include="images\payment\photopaymentwaiting.jpg" />
+    <Resource Include="images\payment\printpay.png" />
+    <Resource Include="images\photogifmask.png" />
+    <Resource Include="images\previewscreen\photogifshadow.png" />
+    <Resource Include="images\previewscreen\photoresultmask.png" />
+    <Resource Include="images\previewscreen\photoresultshadow.png" />
+    <Resource Include="images\printbutton.png" />
+    <Resource Include="images\printer.png" />
+    <Resource Include="images\printicon.png" />
+    <Resource Include="images\printmedia.png" />
+    <Resource Include="images\qr.png" />
+    <Resource Include="images\qrbackground.png" />
+    <Resource Include="images\qrbackgroundshadow.png" />
+    <Resource Include="images\qrbackwhite.png" />
+    <Resource Include="images\rectangle item.png" />
+    <Resource Include="images\refdownload.png" />
+    <Resource Include="images\refresh.png" />
+    <Resource Include="images\retrybtreference.png" />
+    <Resource Include="images\samples\partyoldmanmask.jpg" />
+    <Resource Include="images\sectionbg.png" />
+    <Resource Include="images\settingspage\eventnameinput.png" />
+    <Resource Include="images\settingspage\starttheappbutton.png" />
+    <Resource Include="images\sharingpage\decrease.png" />
+    <Resource Include="images\sharingpage\downbutton.png" />
+    <Resource Include="images\sharingpage\increase.png" />
+    <Resource Include="images\sharingpage\qr-code-for-scanning-free-vector.jpg" />
+    <Resource Include="images\sharingpage\upbutton.png" />
+    <Resource Include="images\shoot one shot.png" />
+    <Resource Include="images\sms icon.png" />
+    <Resource Include="images\smsbutton.png" />
+    <Resource Include="images\speechballoon.png" />
+    <Resource Include="images\succesfull.png" />
+    <Resource Include="images\successicon.png" />
+    <Resource Include="images\templatepage\arrowtop.png" />
+    <Resource Include="images\templatepage\disabled_frame.png" />
+    <Resource Include="images\templatepage\frame_enabled.png" />
+    <Resource Include="images\templatepage\fullscreen-icon.png" />
+    <Resource Include="images\templatepage\move-icon.png" />
+    <Resource Include="images\templatepage\undo.png" />
+    <Resource Include="images\templates\adminpage.png" />
+    <Resource Include="images\templates\createevent.png" />
+    <Resource Include="images\templates\currentevent.png" />
+    <Resource Include="images\templates\dashboardpage.png" />
+    <Resource Include="images\templates\event settings.png" />
+    <Resource Include="images\templates\templatepage.png" />
+    <Resource Include="images\tick.png" />
+    <Resource Include="images\tickmedia.png" />
+    <Resource Include="images\update.png" />
+    <Resource Include="images\updatebackground.jpg" />
+    <Resource Include="images\video.png" />
+    <Resource Include="images\videoicon.png" />
+    <Resource Include="images\videoshadow.png" />
+    <Resource Include="images\warning.png" />
+    <Resource Include="images\warningicon.png" />
+    <Resource Include="images\watermark.png" />
+    <Resource Include="images\whitebackground.png" />
+    <Resource Include="images\whitecircle.png" />
+    <Resource Include="images\whiteopacitybackground.png" />
+    <Resource Include="images\wifiicon.png" />
+    <Resource Include="lottie_sharp.ico" />
+    <Resource Include="photobooticon.ico" />
+    <Resource Include="vlc\authors.txt" />
+    <Resource Include="vlc\copying.txt" />
+    <Resource Include="vlc\lua\http\css\ui-lightness\images\ui-bg_diagonals-thick_18_b81900_40x40.png" />
+    <Resource Include="vlc\lua\http\css\ui-lightness\images\ui-bg_diagonals-thick_20_666666_40x40.png" />
+    <Resource Include="vlc\lua\http\css\ui-lightness\images\ui-bg_flat_10_000000_40x100.png" />
+    <Resource Include="vlc\lua\http\css\ui-lightness\images\ui-bg_glass_100_f6f6f6_1x400.png" />
+    <Resource Include="vlc\lua\http\css\ui-lightness\images\ui-bg_glass_100_fdf5ce_1x400.png" />
+    <Resource Include="vlc\lua\http\css\ui-lightness\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Resource Include="vlc\lua\http\css\ui-lightness\images\ui-bg_gloss-wave_35_f6a828_500x100.png" />
+    <Resource Include="vlc\lua\http\css\ui-lightness\images\ui-bg_highlight-soft_100_eeeeee_1x100.png" />
+    <Resource Include="vlc\lua\http\css\ui-lightness\images\ui-bg_highlight-soft_75_ffe45c_1x100.png" />
+    <Resource Include="vlc\lua\http\css\ui-lightness\images\ui-icons_222222_256x240.png" />
+    <Resource Include="vlc\lua\http\css\ui-lightness\images\ui-icons_228ef1_256x240.png" />
+    <Resource Include="vlc\lua\http\css\ui-lightness\images\ui-icons_ef8c08_256x240.png" />
+    <Resource Include="vlc\lua\http\css\ui-lightness\images\ui-icons_ffd27a_256x240.png" />
+    <Resource Include="vlc\lua\http\css\ui-lightness\images\ui-icons_ffffff_256x240.png" />
+    <Resource Include="vlc\lua\http\favicon.ico" />
+    <Resource Include="vlc\lua\http\images\audio-48.png" />
+    <Resource Include="vlc\lua\http\images\back-48.png" />
+    <Resource Include="vlc\lua\http\images\buttons.png" />
+    <Resource Include="vlc\lua\http\images\folder-48.png" />
+    <Resource Include="vlc\lua\http\images\other-48.png" />
+    <Resource Include="vlc\lua\http\images\speaker-32.png" />
+    <Resource Include="vlc\lua\http\images\video-48.png" />
+    <Resource Include="vlc\lua\http\images\vlc-48.png" />
+    <Resource Include="vlc\lua\http\images\vlc16x16.png" />
+    <Resource Include="vlc\lua\http\requests\browse.xml" />
+    <Resource Include="vlc\lua\http\requests\playlist.xml" />
+    <Resource Include="vlc\lua\http\requests\playlist_jstree.xml" />
+    <Resource Include="vlc\lua\http\requests\readme.txt" />
+    <Resource Include="vlc\lua\http\requests\status.xml" />
+    <Resource Include="vlc\lua\http\requests\vlm.xml" />
+    <Resource Include="vlc\lua\http\requests\vlm_cmd.xml" />
+    <Resource Include="vlc\news.txt" />
+    <Resource Include="vlc\readme.txt" />
+    <Resource Include="vlc\skins\fonts\freesans.ttf" />
+    <Resource Include="vlc\skins\fonts\freesansbold.ttf" />
+    <Resource Include="vlc\skins\winamp2.xml" />
+    <Resource Include="vlc\thanks.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

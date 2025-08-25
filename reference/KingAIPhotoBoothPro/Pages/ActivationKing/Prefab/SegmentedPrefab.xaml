@@ -1,0 +1,22 @@
+<Page
+	x:Class="KingAIPhotoBoothPro.Pages.ActivationKing.Prefab.SegmentedPrefab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages.ActivationKing.Prefab" xmlns:class="clr-namespace:KingAIPhotoBoothPro.Class" xmlns:ui="clr-namespace:KingAIPhotoBoothPro.Class.UI"
+	Title="SegmentedPrefab"
+	Loaded="Page_Loaded">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<class:SpecificMarginConverter
+				x:Key="SpecificMarginConverter" />
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid>
+		<ui:SegmentedButton
+			Name="toggleElement"
+			Checked="ToggleElement_Checked"
+			Unchecked="ToggleElement_Unchecked"
+			LeftText="HD (Fast)"
+			Content="4K Res"
+			HorizontalAlignment="Left"
+			Style="{StaticResource SegmentedDefaultStyle}"
+			MaxHeight="{DynamicResource CheckBoxHeight}" />
+	</Grid>
+</Page>

@@ -1,0 +1,848 @@
+<Page
+	x:Class="KingAIPhotoBoothPro.Pages.SettingsPage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages" xmlns:mediaplayers="clr-namespace:WPFMediaKit.DirectShow.MediaPlayers;assembly=WPFMediaKit" xmlns:math="http://hexinnovation.com/math"
+	Name="pageSettings"
+	Title="Settings"
+	Loaded="SettingsPage_Loaded"
+	SizeChanged="pageSettings_SizeChanged"
+	Unloaded="pageSettings_Unloaded">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<math:MathConverter
+				x:Key="math" />
+			<ControlTemplate
+				TargetType="{x:Type Button}"
+				x:Key="LeftMenuButton">
+				<Grid>
+					<Border
+						Name="borderBack"
+						Background="{TemplateBinding Background}"
+						CornerRadius="{DynamicResource UICornerRadius}"
+						Margin="-20,0,0,0"
+						ClipToBounds="True">
+						<ContentPresenter
+							Name="ContentPresent"
+							HorizontalAlignment="Left"
+							VerticalAlignment="Center"
+							TextElement.FontSize="{DynamicResource FontSizeHeading3}"
+							TextElement.FontWeight="Regular"
+							Margin="20,0,0,0"
+							TextElement.FontFamily="{StaticResource PromptMedium}"
+							TextElement.Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource TemplatedParent}}" />
+					</Border>
+				</Grid>
+				<ControlTemplate.Triggers>
+					<Trigger
+						Property="UIElement.IsMouseOver"
+						Value="True">
+						<Setter
+							TargetName="borderBack"
+							Property="BorderBrush"
+							Value="#d4d4d4" />
+					</Trigger>
+				</ControlTemplate.Triggers>
+			</ControlTemplate>
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid
+		Name="gridMain"
+		Background="{DynamicResource AppUIColor}">
+		<Border
+			Background="#F0F2F8" />
+		<Image
+			Visibility="Hidden"
+			Source="/Images/Templates/AdminPage.png"
+			Opacity="0.2" />
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition
+					Width="900*" />
+				<ColumnDefinition
+					Width="2940*" />
+			</Grid.ColumnDefinitions>
+			<Grid
+				Name="RightPanelGrid"
+				Column="1">
+				<Grid.RowDefinitions>
+					<RowDefinition
+						Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1+1}" />
+					<RowDefinition
+						Height="1*" />
+				</Grid.RowDefinitions>
+				<Frame
+					Name="RightPanelPages"
+					Source="/Pages/ActivationKing/DashboardPage.xaml"
+					NavigationUIVisibility="Hidden"
+					Grid.Row="1" />
+				<Grid
+					Name="Info"
+					Row="0">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="18*" />
+						<RowDefinition
+							Height="30*" />
+						<RowDefinition
+							Height="26*" />
+						<RowDefinition
+							Height="6*" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="75*" />
+						<ColumnDefinition
+							Width="859*" />
+						<ColumnDefinition
+							Width="234*" />
+						<ColumnDefinition
+							Width="16*" />
+						<ColumnDefinition
+							Width="222*" />
+						<ColumnDefinition
+							Width="64*" />
+					</Grid.ColumnDefinitions>
+					<TextBlock
+						Name="txtTitle"
+						Grid.Column="1"
+						VerticalAlignment="Center"
+						FontFamily="{StaticResource PromptMedium}"
+						FontWeight="Bold"
+						Foreground="#707270"
+						FontSize="{DynamicResource FontSizeHeading1}"
+						Grid.Row="1">Dashboard</TextBlock>
+					<TextBlock
+						Name="txtSubTitle"
+						Grid.Column="1"
+						Grid.ColumnSpan="1"
+						Padding="0,0,0,0"
+						VerticalAlignment="Center"
+						FontFamily="{StaticResource PromptMedium}"
+						Foreground="#707270"
+						FontSize="{DynamicResource FontSizeTextRegular}"
+						Grid.Row="2"
+						TextWrapping="WrapWithOverflow" />
+					<Button
+						Name="ProductSupportButtonRight"
+						Foreground="#707270"
+						BorderThickness="0"
+						Content="Product Support"
+						FontFamily="{StaticResource MontserratSemiBold}"
+						FontSize="{DynamicResource FontSizeTextTitle}"
+						Background="#00FFFFFF"
+						Grid.Row="1"
+						Grid.Column="2"
+						Grid.RowSpan="1"
+						VerticalAlignment="Center"
+						Click="ProductSupportButtonRight_Click">
+						<FrameworkElement.Style>
+							<Style
+								TargetType="{x:Type Button}">
+								<Setter
+									Property="Background"
+									Value="#FFFFFFFF" />
+								<Setter
+									Property="Template">
+									<Setter.Value>
+										<ControlTemplate
+											TargetType="{x:Type Button}">
+											<Border
+												Background="{TemplateBinding Background}">
+												<ContentPresenter
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center" />
+											</Border>
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
+								<Style.Triggers>
+									<Trigger
+										Property="UIElement.IsMouseOver"
+										Value="True">
+										<Setter
+											Property="UIElement.Opacity"
+											Value="0.7" />
+									</Trigger>
+								</Style.Triggers>
+							</Style>
+						</FrameworkElement.Style>
+					</Button>
+					<Button
+						Name="ActivationKingButtonRight"
+						Foreground="#707270"
+						BorderThickness="0"
+						Grid.Column="4"
+						Content="Activation King"
+						FontFamily="{StaticResource MontserratSemiBold}"
+						FontSize="{DynamicResource FontSizeTextTitle}"
+						Background="#00FFFFFF"
+						Grid.Row="1"
+						Grid.RowSpan="1"
+						VerticalAlignment="Center"
+						Click="ActivationKingButtonRight_Click">
+						<FrameworkElement.Style>
+							<Style
+								TargetType="{x:Type Button}">
+								<Setter
+									Property="Background"
+									Value="#FFFFFFFF" />
+								<Setter
+									Property="Template">
+									<Setter.Value>
+										<ControlTemplate
+											TargetType="{x:Type Button}">
+											<Border
+												Background="{TemplateBinding Background}">
+												<ContentPresenter
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center" />
+											</Border>
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
+								<Style.Triggers>
+									<Trigger
+										Property="UIElement.IsMouseOver"
+										Value="True">
+										<Setter
+											Property="UIElement.Opacity"
+											Value="0.7" />
+									</Trigger>
+								</Style.Triggers>
+							</Style>
+						</FrameworkElement.Style>
+					</Button>
+				</Grid>
+			</Grid>
+			<Grid
+				Name="LeftPanelGrid"
+				Column="0">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="15*" />
+					<ColumnDefinition
+						Width="90*" />
+					<ColumnDefinition
+						Width="10*" />
+				</Grid.ColumnDefinitions>
+				<Border
+					Name="LeftPanelBackground"
+					Grid.ColumnSpan="3"
+					Background="{DynamicResource AppUIColor}"
+					CornerRadius="{DynamicResource BannerCornerRadius}"
+					Margin="-150,0,0,0" />
+				<Grid
+					Name="LeftPanelContentGrid"
+					Column="1"
+					VerticalAlignment="Top"
+					Visibility="Visible">
+					<StackPanel
+						Orientation="Vertical">
+						<Viewbox
+							Grid.Row="1"
+							Margin="-5,10,0,0"
+							Height="{Binding ElementName=LeftPanelContentGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*.3}">
+							<TextBlock
+								Name="AppName"
+								Foreground="#FFFFFFFF"
+								VerticalAlignment="Center"
+								FontSize="{DynamicResource FontSizeDisplay1}"
+								FontWeight="Bold">DSLR PhotoBooth</TextBlock>
+						</Viewbox>
+						<TextBlock
+							Name="AppProperties"
+							Grid.Row="2"
+							Visibility="Collapsed"
+							Text="Properties"
+							TextWrapping="WrapWithOverflow"
+							Foreground="#FFFFFFFF"
+							VerticalAlignment="Center"
+							HorizontalAlignment="Left"
+							FontSize="{DynamicResource FontSizeTextSmall}"
+							FontFamily="{DynamicResource PromptRegular}"
+							Height="{Binding ElementName=LeftPanelContentGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*.3}" />
+						<StackPanel
+							Orientation="Vertical"
+							Grid.Row="4">
+							<Button
+								Name="DashboardButton"
+								x:Uid="0"
+								Grid.Row="0"
+								Grid.ColumnSpan="2"
+								Grid.RowSpan="1"
+								Template="{StaticResource LeftMenuButton}"
+								Content="Dashboard"
+								Background="#DEFCFE"
+								Foreground="#FFFFFFFF"
+								Margin="0,0,0,5"
+								Height="{Binding ElementName=LeftPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}"
+								Click="PageChange_Click"
+								MouseEnter="PageChangeButton_MouseEnter"
+								MouseLeave="PageChangeButton_MouseLeave" />
+							<Button
+								Name="EventManagementButton"
+								x:Uid="1"
+								Grid.Row="0"
+								Grid.ColumnSpan="2"
+								Grid.RowSpan="1"
+								Template="{StaticResource LeftMenuButton}"
+								Content="Event Management"
+								Background="#DEFCFE"
+								Foreground="#FFFFFFFF"
+								Margin="0,0,0,5"
+								Height="{Binding ElementName=LeftPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}"
+								Click="PageChange_Click"
+								MouseEnter="PageChangeButton_MouseEnter"
+								MouseLeave="PageChangeButton_MouseLeave" />
+							<Button
+								Name="MainSettingsButton"
+								x:Uid="2"
+								Grid.Row="0"
+								Grid.ColumnSpan="2"
+								Grid.RowSpan="1"
+								Template="{StaticResource LeftMenuButton}"
+								Content="Main Settings"
+								Background="#DEFCFE"
+								Foreground="#FFFFFFFF"
+								Margin="0,0,0,5"
+								Height="{Binding ElementName=LeftPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}"
+								Click="PageChange_Click"
+								MouseEnter="PageChangeButton_MouseEnter"
+								MouseLeave="PageChangeButton_MouseLeave" />
+							<Button
+								Name="TemplateButton"
+								x:Uid="5"
+								Grid.Row="0"
+								Grid.ColumnSpan="2"
+								Grid.RowSpan="1"
+								Template="{StaticResource LeftMenuButton}"
+								Content="Image Template"
+								Background="#DEFCFE"
+								Foreground="#FFFFFFFF"
+								Margin="0,0,0,5"
+								Height="{Binding ElementName=LeftPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}"
+								Click="PageChange_Click"
+								MouseEnter="PageChangeButton_MouseEnter"
+								MouseLeave="PageChangeButton_MouseLeave" />
+							<Button
+								Name="TemplateVideoButton"
+								x:Uid="7"
+								Grid.Row="0"
+								Grid.ColumnSpan="2"
+								Grid.RowSpan="1"
+								Template="{StaticResource LeftMenuButton}"
+								Content="Video Template"
+								Background="#DEFCFE"
+								Foreground="#FFFFFFFF"
+								Margin="0,0,0,5"
+								Height="{Binding ElementName=LeftPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}"
+								Click="PageChange_Click"
+								MouseEnter="PageChangeButton_MouseEnter"
+								MouseLeave="PageChangeButton_MouseLeave" />
+							<Button
+								Name="LanguageButton"
+								x:Uid="3"
+								Grid.Row="0"
+								Grid.ColumnSpan="2"
+								Grid.RowSpan="1"
+								Template="{StaticResource LeftMenuButton}"
+								Content="Screen Language"
+								Background="#DEFCFE"
+								Foreground="#FFFFFFFF"
+								Margin="0,0,0,5"
+								Height="{Binding ElementName=LeftPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}"
+								Click="PageChange_Click"
+								MouseEnter="PageChangeButton_MouseEnter"
+								MouseLeave="PageChangeButton_MouseLeave" />
+							<Button
+								Name="ThemeButton"
+								x:Uid="6"
+								Grid.Row="0"
+								Grid.ColumnSpan="2"
+								Grid.RowSpan="1"
+								Template="{StaticResource LeftMenuButton}"
+								Content="Screen Theme"
+								Background="#DEFCFE"
+								Foreground="#FFFFFFFF"
+								Margin="0,0,0,5"
+								Height="{Binding ElementName=LeftPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}"
+								Click="PageChange_Click"
+								MouseEnter="PageChangeButton_MouseEnter"
+								MouseLeave="PageChangeButton_MouseLeave" />
+							<Button
+								Name="SharingButton"
+								x:Uid="4"
+								Grid.Row="0"
+								Grid.ColumnSpan="2"
+								Grid.RowSpan="1"
+								Template="{StaticResource LeftMenuButton}"
+								Content="Sharing Settings"
+								Background="#DEFCFE"
+								Foreground="#FFFFFFFF"
+								Margin="0,0,0,5"
+								Height="{Binding ElementName=LeftPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}"
+								Click="PageChange_Click"
+								MouseEnter="PageChangeButton_MouseEnter"
+								MouseLeave="PageChangeButton_MouseLeave" />
+							<Button
+								Name="PrinterButton"
+								x:Uid="12"
+								Grid.Row="0"
+								Grid.ColumnSpan="2"
+								Grid.RowSpan="1"
+								Template="{StaticResource LeftMenuButton}"
+								Content="Print Settings"
+								Background="#DEFCFE"
+								Foreground="#FFFFFFFF"
+								Margin="0,0,0,5"
+								Height="{Binding ElementName=LeftPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}"
+								Click="PageChange_Click"
+								MouseEnter="PageChangeButton_MouseEnter"
+								MouseLeave="PageChangeButton_MouseLeave" />
+							<Button
+								Name="SamplePromptsPageButton"
+								x:Uid="9"
+								Grid.Row="0"
+								Grid.ColumnSpan="2"
+								Grid.RowSpan="1"
+								Template="{StaticResource LeftMenuButton}"
+								Content="AI Prompt Gallery"
+								Background="#DEFCFE"
+								Foreground="#FFFFFFFF"
+								Height="{Binding ElementName=LeftPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}"
+								Click="PageChange_Click"
+								MouseEnter="PageChangeButton_MouseEnter"
+								MouseLeave="PageChangeButton_MouseLeave" />
+							<Button
+								Name="FaceSwapButton"
+								x:Uid="8"
+								Grid.Row="0"
+								Grid.ColumnSpan="2"
+								Grid.RowSpan="1"
+								Template="{StaticResource LeftMenuButton}"
+								Content="Face Swap Gallery"
+								Background="#DEFCFE"
+								Foreground="#FFFFFFFF"
+								Margin="0,0,0,5"
+								Height="{Binding ElementName=LeftPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}"
+								Click="PageChange_Click"
+								MouseEnter="PageChangeButton_MouseEnter"
+								MouseLeave="PageChangeButton_MouseLeave" />
+							<Button
+								Name="WordPortrePageButton"
+								x:Uid="10"
+								Grid.Row="0"
+								Grid.ColumnSpan="2"
+								Grid.RowSpan="1"
+								Template="{StaticResource LeftMenuButton}"
+								Content="Word Portrait"
+								Background="#DEFCFE"
+								Foreground="#FFFFFFFF"
+								Height="{Binding ElementName=LeftPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}"
+								Click="PageChange_Click"
+								MouseEnter="PageChangeButton_MouseEnter"
+								MouseLeave="PageChangeButton_MouseLeave" />
+							<Button
+								Name="AIEffectPageButton"
+								x:Uid="11"
+								Grid.Row="0"
+								Grid.ColumnSpan="2"
+								Grid.RowSpan="1"
+								Template="{StaticResource LeftMenuButton}"
+								Content="AI Effect"
+								Background="#DEFCFE"
+								Foreground="#FFFFFFFF"
+								Height="{Binding ElementName=LeftPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}"
+								Click="PageChange_Click"
+								MouseEnter="PageChangeButton_MouseEnter"
+								MouseLeave="PageChangeButton_MouseLeave" />
+						</StackPanel>
+					</StackPanel>
+				</Grid>
+				<Grid
+					Name="LeftBottomPanelGrid"
+					Column="1"
+					VerticalAlignment="Bottom"
+					Height="{Binding ElementName=LeftPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.5}">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="15*" />
+						<RowDefinition
+							Height="10*" />
+						<RowDefinition
+							Height="12*" />
+						<RowDefinition
+							Height="8*" />
+					</Grid.RowDefinitions>
+					<Grid
+						Row="0"
+						RowSpan="2"
+						VerticalAlignment="Top">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition
+								Width="2*" />
+							<ColumnDefinition
+								Width="1*" />
+						</Grid.ColumnDefinitions>
+						<Button
+							Name="StartAppButton"
+							BorderThickness="2"
+							HorizontalAlignment="Left"
+							Content="Start the App"
+							Foreground="{DynamicResource AppUIColorLight}"
+							FontFamily="{StaticResource PromptMedium}"
+							FontSize="{DynamicResource FontSizeButtonPrimary}"
+							Background="#FFFFFFFF"
+							IsEnabled="False"
+							BorderBrush="{DynamicResource AppUIColorLight}"
+							ToolTipService.ShowOnDisabled="True"
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.035+1}"
+							Width="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1+1}"
+							Click="StartAppButton_Click">
+							<UIElement.Effect>
+								<DropShadowEffect
+									Opacity="0.25"
+									BlurRadius="20"
+									ShadowDepth="10" />
+							</UIElement.Effect>
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Border
+													Background="{TemplateBinding Background}"
+													BorderThickness="{TemplateBinding BorderThickness}"
+													BorderBrush="{TemplateBinding BorderBrush}"
+													CornerRadius="{Binding ElementName=StartAppButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.5}">
+													<ContentPresenter
+														HorizontalAlignment="Center"
+														VerticalAlignment="Center" />
+												</Border>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.9" />
+										</Trigger>
+										<Trigger
+											Property="IsEnabled"
+											Value="False">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.6" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+						<Button
+							Name="QuitButton"
+							Grid.Column="1"
+							HorizontalAlignment="Left"
+							Content="Close"
+							Foreground="#FFFFFFFF"
+							FontFamily="{StaticResource PromptMedium}"
+							FontSize="{DynamicResource FontSizeButtonPrimary}"
+							Background="{DynamicResource AppUIColorLight}"
+							Margin="0,0,-10,0"
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.035+1}"
+							Width="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.06+1}"
+							BorderThickness="{Binding ElementName=QuitButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.03}"
+							Click="QuitButton_Click">
+							<UIElement.Effect>
+								<DropShadowEffect
+									Opacity="0.25"
+									BlurRadius="20"
+									ShadowDepth="10" />
+							</UIElement.Effect>
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Border
+													Background="{TemplateBinding Background}"
+													BorderBrush="#FFFFFFFF"
+													BorderThickness="{TemplateBinding BorderThickness}"
+													CornerRadius="{Binding ElementName=QuitButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.5}">
+													<ContentPresenter
+														HorizontalAlignment="Center"
+														VerticalAlignment="Center" />
+												</Border>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.9" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+					</Grid>
+					<Grid
+						Name="UpdateTesterGrid"
+						Row="1"
+						ColumnSpan="2"
+						RowSpan="1"
+						Width="{Binding ElementName=LeftBottomPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}">
+						<Button
+							Name="btnUpdateTester"
+							BorderThickness="0"
+							HorizontalAlignment="Left"
+							Content="Update Test Version"
+							Foreground="{DynamicResource UIWarningColor}"
+							FontFamily="{StaticResource PromptMedium}"
+							FontSize="{DynamicResource FontSizeTextRegular}"
+							Background="#FFFFFFFF"
+							Width="{Binding ElementName=UpdateTesterGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x}"
+							Click="btnUpdateTester_Click">
+							<UIElement.Effect>
+								<DropShadowEffect
+									Opacity="0.25"
+									BlurRadius="20"
+									ShadowDepth="10" />
+							</UIElement.Effect>
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Border
+													Background="{TemplateBinding Background}"
+													BorderBrush="{DynamicResource UIRedButton}"
+													BorderThickness="{Binding ElementName=btnUpdateTester, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.03}"
+													CornerRadius="{Binding ElementName=btnUpdateTester, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.5}">
+													<ContentPresenter
+														HorizontalAlignment="Center"
+														VerticalAlignment="Center" />
+												</Border>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.9" />
+										</Trigger>
+										<Trigger
+											Property="IsEnabled"
+											Value="False">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.7" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+						<Image
+							Source="/Images/update.png"
+							HorizontalAlignment="Right"
+							Stretch="Uniform"
+							Margin="{Binding ElementName=UpdateGrid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.1}" />
+					</Grid>
+					<Grid
+						Name="UpdateGrid"
+						Row="1"
+						Visibility="Visible"
+						ColumnSpan="2"
+						RowSpan="1"
+						Width="{Binding ElementName=LeftBottomPanelGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}">
+						<Button
+							Name="btnUpdate"
+							BorderThickness="0"
+							HorizontalAlignment="Left"
+							Content="Update"
+							Foreground="{DynamicResource AppUIColorLight}"
+							FontFamily="{StaticResource PromptMedium}"
+							FontSize="{DynamicResource FontSizeTextRegular}"
+							Background="#FFFFFFFF"
+							Width="{Binding ElementName=UpdateGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x}"
+							Click="UpdateButton_Click">
+							<UIElement.Effect>
+								<DropShadowEffect
+									Opacity="0.25"
+									BlurRadius="20"
+									ShadowDepth="10" />
+							</UIElement.Effect>
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Border
+													Background="{TemplateBinding Background}"
+													BorderBrush="{DynamicResource AppUIColor}"
+													BorderThickness="{Binding ElementName=btnUpdate, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.03}"
+													CornerRadius="{Binding ElementName=btnUpdate, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.5}">
+													<ContentPresenter
+														HorizontalAlignment="Center"
+														VerticalAlignment="Center" />
+												</Border>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.9" />
+										</Trigger>
+										<Trigger
+											Property="IsEnabled"
+											Value="False">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.7" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+						<Image
+							Source="/Images/update.png"
+							HorizontalAlignment="Right"
+							Stretch="Uniform"
+							Margin="{Binding ElementName=UpdateGrid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.1}" />
+					</Grid>
+					<TextBlock
+						Name="AppVersion"
+						Grid.Row="2"
+						TextWrapping="WrapWithOverflow"
+						Foreground="#FFFFFFFF"
+						VerticalAlignment="Center"
+						HorizontalAlignment="Left"
+						FontSize="{DynamicResource FontSizeTextSmall}"
+						Text="DSLRPhotoBooth version 1.0.0.0&#xA;2023 Activation King - All rights reserved"
+						FontFamily="{StaticResource MontserratRegular}"
+						LineHeight="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.012}" />
+					<Grid
+						Row="3">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition
+								Width="1*" />
+							<ColumnDefinition
+								Width="1*" />
+						</Grid.ColumnDefinitions>
+						<Button
+							Name="ProductSupportButton"
+							Foreground="#FFFFFFFF"
+							BorderThickness="0"
+							VerticalAlignment="Top"
+							Grid.Row="4"
+							FontFamily="{StaticResource MontserratSemiBold}"
+							Click="ProductSupportButtonRight_Click">
+							<TextBlock
+								Text="Product Support"
+								FontSize="{DynamicResource FontSizeTextRegular}" />
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Background"
+										Value="#00FFFFFF" />
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Border
+													Background="{TemplateBinding Background}">
+													<ContentPresenter
+														HorizontalAlignment="Left"
+														VerticalAlignment="Center" />
+												</Border>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.7" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+						<Button
+							Name="ActivationKingButton"
+							Foreground="#FFFFFFFF"
+							BorderThickness="0"
+							VerticalAlignment="Top"
+							Grid.Column="1"
+							Grid.Row="4"
+							FontFamily="{StaticResource MontserratSemiBold}"
+							Click="ActivationKingButtonRight_Click">
+							<TextBlock
+								Text="Activation King"
+								HorizontalAlignment="Right"
+								TextAlignment="Right"
+								FontSize="{DynamicResource FontSizeTextRegular}" />
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Background"
+										Value="#00FFFFFF" />
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Border
+													Background="{TemplateBinding Background}">
+													<ContentPresenter
+														HorizontalAlignment="Center"
+														VerticalAlignment="Center" />
+												</Border>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.7" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+					</Grid>
+				</Grid>
+			</Grid>
+		</Grid>
+	</Grid>
+</Page>

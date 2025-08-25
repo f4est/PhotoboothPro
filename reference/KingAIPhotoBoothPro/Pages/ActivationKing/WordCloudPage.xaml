@@ -1,0 +1,118 @@
+<local:SettingsSubPage
+	x:Class="KingAIPhotoBoothPro.Pages.ActivationKing.WordCloudPage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:localUI="clr-namespace:KingAIPhotoBoothPro.Class.UI" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages.ActivationKing" xmlns:math="http://hexinnovation.com/math"
+	Loaded="Page_Loaded"
+	Title="WordCloudPage">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<math:MathConverter
+				x:Key="math" />
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid
+		Name="gridMain">
+		<Grid.RowDefinitions>
+			<RowDefinition
+				Height="0" />
+			<RowDefinition
+				Height="1*" />
+			<RowDefinition
+				Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02+1}" />
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition
+				Width="150*" />
+			<ColumnDefinition
+				Width="2662*" />
+			<ColumnDefinition
+				Width="128*" />
+		</Grid.ColumnDefinitions>
+		<Grid
+			Row="1"
+			Column="1">
+			<Grid.RowDefinitions>
+				<RowDefinition
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.074+1}" />
+				<RowDefinition
+					Height="1*" />
+				<RowDefinition
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02+1}" />
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition
+					Width="1*" />
+				<ColumnDefinition
+					Width="26*" />
+				<ColumnDefinition
+					Width="1*" />
+			</Grid.ColumnDefinitions>
+			<Border
+				Name="borderLoginSmooth"
+				Grid.RowSpan="10"
+				Grid.ColumnSpan="10"
+				Background="#FFFFFFFF"
+				CornerRadius="15"
+				Opacity="1">
+				<UIElement.Effect>
+					<DropShadowEffect
+						Opacity="0.25"
+						BlurRadius="20"
+						ShadowDepth="10" />
+				</UIElement.Effect>
+				<Border.BorderBrush>
+					<LinearGradientBrush
+						EndPoint="0.5,1"
+						StartPoint="0.5,0">
+						<GradientStop
+							Color="White"
+							Offset="0" />
+						<GradientStop
+							Color="#FFD5D5D5"
+							Offset="1" />
+					</LinearGradientBrush>
+				</Border.BorderBrush>
+			</Border>
+			<Label
+				Grid.Column="1"
+				FontFamily="{StaticResource PromptBold}"
+				Foreground="#707270"
+				FontSize="{DynamicResource FontSizeHeading3}"
+				Grid.Row="0"
+				VerticalAlignment="Center">Word Portrait Settings</Label>
+			<ScrollViewer
+				Grid.Row="1"
+				Grid.Column="1"
+				VerticalScrollBarVisibility="Auto">
+				<i:Interaction.Behaviors>
+					<localUI:ScrollViewerDragBehavior />
+				</i:Interaction.Behaviors>
+				<Grid>
+					<StackPanel
+						Name="WordPortreSettingsList"
+						Orientation="Vertical">
+						<Frame
+							Name="worldcloudInputBoxFrame" />
+						<Frame
+							Name="worldcloudFontFrame" />
+						<Grid
+							Name="spaceGrid" />
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="3*" />
+								<ColumnDefinition
+									Width="1*" />
+								<ColumnDefinition
+									Width="3*" />
+							</Grid.ColumnDefinitions>
+							<Frame
+								Name="ColorPicker1Frame" />
+							<Frame
+								Name="ColorPicker2Frame"
+								Grid.Column="2" />
+						</Grid>
+					</StackPanel>
+				</Grid>
+			</ScrollViewer>
+		</Grid>
+	</Grid>
+</local:SettingsSubPage>

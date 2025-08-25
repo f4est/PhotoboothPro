@@ -52,6 +52,11 @@ namespace UnifiedPhotoBooth
         // Добавляем поля для контроля времени записи
         private int _framesRecorded;
         private double _targetFps;
+        private double _actualCameraFps; // Реальная частота кадров камеры
+        
+        // Добавляем поля для записи кадров
+        private Mat _currentFrame;
+        private DispatcherTimer _recordingFrameTimer;
         
         public VideoBoothPage(GoogleDriveService driveService, string eventFolderId = null)
         {
@@ -86,6 +91,10 @@ namespace UnifiedPhotoBooth
                 Interval = TimeSpan.FromSeconds(1)
             };
             _recordingTimer.Tick += RecordingTimer_Tick;
+            
+            // Инициализируем таймер для записи кадров
+            _recordingFrameTimer = new DispatcherTimer();
+            _recordingFrameTimer.Tick += RecordingFrameTimer_Tick;
             
             Loaded += VideoBoothPage_Loaded;
             Unloaded += VideoBoothPage_Unloaded;
@@ -143,14 +152,30 @@ namespace UnifiedPhotoBooth
                     return;
                 }
                 
-                // Получаем частоту кадров из настроек или реальную частоту камеры
-                double cameraFps = SettingsWindow.AppSettings.VideoFps;
-                if (cameraFps <= 0)
+                // Определяем реальную частоту кадров камеры
+                _actualCameraFps = DetectCameraFps();
+                
+                // Получаем частоту кадров из настроек или используем реальную частоту камеры
+                double cameraFps;
+                System.Diagnostics.Debug.WriteLine($"StartPreview: AppSettings.VideoFps = {SettingsWindow.AppSettings.VideoFps}, UseAutoFps = {SettingsWindow.AppSettings.UseAutoFps}");
+                
+                if (SettingsWindow.AppSettings.UseAutoFps)
                 {
-                    cameraFps = _capture.Get(OpenCvSharp.VideoCaptureProperties.Fps);
+                    cameraFps = _actualCameraFps;
+                    System.Diagnostics.Debug.WriteLine($"StartPreview: Используем авто FPS: {cameraFps}");
+                }
+                else
+                {
+                    cameraFps = SettingsWindow.AppSettings.VideoFps;
+                    // Если ручной FPS некорректный, используем значение по умолчанию
                     if (cameraFps <= 0)
                     {
-                        cameraFps = 30.0; // Значение по умолчанию
+                        cameraFps = 30.0;
+                        System.Diagnostics.Debug.WriteLine($"StartPreview: Ручной FPS некорректный, используем 30.0");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"StartPreview: Используем ручной FPS: {cameraFps}");
                     }
                 }
                 
@@ -161,11 +186,39 @@ namespace UnifiedPhotoBooth
                 _previewRunning = true;
                 _previewTimer.Start();
                 
-                ShowStatus("Готов к записи", "Нажмите 'Начать запись', чтобы записать видео");
+                ShowStatus("Готов к записи", $"FPS камеры: {_actualCameraFps:F1}, используемый FPS: {cameraFps:F1}");
+                UpdateFpsInfo(cameraFps);
             }
             catch (Exception ex)
             {
                 ShowError($"Ошибка при запуске предпросмотра: {ex.Message}");
+            }
+        }
+        
+        // Метод для определения реальной частоты кадров камеры
+        private double DetectCameraFps()
+        {
+            try
+            {
+                // Сначала пытаемся получить FPS через OpenCV
+                double reportedFps = _capture.Get(OpenCvSharp.VideoCaptureProperties.Fps);
+                
+                System.Diagnostics.Debug.WriteLine($"OpenCV сообщает FPS камеры: {reportedFps}");
+                
+                // Если OpenCV вернул разумное значение, используем его
+                if (reportedFps > 0 && reportedFps <= 120)
+                {
+                    return reportedFps;
+                }
+                
+                // Если OpenCV не смог определить FPS, используем стандартное значение
+                System.Diagnostics.Debug.WriteLine("OpenCV не смог определить FPS, используем 30 FPS по умолчанию");
+                return 30.0;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при определении FPS камеры: {ex.Message}");
+                return 30.0; // Значение по умолчанию
             }
         }
         
@@ -209,22 +262,20 @@ namespace UnifiedPhotoBooth
                         // Отображаем кадр
                         imgPreview.Source = BitmapSourceConverter.ToBitmapSource(frameWithCorrectAspect);
                         
-                        // Если идет запись, записываем кадр в видео
+                        // Если идет запись, сохраняем текущий кадр для записи
                         if (_isRecording && _videoWriter != null && _videoWriter.IsOpened())
                         {
                             try
                             {
-                                // Записываем кадр в видео
-                                Mat frameForRecording = new Mat();
-                                Cv2.Resize(frameWithCorrectAspect, frameForRecording, _videoWriter.FrameSize);
-                                _videoWriter.Write(frameForRecording);
-                                frameForRecording.Dispose();
+                                // Освобождаем предыдущий кадр
+                                _currentFrame?.Dispose();
                                 
-                                _framesRecorded++;
+                                // Копируем текущий кадр для записи
+                                _currentFrame = frameWithCorrectAspect.Clone();
                             }
                             catch (Exception ex)
                             {
-                                System.Diagnostics.Debug.WriteLine($"Ошибка при записи кадра в видео: {ex.Message}");
+                                System.Diagnostics.Debug.WriteLine($"Ошибка при сохранении кадра для записи: {ex.Message}");
                             }
                         }
                         
@@ -437,14 +488,27 @@ namespace UnifiedPhotoBooth
                 frameWidth = frameWidth - (frameWidth % 2);
                 frameHeight = frameHeight - (frameHeight % 2);
                 
-                // Получаем частоту кадров из настроек или реальную частоту камеры
-                double fps = SettingsWindow.AppSettings.VideoFps;
-                if (fps <= 0)
+                // Получаем частоту кадров из настроек или используем реальную частоту камеры
+                double fps;
+                System.Diagnostics.Debug.WriteLine($"StartRecording: AppSettings.VideoFps = {SettingsWindow.AppSettings.VideoFps}, UseAutoFps = {SettingsWindow.AppSettings.UseAutoFps}");
+                
+                if (SettingsWindow.AppSettings.UseAutoFps)
                 {
-                    fps = _capture.Get(OpenCvSharp.VideoCaptureProperties.Fps);
+                    fps = _actualCameraFps;
+                    System.Diagnostics.Debug.WriteLine($"StartRecording: Используем авто FPS: {fps}");
+                }
+                else
+                {
+                    fps = SettingsWindow.AppSettings.VideoFps;
+                    // Если ручной FPS некорректный, используем значение по умолчанию
                     if (fps <= 0)
                     {
-                        fps = 30.0; // Значение по умолчанию
+                        fps = 30.0;
+                        System.Diagnostics.Debug.WriteLine($"StartRecording: Ручной FPS некорректный, используем 30.0");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"StartRecording: Используем ручной FPS: {fps}");
                     }
                 }
                 
@@ -521,6 +585,7 @@ namespace UnifiedPhotoBooth
                     // Инициализируем счетчики записи
                     _framesRecorded = 0;
                     _targetFps = fps;
+                    _currentFrame = null; // Сбрасываем текущий кадр
                     
                     // Сбрасываем таймер записи
                     _recordingTime = TimeSpan.Zero;
@@ -528,6 +593,10 @@ namespace UnifiedPhotoBooth
                     
                     // Запускаем таймер для обновления времени записи
                     _recordingTimer.Start();
+                    
+                    // Запускаем таймер для записи кадров с правильной частотой
+                    _recordingFrameTimer.Interval = TimeSpan.FromMilliseconds(1000.0 / fps);
+                    _recordingFrameTimer.Start();
                     
                     // Показываем индикатор записи
                     recordingIndicator.Visibility = Visibility.Visible;
@@ -575,6 +644,36 @@ namespace UnifiedPhotoBooth
             blinkAnimation.Start();
         }
         
+        // Метод для записи кадров с правильной частотой
+        private void RecordingFrameTimer_Tick(object sender, EventArgs e)
+        {
+            if (!_isRecording || _videoWriter == null || !_videoWriter.IsOpened() || _currentFrame == null)
+                return;
+            
+            try
+            {
+                // Проверяем, нужно ли записать этот кадр на основе времени записи
+                double expectedFrames = _recordingTime.TotalSeconds * _targetFps;
+                
+                if (_framesRecorded < expectedFrames)
+                {
+                    // Записываем текущий кадр в видео
+                    Mat frameForRecording = new Mat();
+                    Cv2.Resize(_currentFrame, frameForRecording, _videoWriter.FrameSize);
+                    _videoWriter.Write(frameForRecording);
+                    frameForRecording.Dispose();
+                    
+                    _framesRecorded++;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при записи кадра в видео: {ex.Message}");
+            }
+        }
+        
+
+        
         private void BtnStopRecording_Click(object sender, RoutedEventArgs e)
         {
             if (_isRecording)
@@ -590,10 +689,9 @@ namespace UnifiedPhotoBooth
             
             try
             {
-                // Останавливаем таймер записи
+                // Останавливаем таймеры записи
                 _recordingTimer.Stop();
-                
-                
+                _recordingFrameTimer.Stop();
                 
                 // Сбрасываем флаг записи и счетчики
                 _isRecording = false;
@@ -1528,6 +1626,27 @@ namespace UnifiedPhotoBooth
         }
         
         // Добавляю метод для проверки возможности делиться
+        private void UpdateFpsInfo(double usedFps)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"UpdateFpsInfo: usedFps = {usedFps}, UseAutoFps = {SettingsWindow.AppSettings.UseAutoFps}, AppSettings.VideoFps = {SettingsWindow.AppSettings.VideoFps}");
+                
+                if (SettingsWindow.AppSettings.UseAutoFps)
+                {
+                    txtFpsInfo.Text = $"Авто FPS: {usedFps:F1} (определен автоматически)";
+                }
+                else
+                {
+                    txtFpsInfo.Text = $"FPS: {usedFps:F1} (установлен вручную)";
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при обновлении информации о FPS: {ex.Message}");
+            }
+        }
+        
         private void UpdateShareButtonVisibility()
         {
             // Показываем кнопку "Поделиться" только если есть интернет
@@ -1540,9 +1659,13 @@ namespace UnifiedPhotoBooth
             _framesRecorded = 0;
             _targetFps = 0;
             
-
             _recordingTimer.Stop();
+            _recordingFrameTimer.Stop();
             txtRecordingTime.Visibility = Visibility.Collapsed;
+            
+            // Освобождаем ресурсы кадра
+            _currentFrame?.Dispose();
+            _currentFrame = null;
             
             _videoWriter?.Release();
             _videoWriter?.Dispose();
@@ -1551,6 +1674,25 @@ namespace UnifiedPhotoBooth
             recordingIndicator.Visibility = Visibility.Collapsed;
             btnStopRecording.Visibility = Visibility.Collapsed;
             btnStartRecording.Visibility = Visibility.Visible;
+            
+            // Обновляем информацию о FPS
+            if (_actualCameraFps > 0)
+            {
+                double usedFps;
+                if (SettingsWindow.AppSettings.UseAutoFps)
+                {
+                    usedFps = _actualCameraFps;
+                }
+                else
+                {
+                    usedFps = SettingsWindow.AppSettings.VideoFps;
+                    if (usedFps <= 0)
+                    {
+                        usedFps = 30.0;
+                    }
+                }
+                UpdateFpsInfo(usedFps);
+            }
         }
     }
 } 

@@ -1,0 +1,207 @@
+<local:SettingsSubPage
+	x:Class="KingAIPhotoBoothPro.Pages.ActivationKing.ThemePage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages.ActivationKing" xmlns:math="http://hexinnovation.com/math" xmlns:localUI="clr-namespace:KingAIPhotoBoothPro.Class.UI" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:class="clr-namespace:KingAIPhotoBoothPro.Class"
+	Loaded="Page_Loaded"
+	Title="ThemePage">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<math:MathConverter
+				x:Key="math" />
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<ScrollViewer>
+		<i:Interaction.Behaviors>
+			<localUI:ScrollViewerDragBehavior />
+		</i:Interaction.Behaviors>
+		<Grid
+			Name="gridMain">
+			<Grid.RowDefinitions>
+				<RowDefinition
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.4+1}" />
+				<RowDefinition
+					Height="20" />
+				<RowDefinition
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.33+1}" />
+				<RowDefinition
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02+1}" />
+				<RowDefinition
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.33+1}" />
+				<RowDefinition
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02+1}" />
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition
+					Width="150*" />
+				<ColumnDefinition
+					Width="2662*" />
+				<ColumnDefinition
+					Width="128*" />
+			</Grid.ColumnDefinitions>
+			<Grid
+				Row="0"
+				Column="1">
+				<Grid.RowDefinitions>
+					<RowDefinition
+						Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.025}" />
+					<RowDefinition
+						Height="1*" />
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="80*" />
+					<ColumnDefinition
+						Width="2502*" />
+					<ColumnDefinition
+						Width="80*" />
+				</Grid.ColumnDefinitions>
+				<class:SectionTemplate
+					Template="{StaticResource SectionTemplateKey}"
+					Content="Theme Settings"
+					Background="#FFFFFFFF"
+					BorderBrush="#BABFC5"
+					Grid.RowSpan="5"
+					Grid.ColumnSpan="5" />
+				<Grid
+					Column="1"
+					Row="1">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.04}" />
+						<RowDefinition
+							Height="573*" />
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02}" />
+					</Grid.RowDefinitions>
+					<Grid
+						Row="0" />
+					<Grid
+						Name="GridForChromaKey"
+						Row="1">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition
+								Width="4*" />
+							<ColumnDefinition
+								Width="1*" />
+							<ColumnDefinition
+								Width="4*" />
+						</Grid.ColumnDefinitions>
+						<Frame
+							Name="colorPrefab"
+							Grid.Column="0" />
+						<Frame
+							Name="colorPrefab2"
+							Grid.Column="2" />
+					</Grid>
+				</Grid>
+			</Grid>
+			<Grid
+				Row="2"
+				Column="1">
+				<Grid.RowDefinitions>
+					<RowDefinition
+						Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.08}" />
+					<RowDefinition
+						Height="1*" />
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="80*" />
+					<ColumnDefinition
+						Width="2502*" />
+					<ColumnDefinition
+						Width="80*" />
+				</Grid.ColumnDefinitions>
+				<class:SectionTemplate
+					Name="BackgroundSettingsSection"
+					Template="{StaticResource SectionTemplateKey}"
+					Content="Background Settings"
+					Background="#FFFFFFFF"
+					BorderBrush="#BABFC5"
+					Grid.RowSpan="5"
+					Grid.ColumnSpan="5" />
+				<UniformGrid
+					Grid.Column="1"
+					Grid.Row="1"
+					Columns="4">
+					<Grid
+						Name="mainBackroundPanel">
+						<Grid.RowDefinitions>
+							<RowDefinition
+								Height="{Binding ElementName=mainBackroundPanel, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.07}" />
+							<RowDefinition
+								Height="*" />
+						</Grid.RowDefinitions>
+						<Frame
+							Name="mainBackgroundImageCheckFrame"
+							HorizontalAlignment="Left" />
+						<Frame
+							Name="mainBackgroundFrame"
+							Grid.Row="1"
+							Height="auto"
+							Margin="10" />
+					</Grid>
+				</UniformGrid>
+			</Grid>
+			<Grid
+				Row="4"
+				Column="1">
+				<Grid.RowDefinitions>
+					<RowDefinition
+						Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.08}" />
+					<RowDefinition
+						Height="1*" />
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="80*" />
+					<ColumnDefinition
+						Width="2502*" />
+					<ColumnDefinition
+						Width="80*" />
+				</Grid.ColumnDefinitions>
+				<class:SectionTemplate
+					Name="VideoSettingsSection"
+					Template="{StaticResource SectionTemplateKey}"
+					Content="Video Animations Settings"
+					Background="#FFFFFFFF"
+					BorderBrush="#BABFC5"
+					Grid.RowSpan="5"
+					Grid.ColumnSpan="5" />
+				<StackPanel
+					Orientation="Vertical"
+					Grid.Column="1"
+					Grid.Row="1">
+					<UniformGrid
+						Columns="4">
+						<Frame
+							Name="mainVideoCheckFrame"
+							HorizontalAlignment="Left"
+							Margin="10" />
+						<Frame
+							Name="WaitTimeVideoCheckFrame"
+							HorizontalAlignment="Left"
+							Margin="10" />
+						<Frame
+							Name="WaitProcessVideoCheckFrame"
+							HorizontalAlignment="Left"
+							Margin="10" />
+						<Frame
+							Name="FinishVideoCheckFrame"
+							HorizontalAlignment="Left"
+							Margin="10" />
+					</UniformGrid>
+					<UniformGrid
+						Columns="4">
+						<Frame
+							Name="mainVideoFrame" />
+						<Frame
+							Name="WaitTimeVideoFrame" />
+						<Frame
+							Name="WaitProcessVideoFrame" />
+						<Frame
+							Name="FinishVideoFrame" />
+					</UniformGrid>
+				</StackPanel>
+			</Grid>
+		</Grid>
+	</ScrollViewer>
+</local:SettingsSubPage>

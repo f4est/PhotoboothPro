@@ -1,0 +1,2486 @@
+<Page
+	x:Class="KingAIPhotoBoothPro.Pages.DSLR" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:converter="clr-namespace:KingAIPhotoBoothPro.Class" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages" xmlns:class="clr-namespace:KingAIPhotoBoothPro.Class" xmlns:math="http://hexinnovation.com/math" xmlns:lottie="clr-namespace:LottieSharp.WPF;assembly=LottieSharp"
+	Focusable="True"
+	Title="DSLR"
+	Loaded="Page_Loaded"
+	Unloaded="Page_Unloaded"
+	PreviewKeyDown="Page_KeyDown"
+	SizeChanged="Page_SizeChanged">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<Style
+				TargetType="{x:Type local:HomeButton}"
+				x:Key="CustomButtonStyle">
+				<Setter
+					Property="Background">
+					<Setter.Value>
+						<ImageBrush
+							Stretch="Uniform"
+							ImageSource="{Binding ButtonImageSource, RelativeSource={RelativeSource TemplatedParent}}">
+							<Brush.RelativeTransform>
+								<TransformGroup>
+									<ScaleTransform
+										CenterX="0.5"
+										CenterY="0.5" />
+									<SkewTransform
+										CenterX="0.5"
+										CenterY="0.5" />
+									<RotateTransform
+										CenterX="0.5"
+										CenterY="0.5" />
+									<TranslateTransform
+										X="0" />
+								</TransformGroup>
+							</Brush.RelativeTransform>
+						</ImageBrush>
+					</Setter.Value>
+				</Setter>
+				<Setter
+					Property="FontFamily"
+					Value="{StaticResource PromptExtraLight}" />
+				<Setter
+					Property="Template">
+					<Setter.Value>
+						<ControlTemplate
+							TargetType="{x:Type local:HomeButton}">
+							<Border
+								Background="{TemplateBinding Background}"
+								BorderThickness="0">
+								<ContentPresenter
+									HorizontalAlignment="Center"
+									VerticalAlignment="Center" />
+							</Border>
+						</ControlTemplate>
+					</Setter.Value>
+				</Setter>
+				<Style.Triggers>
+					<Trigger
+						Property="UIElement.IsMouseOver"
+						Value="True">
+						<Setter
+							Property="UIElement.Opacity"
+							Value="0.7" />
+					</Trigger>
+					<Trigger
+						Property="IsEnabled"
+						Value="False">
+						<Setter
+							Property="Background"
+							Value="#FF808080" />
+					</Trigger>
+				</Style.Triggers>
+			</Style>
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid
+		Name="gridMain"
+		Background="#00FFFFFF">
+		<Image
+			Name="BackgroundImage" />
+		<Grid
+			Name="gridF11Warning"
+			Opacity="1"
+			Visibility="Visible">
+			<Border
+				BorderBrush="#FFFFFFFF"
+				CornerRadius="20"
+				Background="#707070"
+				VerticalAlignment="Top"
+				Margin="50"
+				Width="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.3+1}"
+				Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.04+1}">
+				<TextBlock
+					VerticalAlignment="Center"
+					HorizontalAlignment="Center"
+					TextAlignment="Center"
+					Foreground="#FFFFFFFF"
+					FontFamily="{StaticResource PromptRegular}"
+					FontSize="{DynamicResource FontSizeTextRegular}">Press F11 or click top-right corner 5 times<LineBreak />to return to the Settings</TextBlock>
+			</Border>
+		</Grid>
+		<Grid
+			Name="gridQRCode"
+			Visibility="Collapsed"
+			VerticalAlignment="Bottom"
+			Margin="50"
+			Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*.16}"
+			Width="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*.11}">
+			<Grid.RowDefinitions>
+				<RowDefinition
+					Height="2*" />
+				<RowDefinition
+					Height="1*" />
+			</Grid.RowDefinitions>
+			<Border
+				Margin="0"
+				Grid.ColumnSpan="3"
+				Grid.RowSpan="4"
+				Background="#AA111111"
+				BorderBrush="#FFFFFFFF"
+				BorderThickness="5"
+				CornerRadius="10" />
+			<Border
+				Name="qrBackBorder"
+				Margin="10"
+				Grid.Row="0"
+				Background="#FFFFFFFF"
+				CornerRadius="5"
+				VerticalAlignment="Top"
+				Grid.RowSpan="2"
+				Height="{Binding ElementName=qrBackBorder, Path=ActualWidth}">
+				<Image
+					Source="/Images/QR.png"
+					Grid.Row="1"
+					Grid.Column="1"
+					Margin="{Binding ElementName=gridMain, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.001}" />
+			</Border>
+			<TextBlock
+				x:XmlAttributeProperties.XmlSpace="preserve"
+				Name="txtScanQR"
+				Grid.Row="2"
+				TextAlignment="Center"
+				Foreground="#FFFFFFFF"
+				FontFamily="{StaticResource PromptRegular}"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center"
+				Grid.Column="1"
+				FontSize="{DynamicResource FontSizeTextSmall}">Scan with your 
+camera to control from 
+your phone</TextBlock>
+		</Grid>
+		<Grid
+			Name="NameSurnameGrid"
+			Visibility="Visible"
+			VerticalAlignment="Stretch">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition
+					Width="2*" />
+				<ColumnDefinition
+					Width="9*" />
+				<ColumnDefinition
+					Width="2*" />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition
+					Height="2*" />
+				<RowDefinition
+					Height="1*" />
+				<RowDefinition
+					Height="20*" />
+				<RowDefinition
+					Height="1*" />
+			</Grid.RowDefinitions>
+			<Grid
+				Name="NametInputField"
+				Visibility="Visible"
+				Column="1"
+				Row="1">
+				<Border
+					Name="borderbtnAIImage"
+					Style="{DynamicResource BorderInputStyle}" />
+				<TextBox
+					Name="PromptBox"
+					x:Uid="2"
+					BorderThickness="0.1"
+					HorizontalAlignment="Stretch"
+					HorizontalContentAlignment="Center"
+					VerticalContentAlignment="Center"
+					VerticalAlignment="Center"
+					Foreground="#002C3A"
+					TextAlignment="Center"
+					FontFamily="{StaticResource MontserratRegular}"
+					TextWrapping="Wrap"
+					AcceptsReturn="True"
+					FontSize="{DynamicResource FontSizeHeading2}"
+					Padding="10,0,0,0"
+					Background="#00FFFFFF"
+					Visibility="Visible"
+					Height="{Binding ElementName=PromptInputField, Path=ActualHeight}"
+					Width="{Binding ElementName=PromptInputField, Path=ActualWidth}"
+					TextChanged="PromptBox_TextChanged"
+					LostFocus="PromptBox_LostFocus">
+					<UIElement.OpacityMask>
+						<VisualBrush
+							Visual="{Binding ElementName=borderbtnAIImage}" />
+					</UIElement.OpacityMask>
+				</TextBox>
+				<Button
+					Name="PromptBoxPlaceholder"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center"
+					HorizontalContentAlignment="Center"
+					Foreground="#88002C3A"
+					FontFamily="{StaticResource PromptRegular}"
+					FontSize="{DynamicResource FontSizeHeading2}"
+					Content="Name and Surname"
+					RenderTransformOrigin="0.,0.5"
+					Background="#00FFFFFF"
+					BorderBrush="#00707070"
+					Width="{Binding ElementName=NametInputField, Path=ActualWidth}"
+					Height="{Binding ElementName=NametInputField, Path=ActualHeight}"
+					Click="PromptBoxPlaceholder_Click">
+					<UIElement.RenderTransform>
+						<TransformGroup>
+							<ScaleTransform />
+							<SkewTransform />
+							<RotateTransform />
+							<TranslateTransform />
+						</TransformGroup>
+					</UIElement.RenderTransform>
+					<FrameworkElement.Style>
+						<Style
+							TargetType="{x:Type Button}">
+							<Setter
+								Property="Background"
+								Value="#00FFFFFF" />
+							<Setter
+								Property="Template">
+								<Setter.Value>
+									<ControlTemplate
+										TargetType="{x:Type Button}">
+										<Border
+											Background="{TemplateBinding Background}">
+											<ContentPresenter
+												HorizontalAlignment="Center"
+												Margin="0,0,0,0"
+												VerticalAlignment="Center" />
+										</Border>
+									</ControlTemplate>
+								</Setter.Value>
+							</Setter>
+							<Style.Triggers>
+								<Trigger
+									Property="UIElement.IsMouseOver"
+									Value="True">
+									<Setter
+										Property="Background"
+										Value="#FFA0A0A0" />
+								</Trigger>
+							</Style.Triggers>
+						</Style>
+					</FrameworkElement.Style>
+				</Button>
+			</Grid>
+		</Grid>
+		<Grid
+			Name="gridPreviewBackground"
+			Visibility="Hidden">
+			<Image
+				Name="gridPreviewBackgroundImage"
+				Stretch="UniformToFill"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center"
+				RenderTransformOrigin="0.5,0.5">
+				<UIElement.RenderTransform>
+					<ScaleTransform
+						x:Name="LiveViewScaleTransform"
+						ScaleX="-1" />
+				</UIElement.RenderTransform>
+			</Image>
+		</Grid>
+		<Grid
+			Name="gridButtons"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center">
+			<UniformGrid
+				Rows="1">
+				<StackPanel
+					Name="gridPhoto"
+					Grid.Column="0"
+					Orientation="Vertical"
+					VerticalAlignment="Center"
+					Height="{Binding ElementName=Selection1Path, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}">
+					<Grid
+						Height="{Binding ElementName=gridButtons, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.25}">
+						<Button
+							Name="PhotoButton"
+							Grid.ColumnSpan="3"
+							FontFamily="{StaticResource PromptExtraLight}"
+							Click="PhotoButton_Click">
+							<Control.Background>
+								<ImageBrush
+									x:Name="PhotoButtonBrush"
+									ImageSource="/Images/CameraShadow.png"
+									Stretch="Uniform">
+									<Brush.Transform>
+										<TransformGroup>
+											<ScaleTransform />
+											<SkewTransform />
+											<RotateTransform />
+											<TranslateTransform
+												X="0" />
+										</TransformGroup>
+									</Brush.Transform>
+									<Brush.RelativeTransform>
+										<TransformGroup>
+											<ScaleTransform
+												CenterY="0.5"
+												CenterX="0.5" />
+											<SkewTransform
+												CenterX="0.5"
+												CenterY="0.5" />
+											<RotateTransform
+												CenterX="0.5"
+												CenterY="0.5" />
+											<TranslateTransform
+												X="0" />
+										</TransformGroup>
+									</Brush.RelativeTransform>
+								</ImageBrush>
+							</Control.Background>
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Background"
+										Value="#FFFFFFFF" />
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Border
+													Background="{TemplateBinding Background}">
+													<ContentPresenter
+														HorizontalAlignment="Center"
+														VerticalAlignment="Center" />
+												</Border>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.7" />
+										</Trigger>
+										<Trigger
+											Property="IsEnabled"
+											Value="False">
+											<Setter
+												Property="Background"
+												Value="#FF808080" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+						<Image
+							Name="IconLoadingBackground1"
+							Source="/Images/ButtonBlackOverlay.png"
+							Stretch="Uniform"
+							Opacity="0.7"
+							Grid.ColumnSpan="3" />
+						<Grid
+							Name="LoadingContainerPhoto"
+							Column="1"
+							Visibility="Collapsed">
+							<lottie:LottieAnimationView
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center"
+								AutoPlay="True"
+								FileName="Animations/LoadingPill.json"
+								RepeatCount="-1"
+								Width="{Binding ElementName=LoadingContainerPhoto, Path=ActualWidth}"
+								Height="{Binding ElementName=LoadingContainerPhoto, Path=ActualHeight}" />
+						</Grid>
+					</Grid>
+					<TextBlock
+						Name="PhotoButtonLabel"
+						Grid.ColumnSpan="3"
+						FontFamily="{StaticResource MontserratSemiBold}"
+						FontSize="{DynamicResource FontSizeDisplay2}"
+						Foreground="#FFFFFFFF"
+						VerticalAlignment="Bottom"
+						HorizontalAlignment="Center"
+						Text="PHOTO" />
+				</StackPanel>
+				<StackPanel
+					Name="gridVideo"
+					Grid.Column="0"
+					Orientation="Vertical"
+					VerticalAlignment="Center"
+					Visibility="Visible">
+					<Grid
+						Height="{Binding ElementName=gridButtons, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.25}">
+						<Button
+							Name="VideoButton"
+							Grid.ColumnSpan="3"
+							BorderThickness="0"
+							Click="VideoButton_Click">
+							<Control.Background>
+								<ImageBrush
+									x:Name="VideoButtonBrush"
+									ImageSource="/Images/VideoShadow.png"
+									Stretch="Uniform" />
+							</Control.Background>
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Background"
+										Value="#FFFFFFFF" />
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Border
+													Background="{TemplateBinding Background}">
+													<ContentPresenter
+														HorizontalAlignment="Center"
+														VerticalAlignment="Center" />
+												</Border>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.7" />
+										</Trigger>
+										<Trigger
+											Property="IsEnabled"
+											Value="False">
+											<Setter
+												Property="Background"
+												Value="#FF808080" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+						<Image
+							Name="IconLoadingBackground2"
+							Source="/Images/ButtonBlackOverlay.png"
+							Stretch="Uniform"
+							Opacity="0.7"
+							Grid.ColumnSpan="3" />
+						<Grid
+							Name="LoadingContainerVideo"
+							Column="1"
+							Visibility="Collapsed">
+							<lottie:LottieAnimationView
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center"
+								AutoPlay="True"
+								FileName="Animations/LoadingPill.json"
+								RepeatCount="-1"
+								Width="{Binding ElementName=LoadingContainerVideo, Path=ActualWidth}"
+								Height="{Binding ElementName=LoadingContainerVideo, Path=ActualHeight}" />
+						</Grid>
+					</Grid>
+					<TextBlock
+						Name="VideoButtonLabel"
+						Grid.ColumnSpan="3"
+						FontFamily="{StaticResource MontserratSemiBold}"
+						FontSize="{DynamicResource FontSizeDisplay2}"
+						Foreground="#FFFFFFFF"
+						VerticalAlignment="Bottom"
+						HorizontalAlignment="Center"
+						Text="Video" />
+				</StackPanel>
+				<StackPanel
+					Name="gridImport"
+					Grid.Column="0"
+					Orientation="Vertical"
+					VerticalAlignment="Center"
+					Visibility="Visible">
+					<Grid
+						Height="{Binding ElementName=gridButtons, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.25}">
+						<Button
+							Name="ImportyButton"
+							Grid.ColumnSpan="3"
+							FontFamily="{StaticResource PromptExtraLight}"
+							Click="ImportButton_Click">
+							<Control.Background>
+								<ImageBrush
+									x:Name="ImportyButtonBrush"
+									ImageSource="/Images/ImportIcon.png"
+									Stretch="Uniform">
+									<Brush.Transform>
+										<TransformGroup>
+											<ScaleTransform />
+											<SkewTransform />
+											<RotateTransform />
+											<TranslateTransform
+												X="0" />
+										</TransformGroup>
+									</Brush.Transform>
+									<Brush.RelativeTransform>
+										<TransformGroup>
+											<ScaleTransform
+												CenterY="0.5"
+												CenterX="0.5" />
+											<SkewTransform
+												CenterX="0.5"
+												CenterY="0.5" />
+											<RotateTransform
+												CenterX="0.5"
+												CenterY="0.5" />
+											<TranslateTransform
+												X="0" />
+										</TransformGroup>
+									</Brush.RelativeTransform>
+								</ImageBrush>
+							</Control.Background>
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Background"
+										Value="#FFFFFFFF" />
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Border
+													Background="{TemplateBinding Background}">
+													<ContentPresenter
+														HorizontalAlignment="Center"
+														VerticalAlignment="Center" />
+												</Border>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.7" />
+										</Trigger>
+										<Trigger
+											Property="IsEnabled"
+											Value="False">
+											<Setter
+												Property="Background"
+												Value="#FF808080" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+					</Grid>
+					<TextBlock
+						Name="ImportButtonLabel"
+						Grid.ColumnSpan="3"
+						FontFamily="{StaticResource MontserratSemiBold}"
+						FontSize="{DynamicResource FontSizeDisplay2}"
+						Foreground="#FFFFFFFF"
+						VerticalAlignment="Bottom"
+						HorizontalAlignment="Center"
+						Text="Import" />
+				</StackPanel>
+				<StackPanel
+					Name="gridGallery"
+					Grid.Column="0"
+					Orientation="Vertical"
+					VerticalAlignment="Center"
+					Visibility="Visible">
+					<Grid
+						Height="{Binding ElementName=gridButtons, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.25}">
+						<Button
+							Name="GalleryButton"
+							Grid.ColumnSpan="3"
+							FontFamily="{StaticResource PromptExtraLight}"
+							Click="GalleryButton_Click">
+							<Control.Background>
+								<ImageBrush
+									x:Name="GalleryButtonBrush"
+									ImageSource="/Images/GalleryIcon.png"
+									Stretch="Uniform">
+									<Brush.Transform>
+										<TransformGroup>
+											<ScaleTransform />
+											<SkewTransform />
+											<RotateTransform />
+											<TranslateTransform
+												X="0" />
+										</TransformGroup>
+									</Brush.Transform>
+									<Brush.RelativeTransform>
+										<TransformGroup>
+											<ScaleTransform
+												CenterY="0.5"
+												CenterX="0.5" />
+											<SkewTransform
+												CenterX="0.5"
+												CenterY="0.5" />
+											<RotateTransform
+												CenterX="0.5"
+												CenterY="0.5" />
+											<TranslateTransform
+												X="0" />
+										</TransformGroup>
+									</Brush.RelativeTransform>
+								</ImageBrush>
+							</Control.Background>
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Background"
+										Value="#FFFFFFFF" />
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Border
+													Background="{TemplateBinding Background}">
+													<ContentPresenter
+														HorizontalAlignment="Center"
+														VerticalAlignment="Center" />
+												</Border>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.7" />
+										</Trigger>
+										<Trigger
+											Property="IsEnabled"
+											Value="False">
+											<Setter
+												Property="Background"
+												Value="#FF808080" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+					</Grid>
+					<TextBlock
+						Name="GalleryButtonLabel"
+						Grid.ColumnSpan="3"
+						FontFamily="{StaticResource MontserratSemiBold}"
+						FontSize="{DynamicResource FontSizeDisplay2}"
+						Foreground="#FFFFFFFF"
+						VerticalAlignment="Bottom"
+						HorizontalAlignment="Center"
+						Text="Gallery" />
+				</StackPanel>
+			</UniformGrid>
+		</Grid>
+		<Grid
+			Name="loadingGifGrid"
+			Background="#FF000000"
+			Opacity="0.8"
+			ColumnSpan="5"
+			RowSpan="5"
+			Visibility="Collapsed">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition
+					Width="1*" />
+				<ColumnDefinition
+					Width="1*" />
+				<ColumnDefinition
+					Width="1*" />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition
+					Height="1*" />
+				<RowDefinition
+					Height="1*" />
+				<RowDefinition
+					Height="1*" />
+			</Grid.RowDefinitions>
+			<Grid
+				Name="LoadingContainer"
+				Row="1"
+				Column="1">
+				<lottie:LottieAnimationView
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center"
+					AutoPlay="True"
+					FileName="Animations/LoadingPill.json"
+					RepeatCount="-1"
+					Width="{Binding ElementName=LoadingContainer, Path=ActualWidth}"
+					Height="{Binding ElementName=LoadingContainer, Path=ActualHeight}" />
+			</Grid>
+			<TextBlock
+				Name="LoadingGifText"
+				Grid.Row="2"
+				Grid.Column="1"
+				FontSize="{DynamicResource FontSizeDisplay1}"
+				TextWrapping="Wrap"
+				Text="Loading..."
+				Foreground="#FFF5F5F5"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center" />
+		</Grid>
+		<Grid
+			Name="PaymentGrid"
+			ColumnSpan="5"
+			RowSpan="5"
+			Visibility="Collapsed">
+			<Panel.Background>
+				<ImageBrush
+					ImageSource="/Images/Payment/PhotoPaymentWaiting.jpg"
+					Stretch="UniformToFill" />
+			</Panel.Background>
+			<Grid
+				Name="MainPaymentPage">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="1*" />
+					<ColumnDefinition
+						Width="3*" />
+					<ColumnDefinition
+						Width="1*" />
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition
+						Height="1*" />
+					<RowDefinition
+						Height="2*" />
+				</Grid.RowDefinitions>
+				<Grid
+					ColumnSpan="5">
+					<StackPanel>
+						<Grid
+							Height="100" />
+						<TextBlock
+							Name="MainPaymentTitle"
+							Text="Pick Your Fun!"
+							Background="#00FFFFFF"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							Foreground="#FFFFFFFF"
+							TextAlignment="Center"
+							Margin="0,0,0,0"
+							FontFamily="{StaticResource MontserratBold}"
+							FontSize="{DynamicResource FontSizeDisplay1}" />
+						<Grid
+							Height="20" />
+						<TextBlock
+							Name="MainPaymentText"
+							Text="Choose how you want your photos — and how many!"
+							Background="#00FFFFFF"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Bottom"
+							Foreground="#FFFFFFFF"
+							TextAlignment="Center"
+							Margin="0,0,0,20"
+							FontFamily="{StaticResource MontserratRegular}"
+							FontSize="{DynamicResource FontSizeHeading2}" />
+					</StackPanel>
+				</Grid>
+				<StackPanel
+					Orientation="Vertical"
+					Grid.Column="1"
+					Grid.Row="1">
+					<Grid
+						Height="50" />
+					<Grid
+						Name="PaymentPrintGrid"
+						Height="{Binding ElementName=PaymentGrid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.09+1}">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition
+								Width="3*" />
+							<ColumnDefinition
+								Width="2*" />
+							<ColumnDefinition
+								Width="2*" />
+						</Grid.ColumnDefinitions>
+						<Border
+							Grid.ColumnSpan="3"
+							Background="#FFFFFFFF"
+							CornerRadius="10"
+							BorderThickness="4"
+							BorderBrush="#FFFFFF" />
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="2*" />
+								<RowDefinition
+									Height="5*" />
+								<RowDefinition
+									Height="5*" />
+								<RowDefinition
+									Height="2*" />
+							</Grid.RowDefinitions>
+							<TextBlock
+								Name="PaymentMainPagePrintTitle"
+								Grid.Row="1"
+								Text="Print"
+								Background="#00FFFFFF"
+								HorizontalAlignment="Left"
+								VerticalAlignment="Center"
+								Foreground="#694FB2"
+								TextAlignment="Center"
+								Margin="25,0,0,0"
+								FontFamily="{StaticResource MontserratRegular}"
+								FontSize="{DynamicResource FontSizeHeading2}" />
+							<TextBlock
+								Name="PaymentMainPagePrintText"
+								Grid.Row="2"
+								Text="Take it home: 1 photo print + 1 digital download "
+								Background="#00FFFFFF"
+								HorizontalAlignment="Left"
+								TextWrapping="WrapWithOverflow"
+								TextAlignment="Left"
+								VerticalAlignment="Center"
+								Foreground="#7B7B7D"
+								Margin="25,0,0,0"
+								FontFamily="{StaticResource MontserratRegular}"
+								FontSize="{DynamicResource FontSizeButtonExtraSmall}" />
+						</Grid>
+						<Grid
+							Column="1">
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="1*" />
+								<RowDefinition
+									Height="5*" />
+								<RowDefinition
+									Height="1*" />
+							</Grid.RowDefinitions>
+							<TextBlock
+								Name="PrintPaymentAmountText"
+								Grid.Row="1"
+								Text="$5.00"
+								Background="#00FFFFFF"
+								HorizontalAlignment="Left"
+								VerticalAlignment="Center"
+								Foreground="#57585D"
+								TextAlignment="Center"
+								Margin="25,0,0,0"
+								FontFamily="{StaticResource MontserratRegular}"
+								FontSize="{DynamicResource FontSizeHeading1}" />
+						</Grid>
+						<Grid
+							Column="2">
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="1*" />
+								<RowDefinition
+									Height="7*" />
+								<RowDefinition
+									Height="1*" />
+							</Grid.RowDefinitions>
+							<Grid
+								Row="1">
+								<Button
+									Name="PrintNumberRemove"
+									BorderThickness="5"
+									IsDefault="True"
+									BorderBrush="#FFFFFFFF"
+									Margin="20,0,0,0"
+									VerticalAlignment="Center"
+									HorizontalAlignment="Left"
+									Foreground="#FF000000"
+									FontFamily="{StaticResource PromptExtraLight}"
+									FontSize="{DynamicResource FontSizeHeading1}"
+									MaxWidth="{Binding ElementName=PaymentPrintGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2+1}"
+									MaxHeight="{Binding ElementName=PaymentPrintGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2+1}"
+									Height="{Binding ElementName=PrintNumberRemove, Path=ActualWidth}"
+									Width="{Binding ElementName=PaymentPrintGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.06+1}"
+									Click="PrintNumberRemove_Click">
+									<FrameworkElement.Style>
+										<Style
+											TargetType="{x:Type Button}">
+											<Setter
+												Property="Background"
+												Value="#FFFFFFFF" />
+											<Setter
+												Property="Template">
+												<Setter.Value>
+													<ControlTemplate
+														TargetType="{x:Type Button}">
+														<Border
+															Background="{TemplateBinding Background}"
+															CornerRadius="5000"
+															BorderThickness="4"
+															BorderBrush="#694FB2">
+															<Path
+																Data="{StaticResource MinusIcon}"
+																Stroke="#694FB2"
+																Stretch="Uniform"
+																StrokeThickness="2"
+																VerticalAlignment="Center"
+																HorizontalAlignment="Center"
+																Width="{Binding ElementName=PrintNumberRemove, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.3+1}" />
+														</Border>
+													</ControlTemplate>
+												</Setter.Value>
+											</Setter>
+											<Style.Triggers>
+												<Trigger
+													Property="UIElement.IsMouseOver"
+													Value="True">
+													<Setter
+														Property="UIElement.Opacity"
+														Value="0.9" />
+												</Trigger>
+											</Style.Triggers>
+										</Style>
+									</FrameworkElement.Style>
+								</Button>
+								<Button
+									Name="PrintNumberAdd"
+									Grid.Column="2"
+									IsDefault="True"
+									Margin="0,0,20,0"
+									VerticalAlignment="Center"
+									HorizontalAlignment="Right"
+									Content=""
+									Foreground="#FF000000"
+									FontFamily="{StaticResource PromptExtraLight}"
+									FontSize="{DynamicResource FontSizeHeading1}"
+									Background="#FFFFFFFF"
+									MaxWidth="{Binding ElementName=PrintNumberRemove, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1+1}"
+									MaxHeight="{Binding ElementName=PrintNumberRemove, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1+1}"
+									Width="{Binding ElementName=PrintNumberRemove, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1+1}"
+									Click="PrintNumberAdd_Click">
+									<FrameworkElement.Style>
+										<Style
+											TargetType="{x:Type Button}">
+											<Setter
+												Property="Background"
+												Value="#FFFFFFFF" />
+											<Setter
+												Property="Template">
+												<Setter.Value>
+													<ControlTemplate
+														TargetType="{x:Type Button}">
+														<Border
+															Background="{TemplateBinding Background}"
+															CornerRadius="5000"
+															BorderThickness="2"
+															BorderBrush="#694FB2">
+															<Path
+																Data="{StaticResource PlusIcon2}"
+																Stroke="#694FB2"
+																Stretch="Uniform"
+																StrokeThickness="2"
+																VerticalAlignment="Center"
+																HorizontalAlignment="Center"
+																Width="{Binding ElementName=PrintNumberAdd, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1+1}" />
+														</Border>
+													</ControlTemplate>
+												</Setter.Value>
+											</Setter>
+											<Style.Triggers>
+												<Trigger
+													Property="UIElement.IsMouseOver"
+													Value="True">
+													<Setter
+														Property="UIElement.Opacity"
+														Value="0.9" />
+												</Trigger>
+											</Style.Triggers>
+										</Style>
+									</FrameworkElement.Style>
+								</Button>
+								<Grid
+									Column="1"
+									VerticalAlignment="Center"
+									Height="{Binding ElementName=PrintNumberRemove, Path=ActualHeight}"
+									Width="{Binding ElementName=PrintNumberRemove, Path=ActualWidth}"
+									MaxWidth="{Binding ElementName=PrintNumberRemove, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1+1}">
+									<TextBox
+										Name="PrintNumberBox"
+										Text="1"
+										Background="#00FFFFFF"
+										HorizontalAlignment="Center"
+										VerticalAlignment="Center"
+										Foreground="#694FB2"
+										TextAlignment="Center"
+										Margin="0,0,0,0"
+										FontFamily="{StaticResource MontserratRegular}"
+										BorderThickness="0"
+										FontSize="{DynamicResource FontSizeHeading1}"
+										TextChanged="PrintNumberBox_TextChanged" />
+								</Grid>
+							</Grid>
+						</Grid>
+					</Grid>
+					<Grid
+						Height="50" />
+					<Grid
+						Name="PaymentDownloadGrid"
+						Height="{Binding ElementName=PaymentGrid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.09+1}">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition
+								Width="3*" />
+							<ColumnDefinition
+								Width="2*" />
+							<ColumnDefinition
+								Width="2*" />
+						</Grid.ColumnDefinitions>
+						<Border
+							Grid.ColumnSpan="3"
+							Background="#FFFFFFFF"
+							CornerRadius="10"
+							BorderThickness="4"
+							BorderBrush="#FFFFFF" />
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="2*" />
+								<RowDefinition
+									Height="5*" />
+								<RowDefinition
+									Height="5*" />
+								<RowDefinition
+									Height="2*" />
+							</Grid.RowDefinitions>
+							<TextBlock
+								Name="MainPageDigitalTitle"
+								Grid.Row="1"
+								Text="Digital Download"
+								Background="#00FFFFFF"
+								HorizontalAlignment="Left"
+								VerticalAlignment="Center"
+								Foreground="#694FB2"
+								TextAlignment="Center"
+								Margin="25,0,0,0"
+								FontFamily="{StaticResource MontserratRegular}"
+								FontSize="{DynamicResource FontSizeHeading2}" />
+							<TextBlock
+								Name="PaymentMainPageDigitalText"
+								Grid.Row="2"
+								Text="Go Digital: Instant Download(No print)"
+								Background="#00FFFFFF"
+								HorizontalAlignment="Left"
+								VerticalAlignment="Center"
+								Foreground="#7B7B7D"
+								TextWrapping="WrapWithOverflow"
+								TextAlignment="Left"
+								Margin="25,0,0,0"
+								FontFamily="{StaticResource MontserratRegular}"
+								FontSize="{DynamicResource FontSizeButtonExtraSmall}" />
+						</Grid>
+						<Grid
+							Column="1">
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="1*" />
+								<RowDefinition
+									Height="5*" />
+								<RowDefinition
+									Height="1*" />
+							</Grid.RowDefinitions>
+							<TextBlock
+								Name="DownloadPaymentAmountText"
+								Grid.Row="1"
+								Text="$5.00"
+								Background="#00FFFFFF"
+								HorizontalAlignment="Left"
+								VerticalAlignment="Center"
+								Foreground="#57585D"
+								TextAlignment="Center"
+								Margin="25,0,0,0"
+								FontFamily="{StaticResource MontserratRegular}"
+								FontSize="{DynamicResource FontSizeHeading1}" />
+						</Grid>
+						<Grid
+							Column="2">
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="1*" />
+								<RowDefinition
+									Height="7*" />
+								<RowDefinition
+									Height="1*" />
+							</Grid.RowDefinitions>
+							<Grid
+								Row="1">
+								<Button
+									Name="DownloadNumberRemove"
+									BorderThickness="5"
+									IsDefault="True"
+									BorderBrush="#FFFFFFFF"
+									Margin="20,0,0,0"
+									VerticalAlignment="Center"
+									HorizontalAlignment="Left"
+									Foreground="#FF000000"
+									FontFamily="{StaticResource PromptExtraLight}"
+									FontSize="{DynamicResource FontSizeHeading1}"
+									MaxWidth="{Binding ElementName=PaymentDownloadGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2+1}"
+									MaxHeight="{Binding ElementName=PaymentDownloadGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2+1}"
+									Height="{Binding ElementName=DownloadNumberRemove, Path=ActualWidth}"
+									Width="{Binding ElementName=PaymentDownloadGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.06+1}"
+									Click="DownloadNumberRemove_Click">
+									<FrameworkElement.Style>
+										<Style
+											TargetType="{x:Type Button}">
+											<Setter
+												Property="Background"
+												Value="#FFFFFFFF" />
+											<Setter
+												Property="Template">
+												<Setter.Value>
+													<ControlTemplate
+														TargetType="{x:Type Button}">
+														<Border
+															Background="{TemplateBinding Background}"
+															CornerRadius="5000"
+															BorderThickness="4"
+															BorderBrush="#694FB2">
+															<Path
+																Data="{StaticResource MinusIcon}"
+																Stroke="#694FB2"
+																Stretch="Uniform"
+																StrokeThickness="2"
+																VerticalAlignment="Center"
+																HorizontalAlignment="Center"
+																Width="{Binding ElementName=PrintNumberRemove, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.3+1}" />
+														</Border>
+													</ControlTemplate>
+												</Setter.Value>
+											</Setter>
+											<Style.Triggers>
+												<Trigger
+													Property="UIElement.IsMouseOver"
+													Value="True">
+													<Setter
+														Property="UIElement.Opacity"
+														Value="0.9" />
+												</Trigger>
+											</Style.Triggers>
+										</Style>
+									</FrameworkElement.Style>
+								</Button>
+								<Button
+									Name="DownloadNumberAdd"
+									Grid.Column="2"
+									IsDefault="True"
+									Margin="0,0,20,0"
+									VerticalAlignment="Center"
+									HorizontalAlignment="Right"
+									Content=""
+									Foreground="#FF000000"
+									FontFamily="{StaticResource PromptExtraLight}"
+									FontSize="{DynamicResource FontSizeHeading1}"
+									Background="#FFFFFFFF"
+									MaxWidth="{Binding ElementName=DownloadNumberRemove, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1+1}"
+									MaxHeight="{Binding ElementName=DownloadNumberRemove, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1+1}"
+									Width="{Binding ElementName=DownloadNumberRemove, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1+1}"
+									Click="DownloadNumberAdd_Click">
+									<FrameworkElement.Style>
+										<Style
+											TargetType="{x:Type Button}">
+											<Setter
+												Property="Background"
+												Value="#FFFFFFFF" />
+											<Setter
+												Property="Template">
+												<Setter.Value>
+													<ControlTemplate
+														TargetType="{x:Type Button}">
+														<Border
+															Background="{TemplateBinding Background}"
+															CornerRadius="5000"
+															BorderThickness="2"
+															BorderBrush="#694FB2">
+															<Path
+																Data="{StaticResource PlusIcon2}"
+																Stroke="#694FB2"
+																Stretch="Uniform"
+																StrokeThickness="2"
+																VerticalAlignment="Center"
+																HorizontalAlignment="Center"
+																Width="{Binding ElementName=DownloadNumberAdd, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1+1}" />
+														</Border>
+													</ControlTemplate>
+												</Setter.Value>
+											</Setter>
+											<Style.Triggers>
+												<Trigger
+													Property="UIElement.IsMouseOver"
+													Value="True">
+													<Setter
+														Property="UIElement.Opacity"
+														Value="0.9" />
+												</Trigger>
+											</Style.Triggers>
+										</Style>
+									</FrameworkElement.Style>
+								</Button>
+								<Grid
+									Column="1"
+									VerticalAlignment="Center"
+									Height="{Binding ElementName=DownloadNumberRemove, Path=ActualHeight}"
+									Width="{Binding ElementName=DownloadNumberRemove, Path=ActualWidth}"
+									MaxWidth="{Binding ElementName=DownloadNumberRemove, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1+1}">
+									<TextBox
+										Name="DownloadNumberBox"
+										Text="1"
+										Background="#00FFFFFF"
+										HorizontalAlignment="Center"
+										VerticalAlignment="Center"
+										Foreground="#694FB2"
+										TextAlignment="Center"
+										Margin="0,0,0,0"
+										FontFamily="{StaticResource MontserratRegular}"
+										BorderThickness="0"
+										FontSize="{DynamicResource FontSizeHeading1}"
+										TextChanged="DownloadNumberBox_TextChanged" />
+								</Grid>
+							</Grid>
+						</Grid>
+					</Grid>
+					<Grid
+						Height="50" />
+					<Button
+						Name="btnApply"
+						FontFamily="{StaticResource MontserratSemiBold}"
+						FontSize="{DynamicResource FontSizeHeading3}"
+						Foreground="#FFFFFFFF"
+						Content="Let's Go - Pay $5.00"
+						Background="#089455"
+						Height="{Binding ElementName=PaymentGrid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.09+1}"
+						Click="btnApply_Click">
+						<UIElement.Effect>
+							<DropShadowEffect
+								Opacity="0.25"
+								BlurRadius="5"
+								ShadowDepth="2" />
+						</UIElement.Effect>
+						<FrameworkElement.Style>
+							<Style
+								TargetType="{x:Type Button}">
+								<Setter
+									Property="Template">
+									<Setter.Value>
+										<ControlTemplate
+											TargetType="{x:Type Button}">
+											<Border
+												Name="borderCreateButton"
+												Background="{TemplateBinding Background}"
+												CornerRadius="{Binding ElementName=PaymentGrid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.01}">
+												<ContentPresenter
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center" />
+											</Border>
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
+								<Style.Triggers>
+									<Trigger
+										Property="UIElement.IsMouseOver"
+										Value="True">
+										<Setter
+											Property="UIElement.Opacity"
+											Value="0.7" />
+									</Trigger>
+								</Style.Triggers>
+							</Style>
+						</FrameworkElement.Style>
+					</Button>
+				</StackPanel>
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="2*" />
+						<ColumnDefinition
+							Width="17*" />
+						<ColumnDefinition
+							Width="8*" />
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="1*" />
+						<RowDefinition
+							Height="4*" />
+						<RowDefinition
+							Height="18*" />
+					</Grid.RowDefinitions>
+					<Button
+						Name="MainPaymentBackButton"
+						Grid.Row="1"
+						Grid.Column="1"
+						BorderThickness="0"
+						Content="Go Back"
+						Foreground="#FFFFFFFF"
+						FontFamily="{StaticResource MontserratSemiBold}"
+						FontSize="{DynamicResource FontSizeButtonPrimary}"
+						Background="{StaticResource UIRedButton}"
+						Margin="0,0,10,0"
+						MaxHeight="{Binding ElementName=MainPaymentPage, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.05}"
+						Click="MainPaymentBackButton_Click">
+						<FrameworkElement.Style>
+							<Style
+								TargetType="{x:Type Button}">
+								<Setter
+									Property="Template">
+									<Setter.Value>
+										<ControlTemplate
+											TargetType="{x:Type Button}">
+											<Border
+												Name="borderCreateButton"
+												Background="{TemplateBinding Background}"
+												CornerRadius="{Binding ElementName=borderCreateButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.5+1}">
+												<ContentPresenter
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center" />
+											</Border>
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
+								<Style.Triggers>
+									<Trigger
+										Property="UIElement.IsMouseOver"
+										Value="True">
+										<Setter
+											Property="UIElement.Opacity"
+											Value="0.7" />
+									</Trigger>
+								</Style.Triggers>
+							</Style>
+						</FrameworkElement.Style>
+					</Button>
+				</Grid>
+			</Grid>
+			<Grid
+				Name="loadingPaymentGrid"
+				ColumnSpan="5"
+				RowSpan="5"
+				Visibility="Collapsed">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="1*" />
+					<ColumnDefinition
+						Width="1*" />
+					<ColumnDefinition
+						Width="1*" />
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition
+						Height="10*" />
+					<RowDefinition
+						Height="5*" />
+					<RowDefinition
+						Height="25*" />
+					<RowDefinition
+						Height="10*" />
+					<RowDefinition
+						Height="10*" />
+				</Grid.RowDefinitions>
+				<TextBlock
+					Name="PaymentLoadingPageTitle"
+					Grid.ColumnSpan="5"
+					Text="Almost There!"
+					Background="#00FFFFFF"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center"
+					Foreground="#FFFFFFFF"
+					TextAlignment="Center"
+					Margin="0,40,0,0"
+					FontFamily="{StaticResource MontserratRegular}"
+					FontSize="{DynamicResource FontSizeDisplay1}" />
+				<TextBlock
+					Name="PaymentLoadingPageText"
+					Grid.ColumnSpan="5"
+					Grid.Row="1"
+					Text="Complete your paymen to keep the fun going"
+					Background="#00FFFFFF"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Top"
+					Foreground="#FFFFFFFF"
+					TextAlignment="Center"
+					Margin="25,0,0,0"
+					FontFamily="{StaticResource MontserratRegular}"
+					FontSize="{DynamicResource FontSizeTextTitle}" />
+				<Grid
+					Column="1"
+					Row="2">
+					<Image
+						Name="PaymentUrlImage" />
+				</Grid>
+				<TextBlock
+					Name="PaymentLoadingPageScanQRText"
+					Grid.Column="1"
+					Grid.Row="3"
+					Text="Scan the QR code with &#xA;your phone to pay"
+					Background="#00FFFFFF"
+					HorizontalAlignment="Center"
+					TextWrapping="Wrap"
+					VerticalAlignment="Center"
+					Foreground="#FFFFFFFF"
+					TextAlignment="Center"
+					Margin="25,0,0,0"
+					FontFamily="{StaticResource MontserratRegular}"
+					FontSize="{DynamicResource FontSizeTextTitle}" />
+				<TextBlock
+					Name="PaymentTimeText"
+					Grid.Column="1"
+					Grid.Row="4"
+					Text="120"
+					Background="#00FFFFFF"
+					HorizontalAlignment="Center"
+					TextWrapping="Wrap"
+					VerticalAlignment="Top"
+					Foreground="#FFFFFFFF"
+					TextAlignment="Center"
+					Margin="25,0,0,0"
+					FontFamily="{StaticResource MontserratRegular}"
+					FontSize="{DynamicResource FontSizeHeading1}" />
+				<Grid
+					RowSpan="10"
+					ColumnSpan="10">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="1*" />
+						<ColumnDefinition
+							Width="3*" />
+						<ColumnDefinition
+							Width="1*" />
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="1*" />
+						<RowDefinition
+							Height="2*" />
+					</Grid.RowDefinitions>
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition
+								Width="2*" />
+							<ColumnDefinition
+								Width="17*" />
+							<ColumnDefinition
+								Width="8*" />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition
+								Height="1*" />
+							<RowDefinition
+								Height="4*" />
+							<RowDefinition
+								Height="18*" />
+						</Grid.RowDefinitions>
+						<Button
+							Name="DeleteButton"
+							Grid.Row="1"
+							Grid.Column="1"
+							BorderThickness="0"
+							Content="Go Back"
+							Foreground="#FFFFFFFF"
+							FontFamily="{StaticResource MontserratSemiBold}"
+							FontSize="{DynamicResource FontSizeButtonPrimary}"
+							Background="{StaticResource UIRedButton}"
+							Margin="0,0,10,0"
+							MaxHeight="{Binding ElementName=loadingPaymentGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.05}"
+							Click="DeleteButton_Click">
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Border
+													Name="borderCreateButton"
+													Background="{TemplateBinding Background}"
+													CornerRadius="{Binding ElementName=borderCreateButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.5+1}">
+													<ContentPresenter
+														HorizontalAlignment="Center"
+														VerticalAlignment="Center" />
+												</Border>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.7" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+					</Grid>
+				</Grid>
+			</Grid>
+			<Grid
+				Name="SuccessPaymentGrid"
+				ColumnSpan="5"
+				RowSpan="5"
+				Visibility="Visible">
+				<Grid.RowDefinitions>
+					<RowDefinition
+						Height="1*" />
+					<RowDefinition
+						Height="2*" />
+					<RowDefinition
+						Height="1*" />
+					<RowDefinition
+						Height="4*" />
+					<RowDefinition
+						Height="2*" />
+					<RowDefinition
+						Height="1*" />
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="1*" />
+					<ColumnDefinition
+						Width="3*" />
+					<ColumnDefinition
+						Width="1*" />
+				</Grid.ColumnDefinitions>
+				<TextBlock
+					Name="ConfirmationPageTitle"
+					Grid.Row="1"
+					Grid.Column="1"
+					Text="You're All Set!"
+					Background="#00FFFFFF"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center"
+					Foreground="#FFFFFFFF"
+					TextAlignment="Center"
+					Margin="0,0,0,0"
+					FontFamily="{StaticResource MontserratRegular}"
+					FontSize="{DynamicResource FontSizeDisplay1}" />
+				<TextBlock
+					Name="PaymentSessionInfoText"
+					Grid.Row="2"
+					Grid.Column="1"
+					Text="You've unlocked"
+					Background="#00FFFFFF"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Top"
+					Foreground="#FFFFFFFF"
+					TextAlignment="Center"
+					Margin="0,0,0,0"
+					FontFamily="{StaticResource MontserratRegular}"
+					FontSize="{DynamicResource FontSizeHeading2}" />
+				<Grid
+					Row="3"
+					ColumnSpan="5">
+					<StackPanel
+						Orientation="Horizontal"
+						HorizontalAlignment="Center"
+						Grid.ColumnSpan="5">
+						<Grid
+							Name="PayingPhotoButtonGrid"
+							MinWidth="{Binding ElementName=SuccessPaymentGrid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.175}"
+							Width="{Binding ElementName=PayingDigitalPhotoButtonGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}">
+							<Button
+								Name="PayingPhotoButton"
+								Click="PayingPhotoButton_Click">
+								<Control.Background>
+									<ImageBrush
+										x:Name="PayingPhotoButtonBrush"
+										ImageSource="/Images/Payment/PrintPay.png"
+										Stretch="Uniform">
+										<Brush.Transform>
+											<TransformGroup>
+												<ScaleTransform />
+												<SkewTransform />
+												<RotateTransform />
+												<TranslateTransform
+													X="0" />
+											</TransformGroup>
+										</Brush.Transform>
+										<Brush.RelativeTransform>
+											<TransformGroup>
+												<ScaleTransform
+													CenterY="0.5"
+													CenterX="0.5" />
+												<SkewTransform
+													CenterX="0.5"
+													CenterY="0.5" />
+												<RotateTransform
+													CenterX="0.5"
+													CenterY="0.5" />
+												<TranslateTransform
+													X="0" />
+											</TransformGroup>
+										</Brush.RelativeTransform>
+									</ImageBrush>
+								</Control.Background>
+								<FrameworkElement.Style>
+									<Style
+										TargetType="{x:Type Button}">
+										<Setter
+											Property="Background"
+											Value="#FFFFFFFF" />
+										<Setter
+											Property="Template">
+											<Setter.Value>
+												<ControlTemplate
+													TargetType="{x:Type Button}">
+													<Border
+														Background="{TemplateBinding Background}">
+														<ContentPresenter
+															HorizontalAlignment="Center"
+															VerticalAlignment="Center" />
+													</Border>
+												</ControlTemplate>
+											</Setter.Value>
+										</Setter>
+										<Style.Triggers>
+											<Trigger
+												Property="UIElement.IsMouseOver"
+												Value="True">
+												<Setter
+													Property="UIElement.Opacity"
+													Value="0.7" />
+											</Trigger>
+											<Trigger
+												Property="IsEnabled"
+												Value="False">
+												<Setter
+													Property="Background"
+													Value="#FF808080" />
+											</Trigger>
+										</Style.Triggers>
+									</Style>
+								</FrameworkElement.Style>
+							</Button>
+							<TextBlock
+								Name="ConfirmationPagePrintText"
+								Text="Start Print x"
+								Background="#00FFFFFF"
+								HorizontalAlignment="Center"
+								VerticalAlignment="Bottom"
+								Foreground="#FFFFFFFF"
+								TextAlignment="Center"
+								Margin="0,0,0,-40"
+								FontFamily="{StaticResource MontserratRegular}"
+								FontSize="{DynamicResource FontSizeHeading2}" />
+						</Grid>
+						<Grid
+							Name="emptyGrid"
+							Width="{Binding ElementName=SuccessPaymentGrid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.1}" />
+						<Grid
+							Name="PayingDigitalPhotoButtonGrid"
+							MinWidth="{Binding ElementName=SuccessPaymentGrid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.175}">
+							<Button
+								Name="PayingDigitalPhotoButton"
+								Grid.Column="2"
+								Click="PayingDigitalPhotoButton_Click">
+								<Control.Background>
+									<ImageBrush
+										ImageSource="/Images/Payment/DownloadPay.png"
+										Stretch="Uniform">
+										<Brush.Transform>
+											<TransformGroup>
+												<ScaleTransform />
+												<SkewTransform />
+												<RotateTransform />
+												<TranslateTransform
+													X="0" />
+											</TransformGroup>
+										</Brush.Transform>
+										<Brush.RelativeTransform>
+											<TransformGroup>
+												<ScaleTransform
+													CenterY="0.5"
+													CenterX="0.5" />
+												<SkewTransform
+													CenterX="0.5"
+													CenterY="0.5" />
+												<RotateTransform
+													CenterX="0.5"
+													CenterY="0.5" />
+												<TranslateTransform
+													X="0" />
+											</TransformGroup>
+										</Brush.RelativeTransform>
+									</ImageBrush>
+								</Control.Background>
+								<FrameworkElement.Style>
+									<Style
+										TargetType="{x:Type Button}">
+										<Setter
+											Property="Background"
+											Value="#FFFFFFFF" />
+										<Setter
+											Property="Template">
+											<Setter.Value>
+												<ControlTemplate
+													TargetType="{x:Type Button}">
+													<Border
+														Background="{TemplateBinding Background}">
+														<ContentPresenter
+															HorizontalAlignment="Center"
+															VerticalAlignment="Center" />
+													</Border>
+												</ControlTemplate>
+											</Setter.Value>
+										</Setter>
+										<Style.Triggers>
+											<Trigger
+												Property="UIElement.IsMouseOver"
+												Value="True">
+												<Setter
+													Property="UIElement.Opacity"
+													Value="0.7" />
+											</Trigger>
+											<Trigger
+												Property="IsEnabled"
+												Value="False">
+												<Setter
+													Property="Background"
+													Value="#FF808080" />
+											</Trigger>
+										</Style.Triggers>
+									</Style>
+								</FrameworkElement.Style>
+							</Button>
+							<TextBlock
+								Name="digitalText"
+								Grid.Column="2"
+								Text="Start Digital Download"
+								Background="#00FFFFFF"
+								HorizontalAlignment="Center"
+								VerticalAlignment="Bottom"
+								Foreground="#FFFFFFFF"
+								TextAlignment="Center"
+								Margin="0,0,0,-40"
+								FontFamily="{StaticResource MontserratRegular}"
+								FontSize="{DynamicResource FontSizeHeading2}" />
+						</Grid>
+					</StackPanel>
+				</Grid>
+				<Grid
+					RowSpan="10"
+					ColumnSpan="10">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="1*" />
+						<ColumnDefinition
+							Width="3*" />
+						<ColumnDefinition
+							Width="1*" />
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="1*" />
+						<RowDefinition
+							Height="2*" />
+					</Grid.RowDefinitions>
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition
+								Width="2*" />
+							<ColumnDefinition
+								Width="17*" />
+							<ColumnDefinition
+								Width="8*" />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition
+								Height="1*" />
+							<RowDefinition
+								Height="4*" />
+							<RowDefinition
+								Height="18*" />
+						</Grid.RowDefinitions>
+						<Button
+							Name="RemoveCreditButton"
+							Grid.Row="1"
+							Grid.Column="1"
+							BorderThickness="0"
+							Content="Remove Session"
+							Foreground="#FFFFFFFF"
+							FontFamily="{StaticResource MontserratSemiBold}"
+							FontSize="{DynamicResource FontSizeButtonPrimary}"
+							Background="{StaticResource UIRedButton}"
+							Margin="0,0,10,0"
+							MaxHeight="{Binding ElementName=SuccessPaymentGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.05}"
+							Click="RemoveCreditButton_Click">
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Border
+													Name="borderCreateButton"
+													Background="{TemplateBinding Background}"
+													CornerRadius="{Binding ElementName=borderCreateButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.5+1}">
+													<ContentPresenter
+														HorizontalAlignment="Center"
+														VerticalAlignment="Center" />
+												</Border>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.7" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+					</Grid>
+				</Grid>
+			</Grid>
+		</Grid>
+		<Grid
+			Name="adsVideoGrid"
+			ColumnSpan="3"
+			RowSpan="5"
+			Visibility="Collapsed">
+			<MediaElement
+				Name="videoPlayer"
+				Visibility="Visible" />
+			<Grid
+				Name="SkipVideoButton"
+				Background="#00000000"
+				MouseDown="SkipVideoButton_Click" />
+		</Grid>
+		<Grid
+			Name="GlambotSelectionMainGrid"
+			RowSpan="50"
+			ColumnSpan="50"
+			Visibility="Collapsed"
+			Background="#FF000000">
+			<Grid.RowDefinitions>
+				<RowDefinition
+					Height="300*" />
+				<RowDefinition
+					Height="194*" />
+				<RowDefinition
+					Height="260*" />
+				<RowDefinition
+					Height="660*" />
+				<RowDefinition
+					Height="306*" />
+				<RowDefinition
+					Height="140*" />
+				<RowDefinition
+					Height="300*" />
+			</Grid.RowDefinitions>
+			<Grid
+				Row="1">
+				<TextBlock
+					Text="Pick a Movement"
+					Foreground="#FFFFFFFF"
+					FontFamily="{StaticResource PromptBold}"
+					FontSize="{DynamicResource FontSizeDisplay1}"
+					VerticalAlignment="Center"
+					HorizontalAlignment="Center" />
+			</Grid>
+			<Grid
+				Name="MovementsGrid"
+				Row="3">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="420*" />
+					<ColumnDefinition
+						Width="660*" />
+					<ColumnDefinition
+						Width="120*" />
+					<ColumnDefinition
+						Width="660*" />
+					<ColumnDefinition
+						Width="120*" />
+					<ColumnDefinition
+						Width="660*" />
+					<ColumnDefinition
+						Width="120*" />
+					<ColumnDefinition
+						Width="660*" />
+					<ColumnDefinition
+						Width="420*" />
+				</Grid.ColumnDefinitions>
+				<Button
+					Name="SelectButton1"
+					Grid.Column="1"
+					Height="{Binding ElementName=SelectButton1, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}"
+					Click="SelectButton1_Click">
+					<Control.Template>
+						<ControlTemplate
+							TargetType="{x:Type Button}">
+							<Grid>
+								<Border
+									Background="#FFFFFFFF"
+									CornerRadius="10"
+									Width="{Binding ElementName=Selection1Path, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}"
+									Height="{Binding ElementName=Selection1Path, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}"
+									Margin="{Binding ElementName=SelectButton1, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}" />
+								<Path
+									Name="Selection1Path"
+									StrokeThickness="0"
+									Stretch="Uniform"
+									Fill="#48505E">
+									<Path.Data>
+										<GeometryGroup>
+											<RectangleGeometry
+												Rect="60,36,660,660"
+												RadiusX="24"
+												RadiusY="24" />
+											<Geometry>M405.8 319.667H423.5L435.3 308H470.7L482.5 319.667H500.2C503.33 319.667 506.331 320.896 508.544 323.084C510.757 325.272 512 328.239 512 331.333V401.333C512 404.428 510.757 407.395 508.544 409.583C506.331 411.771 503.33 413 500.2 413H405.8C402.67 413 399.669 411.771 397.456 409.583C395.243 407.395 394 404.428 394 401.333V331.333C394 328.239 395.243 325.272 397.456 323.084C399.669 320.896 402.67 319.667 405.8 319.667ZM453 337.167C445.176 337.167 437.673 340.24 432.14 345.709C426.608 351.179 423.5 358.598 423.5 366.333C423.5 374.069 426.608 381.487 432.14 386.957C437.673 392.427 445.176 395.5 453 395.5C460.824 395.5 468.327 392.427 473.86 386.957C479.392 381.487 482.5 374.069 482.5 366.333C482.5 358.598 479.392 351.179 473.86 345.709C468.327 340.24 460.824 337.167 453 337.167ZM453 348.833C457.694 348.833 462.196 350.677 465.516 353.959C468.835 357.241 470.7 361.692 470.7 366.333C470.7 370.975 468.835 375.426 465.516 378.708C462.196 381.99 457.694 383.833 453 383.833C448.306 383.833 443.804 381.99 440.484 378.708C437.165 375.426 435.3 370.975 435.3 366.333C435.3 361.692 437.165 357.241 440.484 353.959C443.804 350.677 448.306 348.833 453 348.833Z</Geometry>
+											<Geometry>M293.015 300.772C288.792 293.787 285.532 286.164 283.704 278.201C282.981 275.027 282.485 271.796 282.287 268.552C289.004 260.546 296.884 254.071 306.861 249.168C323.244 241.106 341.427 238.003 359.454 236.034L361.353 260.915L434 213.633L354.891 176L356.648 198.996C327.028 204.451 298.783 216.424 285.206 245.768C278.616 260.008 272.862 275.452 269.446 290.797C267.462 299.723 267.533 308.82 269.574 317.746C273.656 335.571 284.682 351.468 298.514 363.2C313.607 375.995 332.314 383.944 351.971 385.998C354.055 386.211 359.454 368.57 360.149 366.629C360.659 365.184 363.5 356.5 366.129 346.467C336.439 343.364 308.562 326.474 293.043 300.8L293.015 300.772Z</Geometry>
+										</GeometryGroup>
+									</Path.Data>
+								</Path>
+								<Border
+									Name="Selected"
+									BorderBrush="#3B82F6"
+									BorderThickness="8"
+									CornerRadius="10"
+									Margin="-5"
+									Opacity="0" />
+								<Grid
+									Name="SelectionText1Grid">
+									<TextBlock
+										Text="Half Circle (Right)"
+										FontSize="{DynamicResource FontSizeHeading3}"
+										FontFamily="{StaticResource PromptBold}"
+										Foreground="#FFFFFFFF"
+										VerticalAlignment="Bottom"
+										HorizontalAlignment="Center"
+										Margin="{Binding ElementName=SelectionText1Grid, Path=ActualHeight, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=bottom,0.1515}" />
+								</Grid>
+							</Grid>
+						</ControlTemplate>
+					</Control.Template>
+				</Button>
+				<Button
+					Name="SelectButton2"
+					Grid.Column="3"
+					Height="{Binding ElementName=SelectButton2, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}"
+					Click="SelectButton2_Click">
+					<Control.Template>
+						<ControlTemplate
+							TargetType="{x:Type Button}">
+							<Grid>
+								<Border
+									Background="#FFFFFFFF"
+									CornerRadius="0"
+									Width="{Binding ElementName=Selection1Path, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}"
+									Height="{Binding ElementName=Selection1Path, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}"
+									Margin="{Binding ElementName=SelectButton1, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}" />
+								<Path
+									Name="Selection1Path"
+									StrokeThickness="0"
+									Stretch="Uniform"
+									Fill="#48505E">
+									<Path.Data>
+										<GeometryGroup>
+											<RectangleGeometry
+												Rect="60,36,660,660"
+												RadiusX="24"
+												RadiusY="24" />
+											<Geometry>M293.8 187.667H311.5L323.3 176H358.7L370.5 187.667H388.2C391.33 187.667 394.331 188.896 396.544 191.084C398.757 193.272 400 196.239 400 199.333V269.333C400 272.428 398.757 275.395 396.544 277.583C394.331 279.771 391.33 281 388.2 281H293.8C290.67 281 287.669 279.771 285.456 277.583C283.243 275.395 282 272.428 282 269.333V199.333C282 196.239 283.243 193.272 285.456 191.084C287.669 188.896 290.67 187.667 293.8 187.667ZM341 205.167C333.176 205.167 325.673 208.24 320.14 213.709C314.608 219.179 311.5 226.598 311.5 234.333C311.5 242.069 314.608 249.487 320.14 254.957C325.673 260.427 333.176 263.5 341 263.5C348.824 263.5 356.327 260.427 361.86 254.957C367.392 249.487 370.5 242.069 370.5 234.333C370.5 226.598 367.392 219.179 361.86 213.709C356.327 208.24 348.824 205.167 341 205.167ZM341 216.833C345.694 216.833 350.196 218.677 353.516 221.959C356.835 225.241 358.7 229.692 358.7 234.333C358.7 238.975 356.835 243.426 353.516 246.708C350.196 249.99 345.694 251.833 341 251.833C336.306 251.833 331.804 249.99 328.484 246.708C325.165 243.426 323.3 238.975 323.3 234.333C323.3 229.692 325.165 225.241 328.484 221.959C331.804 218.677 336.306 216.833 341 216.833Z</Geometry>
+											<Geometry>M457.125 415.498C457.125 415.498 424.339 413.503 406.566 388.125C393.428 369.352 377.02 356.247 354.223 351.667C332.521 347.314 309.873 351.425 290.601 362.323C269.228 374.4 251.666 400.595 242.607 416.163C242.067 417.085 240.657 416.375 241.077 415.377C250.961 391.964 264.504 369.125 280.762 350.186C306.739 319.88 346.454 302.558 385.779 315.149C406.102 321.648 418.82 335.222 430.968 352.151C437.538 361.28 448.291 373.1 460.05 376.683L462.12 349.445L539 399.869L455.28 440L457.14 415.468L457.125 415.498Z</Geometry>
+										</GeometryGroup>
+									</Path.Data>
+								</Path>
+								<Border
+									Name="Selected"
+									BorderBrush="#3B82F6"
+									BorderThickness="8"
+									CornerRadius="10"
+									Margin="-5"
+									Opacity="0" />
+								<Grid
+									Name="SelectionText2Grid">
+									<TextBlock
+										Text="Zig Zag"
+										FontSize="{DynamicResource FontSizeHeading3}"
+										FontFamily="{StaticResource PromptBold}"
+										Foreground="#FFFFFFFF"
+										VerticalAlignment="Bottom"
+										HorizontalAlignment="Center"
+										Margin="{Binding ElementName=SelectionText2Grid, Path=ActualHeight, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=bottom,0.1515}" />
+								</Grid>
+							</Grid>
+						</ControlTemplate>
+					</Control.Template>
+				</Button>
+				<Button
+					Name="SelectButton3"
+					Grid.Column="5"
+					Height="{Binding ElementName=SelectButton3, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}"
+					Click="SelectButton3_Click">
+					<Control.Template>
+						<ControlTemplate
+							TargetType="{x:Type Button}">
+							<Grid>
+								<Border
+									Background="#FFFFFFFF"
+									CornerRadius="10"
+									Width="{Binding ElementName=Selection1Path, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}"
+									Height="{Binding ElementName=Selection1Path, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}"
+									Margin="{Binding ElementName=SelectButton1, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}" />
+								<Path
+									Name="Selection1Path"
+									StrokeThickness="0"
+									Stretch="Uniform"
+									Fill="#48505E">
+									<Path.Data>
+										<GeometryGroup>
+											<RectangleGeometry
+												Rect="60,36,660,660"
+												RadiusX="24"
+												RadiusY="24" />
+											<Geometry>M424.8 187.667H442.5L454.3 176H489.7L501.5 187.667H519.2C522.33 187.667 525.331 188.896 527.544 191.084C529.757 193.272 531 196.239 531 199.333V269.333C531 272.428 529.757 275.395 527.544 277.583C525.331 279.771 522.33 281 519.2 281H424.8C421.67 281 418.669 279.771 416.456 277.583C414.243 275.395 413 272.428 413 269.333V199.333C413 196.239 414.243 193.272 416.456 191.084C418.669 188.896 421.67 187.667 424.8 187.667ZM472 205.167C464.176 205.167 456.673 208.24 451.14 213.709C445.608 219.179 442.5 226.598 442.5 234.333C442.5 242.069 445.608 249.487 451.14 254.957C456.673 260.427 464.176 263.5 472 263.5C479.824 263.5 487.327 260.427 492.86 254.957C498.392 249.487 501.5 242.069 501.5 234.333C501.5 226.598 498.392 219.179 492.86 213.709C487.327 208.24 479.824 205.167 472 205.167ZM472 216.833C476.694 216.833 481.196 218.677 484.516 221.959C487.835 225.241 489.7 229.692 489.7 234.333C489.7 238.975 487.835 243.426 484.516 246.708C481.196 249.99 476.694 251.833 472 251.833C467.306 251.833 462.804 249.99 459.484 246.708C456.165 243.426 454.3 238.975 454.3 234.333C454.3 229.692 456.165 225.241 459.484 221.959C462.804 218.677 467.306 216.833 472 216.833Z</Geometry>
+											<Geometry>M465.501 420.864C441.125 469.898 401.971 472.809 382.55 475.522C367.363 477.656 339.656 472.272 325.315 466.789C296.747 455.866 279.034 436.507 261.983 413.672L250.762 419.974L250 343.696L316.07 383.305L300.22 392.193C311.427 411.905 328.039 429.272 355.393 437.411C374.335 443.064 399.755 442.611 423.553 424.185C443.962 408.373 455.875 380.168 446.686 353.87C437.06 326.386 402.07 316.396 374.631 310.433C344.61 303.918 313.939 309.302 284.185 314.629C284.185 314.629 279.387 315.661 279.132 314.757C278.907 313.895 282.915 312.595 283.564 312.354C290.89 309.542 298.667 307.621 306.388 306.236C343.17 299.623 383.622 291.992 419.826 305.416C448.945 316.212 474.21 340.234 474.972 372.989C475.325 388.59 472.375 407.03 465.473 420.878L465.501 420.864Z</Geometry>
+										</GeometryGroup>
+									</Path.Data>
+								</Path>
+								<Border
+									Name="Selected"
+									BorderBrush="#3B82F6"
+									BorderThickness="8"
+									CornerRadius="10"
+									Margin="-5"
+									Opacity="0" />
+								<Grid
+									Name="SelectionText3Grid">
+									<TextBlock
+										Text="Circle"
+										FontSize="{DynamicResource FontSizeHeading3}"
+										FontFamily="{StaticResource PromptBold}"
+										Foreground="#FFFFFFFF"
+										VerticalAlignment="Bottom"
+										HorizontalAlignment="Center"
+										Margin="{Binding ElementName=SelectionText3Grid, Path=ActualHeight, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=bottom,0.1515}" />
+								</Grid>
+							</Grid>
+						</ControlTemplate>
+					</Control.Template>
+				</Button>
+				<Button
+					Name="SelectButton4"
+					Grid.Column="7"
+					Height="{Binding ElementName=SelectButton4, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}"
+					Click="SelectButton4_Click">
+					<Control.Template>
+						<ControlTemplate
+							TargetType="{x:Type Button}">
+							<Grid>
+								<Border
+									Name="BorderBG"
+									Background="#FFFFFFFF"
+									CornerRadius="0"
+									VerticalAlignment="Center"
+									HorizontalAlignment="Center"
+									Width="{Binding ElementName=Selection1Path, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}"
+									Height="{Binding ElementName=BorderBG, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}"
+									Margin="{Binding ElementName=SelectButton1, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.1}" />
+								<Path
+									Name="Selection1Path"
+									StrokeThickness="0"
+									Stretch="Uniform"
+									Fill="#48505E">
+									<Path.Data>
+										<GeometryGroup>
+											<RectangleGeometry
+												Rect="66,42,648,648"
+												RadiusX="18"
+												RadiusY="18" />
+											<Geometry>M488.798 247.667H506.498L518.298 236H553.698L565.498 247.667H583.198C586.328 247.667 589.329 248.896 591.542 251.084C593.755 253.272 594.998 256.239 594.998 259.333V329.333C594.998 332.428 593.755 335.395 591.542 337.583C589.329 339.771 586.328 341 583.198 341H488.798C485.668 341 482.667 339.771 480.454 337.583C478.241 335.395 476.998 332.428 476.998 329.333V259.333C476.998 256.239 478.241 253.272 480.454 251.084C482.667 248.896 485.668 247.667 488.798 247.667ZM535.998 265.167C528.174 265.167 520.671 268.24 515.138 273.709C509.606 279.179 506.498 286.598 506.498 294.333C506.498 302.069 509.606 309.487 515.138 314.957C520.671 320.427 528.174 323.5 535.998 323.5C543.822 323.5 551.325 320.427 556.858 314.957C562.39 309.487 565.498 302.069 565.498 294.333C565.498 286.598 562.39 279.179 556.858 273.709C551.325 268.24 543.822 265.167 535.998 265.167ZM535.998 276.833C540.692 276.833 545.194 278.677 548.514 281.959C551.833 285.241 553.698 289.692 553.698 294.333C553.698 298.975 551.833 303.426 548.514 306.708C545.194 309.99 540.692 311.833 535.998 311.833C531.304 311.833 526.802 309.99 523.482 306.708C520.163 303.426 518.298 298.975 518.298 294.333C518.298 289.692 520.163 285.241 523.482 281.959C526.802 278.677 531.304 276.833 535.998 276.833Z</Geometry>
+											<Geometry>M257.162 249L256.48 267.73C283.373 269.275 317.456 275.457 453.403 284.391C466.179 285.502 466.177 287.047 453.527 288.409C318.23 297.865 284.92 304.047 255.071 306.921L254.296 328L185 286.862L257.147 249.015L257.162 249Z</Geometry>
+										</GeometryGroup>
+									</Path.Data>
+								</Path>
+								<Border
+									Name="Selected"
+									BorderBrush="#3B82F6"
+									BorderThickness="8"
+									CornerRadius="10"
+									Margin="-5"
+									Opacity="0" />
+								<Grid
+									Name="SelectionText4Grid">
+									<TextBlock
+										Text="Zoom In"
+										FontSize="{DynamicResource FontSizeHeading3}"
+										FontFamily="{StaticResource PromptBold}"
+										Foreground="#FFFFFFFF"
+										VerticalAlignment="Bottom"
+										HorizontalAlignment="Center"
+										Margin="{Binding ElementName=SelectionText4Grid, Path=ActualHeight, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=bottom,0.1515}" />
+								</Grid>
+							</Grid>
+						</ControlTemplate>
+					</Control.Template>
+				</Button>
+			</Grid>
+			<Grid
+				Row="5">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="1590*" />
+					<ColumnDefinition
+						Width="660*" />
+					<ColumnDefinition
+						Width="1590*" />
+				</Grid.ColumnDefinitions>
+				<Grid
+					Name="RecordButtonGrid"
+					Column="1">
+					<Button
+						Name="RecordButton"
+						Style="{StaticResource ButtonWithoutStyle}"
+						Click="RecordButton_Click">
+						<Border
+							Background="#3B82F6"
+							CornerRadius="{DynamicResource BannerCornerRadius}"
+							HorizontalAlignment="Stretch"
+							VerticalAlignment="Stretch"
+							Width="{Binding ElementName=RecordButton, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}"
+							Height="{Binding ElementName=RecordButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.5}">
+							<TextBlock
+								Text="RECORD"
+								Foreground="#FFFFFFFF"
+								FontFamily="{StaticResource PromptBold}"
+								FontSize="{DynamicResource FontSizeHeading1}"
+								VerticalAlignment="Center"
+								HorizontalAlignment="Center" />
+						</Border>
+					</Button>
+				</Grid>
+			</Grid>
+			<Button
+				Name="BackButton"
+				Grid.ColumnSpan="10"
+				Grid.RowSpan="10"
+				VerticalAlignment="Top"
+				HorizontalAlignment="Left"
+				Height="{Binding ElementName=GlambotSelectionMainGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*200/3840}"
+				Width="{Binding ElementName=GlambotSelectionMainGrid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*200/3840}"
+				Margin="{Binding ElementName=BackButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*160/200}"
+				Click="BackButton_Click">
+				<Control.Template>
+					<ControlTemplate
+						TargetType="{x:Type Button}">
+						<Grid>
+							<Border
+								Background="#FFFFFFFF"
+								CornerRadius="100"
+								Width="{Binding ElementName=BackButton, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*1}"
+								Height="{Binding ElementName=BackButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*1}" />
+							<Path
+								Name="Selection1Path"
+								StrokeThickness="0"
+								Stretch="Uniform"
+								Fill="#3B82F6">
+								<Path.Data>
+									<GeometryGroup>
+										<EllipseGeometry
+											Center="100,100"
+											RadiusX="97"
+											RadiusY="97" />
+										<Geometry>M143.645 93.6682H69.9768L84.5959 79.1792C85.1885 78.5892 85.6586 77.8889 85.9794 77.1181C86.3001 76.3473 86.4652 75.5212 86.4652 74.6869C86.4652 73.8527 86.3001 73.0266 85.9794 72.2558C85.6586 71.485 85.1885 70.7847 84.5959 70.1947C84.0033 69.6048 83.2997 69.1368 82.5254 68.8176C81.7511 68.4983 80.9211 68.334 80.083 68.334C79.2449 68.334 78.415 68.4983 77.6407 68.8176C76.8664 69.1368 76.1628 69.6048 75.5702 70.1947L50.1456 95.503C49.5669 96.1048 49.1133 96.8143 48.8108 97.591C48.1751 99.1314 48.1751 100.859 48.8108 102.4C49.1133 103.176 49.5669 103.886 50.1456 104.487L75.5702 129.796C76.1611 130.389 76.864 130.86 77.6386 131.181C78.4132 131.502 79.2439 131.667 80.083 131.667C80.9221 131.667 81.7529 131.502 82.5275 131.181C83.302 130.86 84.005 130.389 84.5959 129.796C85.1916 129.208 85.6645 128.508 85.9872 127.737C86.3099 126.966 86.476 126.139 86.476 125.304C86.476 124.468 86.3099 123.641 85.9872 122.87C85.6645 122.099 85.1916 121.4 84.5959 120.811L69.9768 106.322H143.645C145.33 106.322 146.947 105.656 148.139 104.469C149.331 103.283 150.001 101.673 150.001 99.9953C150.001 98.3172 149.331 96.7079 148.139 95.5213C146.947 94.3348 145.33 93.6682 143.645 93.6682Z</Geometry>
+									</GeometryGroup>
+								</Path.Data>
+							</Path>
+						</Grid>
+					</ControlTemplate>
+				</Control.Template>
+				<FrameworkElement.Style>
+					<Style
+						TargetType="{x:Type Button}">
+						<Style.Triggers>
+							<Trigger
+								Property="UIElement.IsMouseOver"
+								Value="True">
+								<Setter
+									Property="UIElement.Opacity"
+									Value="0.7" />
+							</Trigger>
+						</Style.Triggers>
+					</Style>
+				</FrameworkElement.Style>
+			</Button>
+		</Grid>
+		<Grid
+			Name="GlambotHomePageMainGrid"
+			RowSpan="50"
+			ColumnSpan="10"
+			Visibility="Collapsed"
+			Background="#FF000000"
+			Width="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.6}">
+			<Grid.RowDefinitions>
+				<RowDefinition
+					Height="3*" />
+				<RowDefinition
+					Height="8*" />
+				<RowDefinition
+					Height="5*" />
+				<RowDefinition
+					Height="10*" />
+				<RowDefinition
+					Height="5*" />
+			</Grid.RowDefinitions>
+			<Grid
+				Row="1">
+				<TextBlock
+					Text="Welcome"
+					Foreground="#FFFFFFFF"
+					FontFamily="{StaticResource PromptBold}"
+					FontSize="{DynamicResource FontSizeDisplay1}"
+					VerticalAlignment="Center"
+					HorizontalAlignment="Center" />
+			</Grid>
+			<UniformGrid
+				Grid.Row="3"
+				Grid.RowSpan="1"
+				Rows="2"
+				Columns="2"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center">
+				<Button
+					Name="GlambotGalleryButton"
+					Height="{Binding ElementName=gridMain, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.14}"
+					Width="{Binding ElementName=GlambotGalleryButton, Path=ActualHeight}"
+					Click="GlambotGalleryButton_Click">
+					<Control.Template>
+						<ControlTemplate
+							TargetType="{x:Type Button}">
+							<Grid
+								Name="grid">
+								<Border
+									Background="#3B82F6"
+									CornerRadius="10"
+									Visibility="Visible"
+									Margin="{Binding ElementName=grid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.1}" />
+								<Path
+									StrokeThickness="1"
+									Stroke="#FFFFFFFF"
+									Stretch="Uniform"
+									Fill="#FFFFFFFF"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Top"
+									Height="{Binding ElementName=grid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.3}"
+									Margin="{Binding ElementName=grid, Path=ActualHeight, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=top,0.25}">
+									<Path.Data>
+										<CombinedGeometry
+											GeometryCombineMode="Union">
+											<CombinedGeometry.Geometry1>
+												<CombinedGeometry
+													GeometryCombineMode="Union">
+													<CombinedGeometry.Geometry1>
+														<Geometry>M213.483 91.3933C208.851 91.3933 204.408 93.2336 201.132 96.5093C197.857 99.785 196.016 104.228 196.016 108.86V211.515C196.016 216.148 197.857 220.59 201.132 223.866C204.408 227.142 208.851 228.982 213.483 228.982H316.138C320.771 228.982 325.213 227.142 328.489 223.866C331.765 220.59 333.605 216.148 333.605 211.515V108.86C333.605 104.228 331.765 99.785 328.489 96.5093C325.213 93.2336 320.771 91.3933 316.138 91.3933H213.483ZM189.541 84.9175C195.891 78.5674 204.503 75 213.483 75H316.138C325.118 75 333.731 78.5674 340.081 84.9175C346.431 91.2675 349.998 99.88 349.998 108.86V211.515C349.998 220.495 346.431 229.108 340.081 235.458C333.731 241.808 325.118 245.375 316.138 245.375H213.483C204.503 245.375 195.891 241.808 189.541 235.458C183.19 229.108 179.623 220.495 179.623 211.515V108.86C179.623 99.88 183.19 91.2675 189.541 84.9175ZM282.278 125.969C282.278 121.443 285.947 117.773 290.474 117.773H290.56C295.087 117.773 298.757 121.443 298.757 125.969C298.757 130.496 295.087 134.166 290.56 134.166H290.474C285.947 134.166 282.278 130.496 282.278 125.969Z</Geometry>
+													</CombinedGeometry.Geometry1>
+													<CombinedGeometry.Geometry2>
+														<Geometry>M236.328 157.507L193.616 200.219C190.415 203.42 185.225 203.42 182.024 200.219C178.823 197.018 178.823 191.829 182.024 188.628L224.797 145.855C224.834 145.818 224.871 145.781 224.909 145.744C230.109 140.741 236.495 137.725 243.424 137.725C250.353 137.725 256.74 140.741 261.94 145.744C261.977 145.781 262.015 145.818 262.052 145.855L304.825 188.628C308.026 191.829 308.026 197.018 304.825 200.219C301.624 203.42 296.434 203.42 293.233 200.219L250.521 157.507C247.803 154.912 245.346 154.118 243.424 154.118C241.503 154.118 239.046 154.912 236.328 157.507Z</Geometry>
+													</CombinedGeometry.Geometry2>
+												</CombinedGeometry>
+											</CombinedGeometry.Geometry1>
+											<CombinedGeometry.Geometry2>
+												<CombinedGeometry
+													GeometryCombineMode="Union">
+													<CombinedGeometry.Geometry1>
+														<Geometry>M296.217 174.591L287.723 183.085C284.522 186.286 279.332 186.286 276.131 183.085C272.93 179.884 272.93 174.694 276.131 171.493L284.686 162.939C284.723 162.902 284.76 162.865 284.798 162.828C289.998 157.825 296.384 154.809 303.314 154.809C310.243 154.809 316.629 157.825 321.829 162.828C321.867 162.865 321.904 162.902 321.941 162.939L347.605 188.602C350.806 191.803 350.806 196.993 347.605 200.194C344.404 203.395 339.214 203.395 336.013 200.194L310.41 174.591C307.692 171.996 305.235 171.202 303.314 171.202C301.392 171.202 298.935 171.996 296.217 174.591Z</Geometry>
+													</CombinedGeometry.Geometry1>
+													<CombinedGeometry.Geometry2>
+														<Geometry>M158.197 121.465C162.724 121.465 166.393 125.135 166.393 129.662V247.13C166.393 253.467 171.531 258.605 177.869 258.605H295.337C299.864 258.605 303.534 262.275 303.534 266.802C303.534 271.329 299.864 274.998 295.337 274.998H177.869C162.477 274.998 150 262.521 150 247.13V129.662C150 125.135 153.67 121.465 158.197 121.465Z</Geometry>
+													</CombinedGeometry.Geometry2>
+												</CombinedGeometry>
+											</CombinedGeometry.Geometry2>
+										</CombinedGeometry>
+									</Path.Data>
+								</Path>
+								<Grid
+									Name="SelectionText1Grid">
+									<TextBlock
+										Text="Gallery"
+										FontSize="{DynamicResource FontSizeHeading3}"
+										FontFamily="{StaticResource PromptMedium}"
+										Foreground="#FFFFFFFF"
+										VerticalAlignment="Bottom"
+										HorizontalAlignment="Center"
+										Margin="{Binding ElementName=GlambotGalleryButton, Path=ActualHeight, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=bottom,0.2}" />
+								</Grid>
+							</Grid>
+						</ControlTemplate>
+					</Control.Template>
+					<FrameworkElement.Style>
+						<Style
+							TargetType="{x:Type Button}">
+							<Style.Triggers>
+								<Trigger
+									Property="UIElement.IsMouseOver"
+									Value="True">
+									<Setter
+										Property="UIElement.Opacity"
+										Value="0.7" />
+								</Trigger>
+							</Style.Triggers>
+						</Style>
+					</FrameworkElement.Style>
+				</Button>
+				<Button
+					Name="GlambotMovementPageButton"
+					Grid.Column="5"
+					Height="{Binding ElementName=GlambotGalleryButton, Path=ActualHeight}"
+					Width="{Binding ElementName=GlambotMovementPageButton, Path=ActualHeight}"
+					Margin="{Binding ElementName=GlambotGalleryButton, Path=Margin}"
+					Click="GlambotMovementPageButton_Click">
+					<Control.Template>
+						<ControlTemplate
+							TargetType="{x:Type Button}">
+							<Grid
+								Name="grid">
+								<Border
+									Background="#3B82F6"
+									CornerRadius="10"
+									Visibility="Visible"
+									Margin="{Binding ElementName=grid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.1}" />
+								<Path
+									StrokeThickness="1"
+									Stroke="#FFFFFFFF"
+									Stretch="Uniform"
+									Fill="#FFFFFFFF"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Top"
+									Height="{Binding ElementName=grid, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.3}"
+									Margin="{Binding ElementName=grid, Path=ActualHeight, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=top,0.25}">
+									<Path.Data>
+										<GeometryGroup>
+											<Geometry>M80 18C45.7583 18 18 45.7583 18 80C18 114.242 45.7583 142 80 142C114.242 142 142 114.242 142 80C142 45.7583 114.242 18 80 18ZM0 80C0 35.8172 35.8172 0 80 0C124.183 0 160 35.8172 160 80C160 124.183 124.183 160 80 160C35.8172 160 0 124.183 0 80Z</Geometry>
+											<Geometry>M127 80C127 105.957 105.957 127 80 127C54.0426 127 33 105.957 33 80C33 54.0426 54.0426 33 80 33C105.957 33 127 54.0426 127 80Z</Geometry>
+										</GeometryGroup>
+									</Path.Data>
+								</Path>
+								<Grid
+									Name="SelectionText2Grid">
+									<TextBlock
+										Text="Record"
+										FontSize="{DynamicResource FontSizeHeading3}"
+										FontFamily="{StaticResource PromptMedium}"
+										Foreground="#FFFFFFFF"
+										VerticalAlignment="Bottom"
+										HorizontalAlignment="Center"
+										Margin="{Binding ElementName=GlambotMovementPageButton, Path=ActualHeight, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=bottom,0.2}" />
+								</Grid>
+							</Grid>
+						</ControlTemplate>
+					</Control.Template>
+					<FrameworkElement.Style>
+						<Style
+							TargetType="{x:Type Button}">
+							<Style.Triggers>
+								<Trigger
+									Property="UIElement.IsMouseOver"
+									Value="True">
+									<Setter
+										Property="UIElement.Opacity"
+										Value="0.7" />
+								</Trigger>
+							</Style.Triggers>
+						</Style>
+					</FrameworkElement.Style>
+				</Button>
+				<Button
+					Name="GlambotStartIdle"
+					Grid.Column="1"
+					Height="{Binding ElementName=GlambotGalleryButton, Path=ActualHeight}"
+					Width="{Binding ElementName=GlambotGalleryButton, Path=ActualHeight}"
+					Margin="{Binding ElementName=GlambotGalleryButton, Path=Margin}"
+					Click="GlambotStartIdle_Click">&gt;<Control.Template><ControlTemplate
+							TargetType="{x:Type Button}"><Grid
+								Name="grid"><Border
+									Background="#3B82F6"
+									CornerRadius="10"
+									Visibility="Visible"
+									Margin="{Binding ElementName=grid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.1}" /><Grid
+									Name="SelectionText1Grid"><TextBlock
+										Text="Start Idle"
+										FontSize="{DynamicResource FontSizeHeading3}"
+										FontFamily="{StaticResource PromptMedium}"
+										Foreground="#FFFFFFFF"
+										VerticalAlignment="Bottom"
+										HorizontalAlignment="Center"
+										Margin="{Binding ElementName=GlambotGalleryButton, Path=ActualHeight, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=bottom,0.2}" /></Grid></Grid></ControlTemplate></Control.Template><FrameworkElement.Style><Style
+							TargetType="{x:Type Button}"><Style.Triggers><Trigger
+									Property="UIElement.IsMouseOver"
+									Value="True"><Setter
+										Property="UIElement.Opacity"
+										Value="0.7" /></Trigger></Style.Triggers></Style></FrameworkElement.Style></Button>
+				<Button
+					Name="GlambotMovementStopIdle"
+					Grid.Column="5"
+					Height="{Binding ElementName=GlambotGalleryButton, Path=ActualHeight}"
+					Width="{Binding ElementName=GlambotGalleryButton, Path=ActualHeight}"
+					Margin="{Binding ElementName=GlambotGalleryButton, Path=Margin}"
+					Click="GlambotMovementStopIdle_Click">&gt;<Control.Template><ControlTemplate
+							TargetType="{x:Type Button}"><Grid
+								Name="grid"><Border
+									Background="#3B82F6"
+									CornerRadius="10"
+									Visibility="Visible"
+									Margin="{Binding ElementName=grid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.1}" /><Grid
+									Name="SelectionText2Grid"><TextBlock
+										Text="Stop Idle"
+										FontSize="{DynamicResource FontSizeHeading3}"
+										FontFamily="{StaticResource PromptMedium}"
+										Foreground="#FFFFFFFF"
+										VerticalAlignment="Bottom"
+										HorizontalAlignment="Center"
+										Margin="{Binding ElementName=GlambotMovementPageButton, Path=ActualHeight, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=bottom,0.2}" /></Grid></Grid></ControlTemplate></Control.Template><FrameworkElement.Style><Style
+							TargetType="{x:Type Button}"><Style.Triggers><Trigger
+									Property="UIElement.IsMouseOver"
+									Value="True"><Setter
+										Property="UIElement.Opacity"
+										Value="0.7" /></Trigger></Style.Triggers></Style></FrameworkElement.Style></Button>
+			</UniformGrid>
+			<Grid
+				Name="GlambotHomeButtonsGrid"
+				Row="3">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="1193*" />
+					<ColumnDefinition
+						Width="500*" />
+					<ColumnDefinition
+						Width="160*" />
+					<ColumnDefinition
+						Width="135*" />
+					<ColumnDefinition
+						Width="160*" />
+					<ColumnDefinition
+						Width="500*" />
+					<ColumnDefinition
+						Width="1193*" />
+				</Grid.ColumnDefinitions>
+			</Grid>
+			<Grid
+				Name="GlambotHomeButtonsGrid2"
+				Row="4">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="1193*" />
+					<ColumnDefinition
+						Width="500*" />
+					<ColumnDefinition
+						Width="160*" />
+					<ColumnDefinition
+						Width="135*" />
+					<ColumnDefinition
+						Width="160*" />
+					<ColumnDefinition
+						Width="500*" />
+					<ColumnDefinition
+						Width="1193*" />
+				</Grid.ColumnDefinitions>
+			</Grid>
+		</Grid>
+	</Grid>
+</Page>

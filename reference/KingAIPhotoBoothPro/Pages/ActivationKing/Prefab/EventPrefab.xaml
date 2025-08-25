@@ -1,0 +1,183 @@
+<Page
+	x:Class="KingAIPhotoBoothPro.Pages.ActivationKing.Prefab.EventPrefab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages.ActivationKing.Prefab" xmlns:math="http://hexinnovation.com/math" xmlns:mrgn="clr-namespace:KingAIPhotoBoothPro.Class"
+	Title="EventPrefab"
+	Loaded="Page_Loaded">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<math:MathConverter
+				x:Key="math" />
+			<mrgn:MarginTopBottomConverter
+				x:Key="MarginTopBottomConverter" />
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid
+		Name="gridMain">
+		<Grid
+			Margin="{Binding ElementName=gridMain, Path=ActualHeight, Converter={StaticResource MarginTopBottomConverter}, ConverterParameter=0.08}">
+			<Border
+				Name="borderLoginSmooth"
+				Grid.RowSpan="10"
+				Grid.ColumnSpan="10"
+				Background="#E3E6EB"
+				Opacity="1"
+				CornerRadius="{Binding ElementName=gridMain, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*.3}">
+				<Border.BorderBrush>
+					<LinearGradientBrush
+						EndPoint="0.5,1"
+						StartPoint="0.5,0">
+						<GradientStop
+							Color="White"
+							Offset="0" />
+						<GradientStop
+							Color="#FFD5D5D5"
+							Offset="1" />
+					</LinearGradientBrush>
+				</Border.BorderBrush>
+			</Border>
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="1*" />
+					<ColumnDefinition
+						Width="70*" />
+					<ColumnDefinition
+						Width="1*" />
+					<ColumnDefinition
+						Width="20*" />
+					<ColumnDefinition
+						Width="1*" />
+					<ColumnDefinition
+						Width="15*" />
+					<ColumnDefinition
+						Width="1*" />
+				</Grid.ColumnDefinitions>
+				<TextBlock
+					Name="txtName"
+					Grid.Column="1"
+					FontFamily="{StaticResource MontserratBold}"
+					FontSize="{DynamicResource FontSizeTextTitle}"
+					VerticalAlignment="Center"
+					HorizontalAlignment="Left"
+					x:Uid="4"
+					Foreground="#FF707270"
+					TextWrapping="WrapWithOverflow"
+					Margin="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.012+1}">Event Name</TextBlock>
+				<TextBlock
+					Name="txtEventCreatedTime"
+					Grid.Column="1"
+					Foreground="{StaticResource UIGray}"
+					FontFamily="{StaticResource PromptRegular}"
+					VerticalAlignment="Center"
+					HorizontalAlignment="Right"
+					FontSize="{DynamicResource FontSizeButtonSmall}">00.00.2000</TextBlock>
+				<Button
+					Name="btnMedias"
+					FontFamily="{StaticResource MontserratSemiBold}"
+					FontSize="{DynamicResource FontSizeTextRegular}"
+					x:Uid="1"
+					Grid.Column="3"
+					Foreground="#FFFFFFFF"
+					Content="View Medias"
+					Margin="{Binding ElementName=gridMain, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.1+1}"
+					Click="ButtonMedias_Click">
+					<Control.Background>
+						<LinearGradientBrush
+							EndPoint="0.5,1"
+							StartPoint="0,0">
+							<GradientStop
+								Color="#FF234C90"
+								Offset="1" />
+							<GradientStop
+								Color="#FFF82BCB"
+								Offset="0" />
+						</LinearGradientBrush>
+					</Control.Background>
+					<UIElement.Effect>
+						<DropShadowEffect
+							Opacity="0.25"
+							BlurRadius="5"
+							ShadowDepth="2" />
+					</UIElement.Effect>
+					<FrameworkElement.Style>
+						<Style
+							TargetType="{x:Type Button}">
+							<Setter
+								Property="Template">
+								<Setter.Value>
+									<ControlTemplate
+										TargetType="{x:Type Button}">
+										<Border
+											Name="borderCreateButton"
+											Background="{TemplateBinding Background}"
+											CornerRadius="{Binding ElementName=gridMain, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*.2}">
+											<ContentPresenter
+												HorizontalAlignment="Center"
+												VerticalAlignment="Center" />
+										</Border>
+									</ControlTemplate>
+								</Setter.Value>
+							</Setter>
+							<Style.Triggers>
+								<Trigger
+									Property="UIElement.IsMouseOver"
+									Value="True">
+									<Setter
+										Property="UIElement.Opacity"
+										Value="0.7" />
+								</Trigger>
+							</Style.Triggers>
+						</Style>
+					</FrameworkElement.Style>
+				</Button>
+				<Button
+					Name="btnReUse"
+					FontFamily="{StaticResource MontserratSemiBold}"
+					FontSize="{DynamicResource FontSizeTextRegular}"
+					x:Uid="1"
+					Grid.Column="5"
+					Foreground="#FFFFFFFF"
+					Content="Re-Use"
+					Background="#15C5CE"
+					Margin="{Binding ElementName=gridMain, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.1+1}"
+					Click="Button_Click">
+					<UIElement.Effect>
+						<DropShadowEffect
+							Opacity="0.25"
+							BlurRadius="5"
+							ShadowDepth="2" />
+					</UIElement.Effect>
+					<FrameworkElement.Style>
+						<Style
+							TargetType="{x:Type Button}">
+							<Setter
+								Property="Template">
+								<Setter.Value>
+									<ControlTemplate
+										TargetType="{x:Type Button}">
+										<Border
+											Name="borderCreateButton"
+											Background="{TemplateBinding Background}"
+											CornerRadius="{Binding ElementName=gridMain, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*.2}">
+											<ContentPresenter
+												HorizontalAlignment="Center"
+												VerticalAlignment="Center" />
+										</Border>
+									</ControlTemplate>
+								</Setter.Value>
+							</Setter>
+							<Style.Triggers>
+								<Trigger
+									Property="UIElement.IsMouseOver"
+									Value="True">
+									<Setter
+										Property="UIElement.Opacity"
+										Value="0.7" />
+								</Trigger>
+							</Style.Triggers>
+						</Style>
+					</FrameworkElement.Style>
+				</Button>
+			</Grid>
+		</Grid>
+	</Grid>
+</Page>

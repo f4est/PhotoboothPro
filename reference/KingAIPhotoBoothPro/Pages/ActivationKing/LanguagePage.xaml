@@ -1,0 +1,69 @@
+<local:SettingsSubPage
+	x:Class="KingAIPhotoBoothPro.Pages.ActivationKing.LanguagePage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:localUI="clr-namespace:KingAIPhotoBoothPro.Class.UI" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages.ActivationKing" xmlns:math="http://hexinnovation.com/math" xmlns:class="clr-namespace:KingAIPhotoBoothPro.Class"
+	Loaded="Page_Loaded"
+	Title="LanguagePage">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<math:MathConverter
+				x:Key="math" />
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid
+		Name="gridMain">
+		<Grid.RowDefinitions>
+			<RowDefinition
+				Height="0" />
+			<RowDefinition
+				Height="1*" />
+			<RowDefinition
+				Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02+1}" />
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition
+				Width="150*" />
+			<ColumnDefinition
+				Width="2662*" />
+			<ColumnDefinition
+				Width="128*" />
+		</Grid.ColumnDefinitions>
+		<Grid
+			Row="1"
+			Column="1">
+			<Grid.RowDefinitions>
+				<RowDefinition
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.074+1}" />
+				<RowDefinition
+					Height="1*" />
+				<RowDefinition
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02+1}" />
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition
+					Width="1*" />
+				<ColumnDefinition
+					Width="26*" />
+				<ColumnDefinition
+					Width="1*" />
+			</Grid.ColumnDefinitions>
+			<class:SectionTemplate
+				Template="{StaticResource SectionTemplateKey}"
+				Content="Change Texts"
+				Background="#FFFFFFFF"
+				BorderBrush="#BABFC5"
+				Grid.RowSpan="5"
+				Grid.ColumnSpan="5" />
+			<ScrollViewer
+				Grid.Row="1"
+				Grid.Column="1"
+				VerticalScrollBarVisibility="Auto">
+				<i:Interaction.Behaviors>
+					<localUI:ScrollViewerDragBehavior />
+				</i:Interaction.Behaviors>
+				<UniformGrid
+					Name="LanguageList"
+					VerticalAlignment="Top"
+					Columns="2" />
+			</ScrollViewer>
+		</Grid>
+	</Grid>
+</local:SettingsSubPage>

@@ -1,0 +1,173 @@
+<Page
+	x:Class="KingAIPhotoBoothPro.Pages.ActivationKing.Prefab.InputBoxPrefab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages.ActivationKing.Prefab" xmlns:math="http://hexinnovation.com/math" xmlns:mrgn="clr-namespace:KingAIPhotoBoothPro.Class"
+	Name="size"
+	Title="InputBoxPrefab"
+	Loaded="Page_Loaded"
+	SizeChanged="size_SizeChanged">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<math:MathConverter
+				x:Key="math" />
+			<mrgn:MarginLeftConverter
+				x:Key="marginLeftConverter" />
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<Grid
+		Name="gridMain"
+		Margin="0,10,0,0">
+		<StackPanel
+			VerticalAlignment="Top"
+			Width="auto">
+			<TextBlock
+				Name="txtFile"
+				Style="{DynamicResource TextStylePropertyTitle}"
+				Margin="0,0,0,5">Title</TextBlock>
+			<Grid
+				Name="gridBottom"
+				Row="2"
+				Column="1"
+				Height="{DynamicResource UIInputHeight}">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition
+						Width="80*" />
+					<ColumnDefinition
+						Width="10*"
+						MinWidth="{Binding ElementName=gridBottom, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*1}" />
+					<ColumnDefinition
+						Width="80*" />
+				</Grid.ColumnDefinitions>
+				<Grid
+					Name="gridInputField"
+					Column="0">
+					<Border
+						Name="TextBoxBorder"
+						Style="{StaticResource BorderInputStyle}">
+						<Grid>
+							<TextBox
+								Name="txtInput"
+								x:Uid="2"
+								HorizontalAlignment="Left"
+								VerticalAlignment="Center"
+								Foreground="{StaticResource UIGrayDark}"
+								VerticalContentAlignment="Center"
+								TextAlignment="Left"
+								FontFamily="{StaticResource MontserratRegular}"
+								BorderThickness="0"
+								FontSize="{DynamicResource FontSizeTextSmall}"
+								Text=""
+								Grid.ColumnSpan="2"
+								Padding="{Binding ElementName=txtInput, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.2}"
+								Height="{Binding ElementName=gridInputField, Path=ActualHeight}"
+								Width="{Binding ElementName=gridInputField, Path=ActualWidth}"
+								Background="{x:Null}"
+								TextChanged="txtInput_TextChanged"
+								LostFocus="txtInput_LostFocus"
+								GotFocus="txtInput_GotFocus" />
+							<PasswordBox
+								Name="passwordInput"
+								x:Uid="2"
+								HorizontalAlignment="Left"
+								VerticalAlignment="Center"
+								Foreground="#82868C"
+								VerticalContentAlignment="Center"
+								FontFamily="{StaticResource MontserratRegular}"
+								BorderThickness="0"
+								FontSize="{DynamicResource FontSizeTextSmall}"
+								Padding="10,0,0,0"
+								Grid.ColumnSpan="2"
+								Height="{Binding ElementName=gridInputField, Path=ActualHeight}"
+								Width="{Binding ElementName=gridInputField, Path=ActualWidth}"
+								Background="{x:Null}"
+								PasswordChanged="txtInput_TextChanged"
+								LostFocus="txtInput_LostFocus"
+								GotFocus="txtInput_GotFocus" />
+						</Grid>
+					</Border>
+					<Button
+						Name="txtInputPlaceholder"
+						x:Uid="0"
+						HorizontalAlignment="Left"
+						VerticalAlignment="Center"
+						Foreground="#FFCAC8C8"
+						FontFamily="{StaticResource MontserratMedium}"
+						BorderThickness="0"
+						FontSize="{DynamicResource FontSizeTextSmall}"
+						Content="New Event"
+						RenderTransformOrigin="0,0.5"
+						Background="#00FFFFFF"
+						BorderBrush="#00707070"
+						Grid.ColumnSpan="2"
+						Width="{Binding ElementName=gridInputField, Path=ActualWidth}"
+						Height="{Binding ElementName=gridInputField, Path=ActualHeight}"
+						Click="txtInputPlaceholder_Click">
+						<FrameworkElement.Style>
+							<Style
+								TargetType="{x:Type Button}">
+								<Setter
+									Property="Background"
+									Value="#00FFFFFF" />
+								<Setter
+									Property="Template">
+									<Setter.Value>
+										<ControlTemplate
+											TargetType="{x:Type Button}">
+											<Border
+												Style="{DynamicResource BorderInputStyle BorderInputStyle}">
+												<ContentPresenter
+													HorizontalAlignment="Left"
+													VerticalAlignment="Center"
+													Margin="{Binding ElementName=txtInputPlaceholder, Path=ActualWidth, Converter={StaticResource marginLeftConverter}, ConverterParameter=0.05}" />
+											</Border>
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
+								<Style.Triggers>
+									<Trigger
+										Property="UIElement.IsMouseOver"
+										Value="True">
+										<Setter
+											Property="Background"
+											Value="#FFA0A0A0" />
+									</Trigger>
+								</Style.Triggers>
+							</Style>
+						</FrameworkElement.Style>
+					</Button>
+				</Grid>
+				<Grid
+					Name="imgInfoIconGrid"
+					Column="1"
+					HorizontalAlignment="Center">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="12*" />
+						<RowDefinition
+							Height="56*" />
+						<RowDefinition
+							Height="12*" />
+					</Grid.RowDefinitions>
+					<Path
+						Grid.Row="1"
+						Stretch="Uniform"
+						Fill="#82868C"
+						HorizontalAlignment="Center">
+						<Path.Data>
+							<GeometryGroup>
+								<Geometry>M0.5 30C0.5 13.7072 13.7072 0.5 30 0.5C46.2928 0.5 59.5 13.7072 59.5 30C59.5 46.292 46.294 59.4987 30.0023 59.5C25.0095 59.5075 20.1005 58.2424 15.7372 55.8283L3.67461 58.0746C3.18849 58.1651 2.68899 58.0103 2.33934 57.6606C1.98969 57.311 1.83482 56.8115 1.92535 56.3254L4.17163 44.263C1.83138 40.0361 0.5 35.169 0.5 30ZM30 3.5C15.364 3.5 3.5 15.3641 3.5 30C3.5 34.8283 4.79063 39.3551 7.04456 43.2485C7.22402 43.5585 7.28662 43.9224 7.22105 44.2746L5.27494 54.725L15.7254 52.7789C16.0774 52.7134 16.4412 52.7759 16.7511 52.9552C20.7769 55.2841 25.3469 56.507 29.9977 56.5L30 56.5C44.6359 56.5 56.5 44.6359 56.5 30C56.5 15.3641 44.6359 3.5 30 3.5Z</Geometry>
+								<Geometry>M30 13.5C31.3807 13.5 32.5 14.6193 32.5 16L32.5 17C32.5 18.3807 31.3807 19.5 30 19.5C28.6193 19.5 27.5 18.3807 27.5 17L27.5 16C27.5 14.6193 28.6193 13.5 30 13.5Z</Geometry>
+								<Geometry>M30 23.5C31.3807 23.5 32.5 24.6193 32.5 26L32.5 43C32.5 44.3807 31.3807 45.5 30 45.5C28.6193 45.5 27.5 44.3807 27.5 43L27.5 26C27.5 24.6193 28.6193 23.5 30 23.5Z</Geometry>
+							</GeometryGroup>
+						</Path.Data>
+					</Path>
+				</Grid>
+				<TextBlock
+					Name="txtDesc"
+					Grid.Column="2"
+					Foreground="#FF707270"
+					FontFamily="{StaticResource PromptExtraLight}"
+					VerticalAlignment="Center"
+					FontSize="{DynamicResource FontSizeTextSmall}">Event Name will be shown in the main display area.</TextBlock>
+			</Grid>
+		</StackPanel>
+	</Grid>
+</Page>

@@ -1,0 +1,1599 @@
+<local:SettingsSubPage
+	x:Class="KingAIPhotoBoothPro.Pages.ActivationKing.MainSettingsPage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:localUI="clr-namespace:KingAIPhotoBoothPro.Class.UI" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:local="clr-namespace:KingAIPhotoBoothPro.Pages.ActivationKing" xmlns:class="clr-namespace:KingAIPhotoBoothPro.Class" xmlns:math="http://hexinnovation.com/math" xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" xmlns:lottie="clr-namespace:LottieSharp.WPF;assembly=LottieSharp"
+	Loaded="Page_Loaded"
+	Unloaded="Page_Unloaded"
+	SizeChanged="SettingsSubPage_SizeChanged"
+	Title="MainSettingsPage">
+	<FrameworkElement.Resources>
+		<ResourceDictionary>
+			<math:MathConverter
+				x:Key="math" />
+			<class:ScreenHeightPercentageConverter
+				x:Key="ScreenHeightPercentageConverter" />
+			<class:SpecificMarginConverter
+				x:Key="SpecificMarginConverter" />
+			<GeometryGroup
+				x:Key="Maskgroup">
+				<Geometry>M0 0H14V14H0V0Z</Geometry>
+				<Geometry>M6.9 11V7.96L5.06 9.8L4.5 9.24L6.74 7L4.5 4.76L5.06 4.2L6.9 6.04V3H7.3L9.58 5.28L7.86 7L9.58 8.72L7.3 11H6.9ZM7.7 6.04L8.46 5.28L7.7 4.54V6.04ZM7.7 9.46L8.46 8.72L7.7 7.96V9.46Z</Geometry>
+				<Geometry>M7 14C10.866 14 14 10.866 14 7C14 3.13401 10.866 0 7 0C3.13401 0 0 3.13401 0 7C0 10.866 3.13401 14 7 14Z</Geometry>
+			</GeometryGroup>
+		</ResourceDictionary>
+	</FrameworkElement.Resources>
+	<ScrollViewer>
+		<i:Interaction.Behaviors>
+			<localUI:ScrollViewerDragBehavior />
+		</i:Interaction.Behaviors>
+		<Grid
+			Name="gridMain">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition
+					Width="150*" />
+				<ColumnDefinition
+					Width="2662*" />
+				<ColumnDefinition
+					Width="128*" />
+			</Grid.ColumnDefinitions>
+			<StackPanel
+				Orientation="Vertical"
+				Grid.Column="1"
+				VerticalAlignment="Top">
+				<Grid
+					Name="sectionModeSettings"
+					Margin="0,0,0,20"
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*(0.17+0.065+0.065+0.065)}">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.065}" />
+						<RowDefinition
+							Height="*" />
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.015}" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="88*" />
+						<ColumnDefinition
+							Width="2574*" />
+					</Grid.ColumnDefinitions>
+					<class:SectionTemplate
+						Template="{StaticResource SectionTemplateKey}"
+						Content="Mode Settings"
+						Background="#FFFFFFFF"
+						BorderBrush="#BABFC5"
+						Grid.RowSpan="5"
+						Grid.ColumnSpan="5" />
+					<Grid
+						Row="1"
+						Column="1">
+						<StackPanel
+							Name="panelModeInner"
+							VerticalAlignment="Top"
+							Orientation="Vertical">
+							<Frame
+								Name="ModeListFrame"
+								Grid.Row="0"
+								Grid.Column="0"
+								Grid.ColumnSpan="2"
+								VerticalAlignment="Top" />
+							<Frame
+								Name="AiSelectionFrame"
+								MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+							<Grid
+								Height="20" />
+							<Frame
+								Name="OrginalActiveFrame"
+								MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+							<StackPanel
+								Name="panelAiOptions">
+								<TextBlock
+									Grid.Row="0"
+									VerticalAlignment="Top"
+									Style="{DynamicResource TextStylePropertyTitle}">AI/Result Options</TextBlock>
+								<StackPanel
+									Orientation="Horizontal"
+									HorizontalAlignment="Left">
+									<Frame
+										Name="AiPromptActiveFrame"
+										MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+									<Frame
+										Name="FaceSwapActiveFrame"
+										MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+									<Frame
+										Name="WordPortraitActiveFrame"
+										MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+									<Frame
+										Name="AiMotionActiveFrame"
+										MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+								</StackPanel>
+								<Grid
+									Height="20" />
+								<StackPanel
+									Orientation="Horizontal"
+									HorizontalAlignment="Left">
+									<Frame
+										Name="AiEffectActiveFrame"
+										MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+									<Frame
+										Name="AiBeautifierActiveFrame"
+										MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+								</StackPanel>
+							</StackPanel>
+							<UniformGrid
+								Columns="2">
+								<StackPanel
+									Name="panelAiPromptOptions"
+									Orientation="Horizontal">
+									<StackPanel
+										Name="panelAiPromptQuality">
+										<TextBlock
+											Grid.Row="0"
+											VerticalAlignment="Top"
+											Style="{DynamicResource TextStylePropertyTitle}">Ai Prompt Quality</TextBlock>
+										<Frame
+											Name="AiPromptResolutionSegmentedFrame"
+											Margin="0,5,0,0"
+											MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+									</StackPanel>
+									<StackPanel
+										Name="panelAiPromptTextBoxOption">
+										<TextBlock
+											Grid.Row="0"
+											VerticalAlignment="Top"
+											Style="{DynamicResource TextStylePropertyTitle}">Ai Prompt Text Box Option</TextBlock>
+										<Frame
+											Name="AiPromptTextBoxCheckFrame"
+											Margin="0,5,0,0"
+											MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+									</StackPanel>
+								</StackPanel>
+							</UniformGrid>
+							<StackPanel
+								Name="panelShootingOptions">
+								<TextBlock
+									Grid.Row="0"
+									VerticalAlignment="Top"
+									Style="{DynamicResource TextStylePropertyTitle}">Shooting Options</TextBlock>
+								<StackPanel
+									Orientation="Horizontal"
+									HorizontalAlignment="Left">
+									<Frame
+										Name="PhotoCheckFrame"
+										MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+									<Frame
+										Name="VideoCheckFrame"
+										MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+									<Frame
+										Name="GifCheckFrame"
+										MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+									<Frame
+										Name="BackgroundPreviewFrame"
+										MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+								</StackPanel>
+								<Grid
+									Height="20" />
+								<StackPanel
+									Orientation="Horizontal"
+									HorizontalAlignment="Left">
+									<Frame
+										Name="UploadDesktopEditCheckFrame"
+										MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+									<Frame
+										Name="GalleryCheckFrame"
+										MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+									<Frame
+										Name="FullScreenPreviewFrame"
+										MinWidth="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.2}" />
+								</StackPanel>
+							</StackPanel>
+						</StackPanel>
+					</Grid>
+				</Grid>
+				<Grid
+					Name="aiMotionSettings"
+					Margin="0,0,0,20"
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.16}">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.065}" />
+						<RowDefinition
+							Height="*" />
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02}" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="80*" />
+						<ColumnDefinition
+							Width="2502*" />
+						<ColumnDefinition
+							Width="80*" />
+					</Grid.ColumnDefinitions>
+					<class:SectionTemplate
+						Template="{StaticResource SectionTemplateKey}"
+						Content="AI Motion"
+						Background="#FFFFFFFF"
+						BorderBrush="#BABFC5"
+						Grid.RowSpan="3"
+						Grid.ColumnSpan="3" />
+					<StackPanel
+						Name="AIMotionInner"
+						Grid.Row="1"
+						Grid.Column="1"
+						VerticalAlignment="Top"
+						Height="auto">
+						<Frame
+							Name="AIMotionPrompFrame"
+							Grid.Column="1"
+							VerticalAlignment="Top" />
+					</StackPanel>
+				</Grid>
+				<Grid
+					Name="CameraPreviewVideoBrightnessSettings"
+					Margin="0,0,0,20"
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.20}">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.065}" />
+						<RowDefinition
+							Height="*" />
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02}" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="80*" />
+						<ColumnDefinition
+							Width="2502*" />
+						<ColumnDefinition
+							Width="80*" />
+					</Grid.ColumnDefinitions>
+					<class:SectionTemplate
+						Template="{StaticResource SectionTemplateKey}"
+						Content="Camera Preview Video Brightness"
+						Background="#FFFFFFFF"
+						BorderBrush="#BABFC5"
+						Grid.RowSpan="3"
+						Grid.ColumnSpan="3" />
+					<StackPanel
+						Name="CameraPreviewVideoBrightnessInner"
+						Grid.Row="1"
+						Grid.Column="1"
+						VerticalAlignment="Top"
+						Height="auto">
+						<Frame
+							Name="CameraPreviewVideoBrightnessSliderFrame" />
+					</StackPanel>
+				</Grid>
+				<Grid
+					Margin="0,0,0,20"
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.26+1}">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.065}" />
+						<RowDefinition
+							Height="*" />
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.015}" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="88*" />
+						<ColumnDefinition
+							Width="2574*" />
+					</Grid.ColumnDefinitions>
+					<class:SectionTemplate
+						Template="{StaticResource SectionTemplateKey}"
+						Content="Camera Settings"
+						Background="#FFFFFFFF"
+						BorderBrush="#BABFC5"
+						Grid.RowSpan="3"
+						Grid.ColumnSpan="2" />
+					<Grid
+						Column="1">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition
+								Width="2*" />
+							<ColumnDefinition
+								Width="1*" />
+							<ColumnDefinition
+								Width="1*" />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition
+								Height="1*" />
+							<RowDefinition
+								Height="2*" />
+							<RowDefinition
+								Height="1*" />
+						</Grid.RowDefinitions>
+						<Button
+							Name="btnCameraSettings"
+							Grid.Column="1"
+							Grid.Row="1"
+							BorderThickness="0"
+							Content="Open Camera Settings"
+							Foreground="#FFFFFFFF"
+							FontFamily="{StaticResource MontserratSemiBold}"
+							FontSize="{DynamicResource FontSizeButtonPrimary}"
+							Click="btnCameraSettings_Click">
+							<Control.Background>
+								<LinearGradientBrush
+									EndPoint="0.5,1"
+									StartPoint="0,0">
+									<GradientStop
+										Color="#FF234C90"
+										Offset="1" />
+									<GradientStop
+										Color="#FFF82BCB"
+										Offset="0" />
+								</LinearGradientBrush>
+							</Control.Background>
+							<FrameworkElement.Style>
+								<Style
+									TargetType="{x:Type Button}">
+									<Setter
+										Property="Template">
+										<Setter.Value>
+											<ControlTemplate
+												TargetType="{x:Type Button}">
+												<Border
+													Name="borderCreateButton"
+													CornerRadius="{Binding ElementName=borderCreateButton, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.5+1}">
+													<Border.Background>
+														<LinearGradientBrush
+															EndPoint="0.5,1"
+															StartPoint="0,0">
+															<GradientStop
+																Color="#FF234C90"
+																Offset="1" />
+															<GradientStop
+																Color="#FFF82BCB"
+																Offset="0" />
+														</LinearGradientBrush>
+													</Border.Background>
+													<ContentPresenter
+														HorizontalAlignment="Center"
+														VerticalAlignment="Center" />
+												</Border>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+									<Style.Triggers>
+										<Trigger
+											Property="UIElement.IsMouseOver"
+											Value="True">
+											<Setter
+												Property="UIElement.Opacity"
+												Value="0.7" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</FrameworkElement.Style>
+						</Button>
+					</Grid>
+					<Grid
+						Row="1"
+						Column="1">
+						<Grid.RowDefinitions>
+							<RowDefinition
+								Height="226*" />
+							<RowDefinition
+								Height="140*" />
+							<RowDefinition
+								Height="80*" />
+						</Grid.RowDefinitions>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition
+								Width="1*" />
+							<ColumnDefinition
+								Width="1*" />
+						</Grid.ColumnDefinitions>
+						<Grid
+							Name="CameraListGrid"
+							Column="1">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="5*" />
+								<ColumnDefinition
+									Width="1*" />
+								<ColumnDefinition
+									Width="7*" />
+							</Grid.ColumnDefinitions>
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="80*" />
+								<RowDefinition
+									Height="54*" />
+								<RowDefinition
+									Height="12*" />
+								<RowDefinition
+									Height="80*" />
+							</Grid.RowDefinitions>
+							<Frame
+								Name="CameraListFrame"
+								Grid.RowSpan="10"
+								Grid.ColumnSpan="10" />
+						</Grid>
+						<Grid
+							Row="1"
+							Column="1">
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="24*" />
+								<RowDefinition
+									Height="36*" />
+								<RowDefinition
+									Height="80*" />
+							</Grid.RowDefinitions>
+							<Frame
+								Name="ForceWifiCheckFrame"
+								Grid.Row="1"
+								Visibility="Hidden"
+								HorizontalAlignment="Left" />
+						</Grid>
+						<Grid
+							Name="RotationGrid"
+							Row="1"
+							RowSpan="2"
+							Column="1">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="79*" />
+								<ColumnDefinition
+									Width="189*" />
+							</Grid.ColumnDefinitions>
+							<Frame
+								Name="RotationListFrame"
+								Grid.ColumnSpan="2" />
+						</Grid>
+						<Grid
+							Name="GoProRetryGrid"
+							Row="2"
+							Column="2">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="340*" />
+								<ColumnDefinition
+									Width="48*" />
+								<ColumnDefinition
+									Width="340*" />
+								<ColumnDefinition
+									Width="515*" />
+							</Grid.ColumnDefinitions>
+							<Button
+								Name="retryWifiButton"
+								Grid.Column="0"
+								Visibility="Visible"
+								Click="RetryGoProWifiClick">
+								<Control.Template>
+									<ControlTemplate
+										TargetType="{x:Type Button}">
+										<Border
+											BorderThickness="2"
+											BorderBrush="#3B82F6"
+											CornerRadius="8"
+											Background="#00FFFFFF">
+											<Grid>
+												<Grid.ColumnDefinitions>
+													<ColumnDefinition
+														Width="24*" />
+													<ColumnDefinition
+														Width="36*" />
+													<ColumnDefinition
+														Width="24*" />
+													<ColumnDefinition
+														Width="256*" />
+												</Grid.ColumnDefinitions>
+												<Grid.RowDefinitions>
+													<RowDefinition
+														Height="22*" />
+													<RowDefinition
+														Height="80*" />
+													<RowDefinition
+														Height="22*" />
+												</Grid.RowDefinitions>
+												<Path
+													Grid.Row="1"
+													Grid.Column="1"
+													StrokeThickness="0"
+													Stretch="Uniform"
+													Fill="#3B82F6">
+													<Path.Data>
+														<GeometryGroup>
+															<EllipseGeometry
+																Center="18,18"
+																RadiusX="18"
+																RadiusY="18" />
+															<Geometry>M18.0006 24.3918C18.2885 24.3918 18.5647 24.5156 18.7684 24.7361C18.972 24.9565 19.0864 25.2555 19.0864 25.5673C19.0864 25.879 18.972 26.178 18.7684 26.3985C18.5647 26.6189 18.2885 26.7428 18.0006 26.7428C17.7126 26.7428 17.4364 26.6189 17.2328 26.3985C17.0291 26.178 16.9147 25.879 16.9147 25.5673C16.9147 25.2555 17.0291 24.9565 17.2328 24.7361C17.4364 24.5156 17.7126 24.3918 18.0006 24.3918ZM18.0006 19.6897C19.499 19.6897 20.8585 20.348 21.84 21.4107C22.0438 21.6313 22.1582 21.9304 22.1582 22.2424C22.1582 22.5543 22.0438 22.8534 21.84 23.074C21.6363 23.2946 21.36 23.4185 21.0718 23.4185C20.7837 23.4185 20.5073 23.2946 20.3036 23.074C20.0016 22.7459 19.6427 22.4857 19.2474 22.3084C18.8522 22.131 18.4284 22.0401 18.0006 22.0408C17.1004 22.0408 16.2882 22.4345 15.6975 23.074C15.4938 23.2946 15.2174 23.4185 14.9293 23.4185C14.6412 23.4185 14.3648 23.2946 14.1611 23.074C13.9573 22.8534 13.8429 22.5543 13.8429 22.2424C13.8429 21.9304 13.9573 21.6313 14.1611 21.4107C14.6649 20.8643 15.2634 20.4309 15.9223 20.1356C16.5811 19.8403 17.2874 19.6888 18.0006 19.6897ZM18.0006 14.9877C19.2841 14.9861 20.5553 15.259 21.7412 15.7907C22.927 16.3225 24.0042 17.1026 24.9108 18.0863C25.1085 18.308 25.218 18.605 25.2155 18.9132C25.213 19.2214 25.0988 19.5162 24.8975 19.7342C24.6962 19.9521 24.4239 20.0758 24.1392 20.0784C23.8545 20.0811 23.5802 19.9626 23.3754 19.7485C22.6704 18.9831 21.8326 18.3762 20.9102 17.9626C19.9878 17.5491 18.999 17.337 18.0006 17.3387C17.0022 17.337 16.0133 17.5491 15.0909 17.9626C14.1685 18.3762 13.3307 18.9831 12.6257 19.7485C12.4209 19.9626 12.1466 20.0811 11.8619 20.0784C11.5772 20.0758 11.3049 19.9521 11.1036 19.7342C10.9023 19.5162 10.7881 19.2214 10.7856 18.9132C10.7831 18.605 10.8926 18.308 11.0904 18.0863C11.9969 17.1026 13.0741 16.3225 14.2599 15.7907C15.4458 15.259 16.717 14.9861 18.0006 14.9877ZM18.0006 10.2857C21.8987 10.2857 25.4276 11.9972 27.9815 14.762C28.1793 14.9837 28.2887 15.2806 28.2862 15.5888C28.2838 15.8971 28.1696 16.1919 27.9682 16.4098C27.7669 16.6278 27.4946 16.7514 27.2099 16.7541C26.9252 16.7568 26.6509 16.6383 26.4461 16.4242C25.3384 15.2215 24.022 14.2677 22.5726 13.6177C21.1232 12.9677 19.5694 12.6343 18.0006 12.6367C16.4317 12.6342 14.8779 12.9675 13.4285 13.6175C11.979 14.2675 10.6626 15.2214 9.55501 16.4242C9.35022 16.6383 9.07593 16.7568 8.79123 16.7541C8.50653 16.7514 8.2342 16.6278 8.03287 16.4098C7.83155 16.1919 7.71736 15.8971 7.71488 15.5888C7.71241 15.2806 7.82186 14.9837 8.01965 14.762C9.32897 13.341 10.8847 12.214 12.5976 11.4458C14.3104 10.6776 16.1466 10.2833 18.0006 10.2857Z</Geometry>
+														</GeometryGroup>
+													</Path.Data>
+												</Path>
+												<TextBlock
+													Grid.Column="3"
+													Grid.Row="1"
+													Text="Retry Wifi"
+													FontSize="{DynamicResource FontSizeTextRegular}"
+													FontFamily="{StaticResource MontserratMedium}"
+													Foreground="#3B82F6"
+													VerticalAlignment="Center" />
+											</Grid>
+										</Border>
+									</ControlTemplate>
+								</Control.Template>
+								<FrameworkElement.Style>
+									<Style
+										TargetType="{x:Type Button}">
+										<Style.Triggers>
+											<Trigger
+												Property="UIElement.IsMouseOver"
+												Value="True">
+												<Setter
+													Property="UIElement.Opacity"
+													Value="0.7" />
+											</Trigger>
+										</Style.Triggers>
+									</Style>
+								</FrameworkElement.Style>
+							</Button>
+							<Button
+								Name="retryBTButton"
+								Grid.Column="2"
+								Visibility="Visible"
+								Click="RetryGoProScanClick">
+								<Control.Template>
+									<ControlTemplate
+										TargetType="{x:Type Button}">
+										<Border
+											BorderThickness="2"
+											BorderBrush="#3B82F6"
+											CornerRadius="8"
+											Background="#00FFFFFF">
+											<Grid>
+												<Grid.ColumnDefinitions>
+													<ColumnDefinition
+														Width="24*" />
+													<ColumnDefinition
+														Width="36*" />
+													<ColumnDefinition
+														Width="24*" />
+													<ColumnDefinition
+														Width="256*" />
+												</Grid.ColumnDefinitions>
+												<Grid.RowDefinitions>
+													<RowDefinition
+														Height="22*" />
+													<RowDefinition
+														Height="80*" />
+													<RowDefinition
+														Height="22*" />
+												</Grid.RowDefinitions>
+												<Path
+													Grid.Row="1"
+													Grid.Column="1"
+													StrokeThickness="0"
+													Stretch="Uniform"
+													Fill="#3B82F6">
+													<Path.Data>
+														<GeometryGroup>
+															<EllipseGeometry
+																Center="18,18"
+																RadiusX="18"
+																RadiusY="18" />
+															<Geometry>M24.979 13.5875L18.3778 7.71436H17.2217V15.5212L11.9152 10.8001L10.2852 12.2504L16.7477 18.0001L10.2852 23.7498L11.9152 25.2001L17.2217 20.4789V28.2858H18.3778L24.979 22.4126L20.0079 18.0001L24.979 13.5875ZM19.5339 11.6538L21.7073 13.5875L19.5339 15.5212V11.6538ZM21.7073 22.4126L19.5339 24.3464V20.4789L21.7073 22.4126Z</Geometry>
+														</GeometryGroup>
+													</Path.Data>
+												</Path>
+												<TextBlock
+													Grid.Row="1"
+													Grid.Column="3"
+													Text="Retry BT"
+													FontSize="{DynamicResource FontSizeTextRegular}"
+													FontFamily="{StaticResource MontserratMedium}"
+													Foreground="#3B82F6"
+													VerticalAlignment="Center" />
+											</Grid>
+										</Border>
+									</ControlTemplate>
+								</Control.Template>
+								<FrameworkElement.Style>
+									<Style
+										TargetType="{x:Type Button}">
+										<Style.Triggers>
+											<Trigger
+												Property="UIElement.IsMouseOver"
+												Value="True">
+												<Setter
+													Property="UIElement.Opacity"
+													Value="0.7" />
+											</Trigger>
+										</Style.Triggers>
+									</Style>
+								</FrameworkElement.Style>
+							</Button>
+						</Grid>
+						<Grid>
+							<Frame
+								Name="CameraTypeListFrame" />
+						</Grid>
+						<Grid
+							Row="1"
+							Column="0">
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="24*" />
+								<RowDefinition
+									Height="1200*" />
+								<RowDefinition
+									Height="34*" />
+							</Grid.RowDefinitions>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="1110*" />
+								<ColumnDefinition
+									Width="132*" />
+							</Grid.ColumnDefinitions>
+							<Grid
+								Name="txtStatusGrid"
+								Column="0"
+								Row="1"
+								Visibility="Visible">
+								<Border
+									Name="txtStatusBorder"
+									BorderThickness="3"
+									BorderBrush="#47B881"
+									CornerRadius="4"
+									Background="#F2FAF6" />
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition
+											Width="16*" />
+										<ColumnDefinition
+											Width="32*" />
+										<ColumnDefinition
+											Width="12*" />
+										<ColumnDefinition
+											Width="1110*" />
+									</Grid.ColumnDefinitions>
+									<Grid.RowDefinitions>
+										<RowDefinition
+											Height="24*" />
+										<RowDefinition
+											Height="32*" />
+										<RowDefinition
+											Height="24*" />
+									</Grid.RowDefinitions>
+									<Path
+										Name="successIcon"
+										Grid.Row="1"
+										Grid.Column="1"
+										StrokeThickness="0"
+										Stretch="Uniform"
+										Fill="#47B881">
+										<Path.Data>
+											<GeometryGroup>
+												<EllipseGeometry
+													Center="16,16"
+													RadiusX="16"
+													RadiusY="16" />
+												<Geometry>M24.7071 10.2929C25.0976 10.6834 25.0976 11.3166 24.7071 11.7071L14.7071 21.7071C14.3166 22.0976 13.6834 22.0976 13.2929 21.7071L8.29289 16.7071C7.90237 16.3166 7.90237 15.6834 8.29289 15.2929C8.68342 14.9024 9.31658 14.9024 9.70711 15.2929L14 19.5858L23.2929 10.2929C23.6834 9.90237 24.3166 9.90237 24.7071 10.2929Z</Geometry>
+											</GeometryGroup>
+										</Path.Data>
+									</Path>
+									<Path
+										Name="warningIcon"
+										Grid.Row="1"
+										Grid.Column="1"
+										StrokeThickness="0"
+										Stretch="Uniform"
+										Fill="#FFAD0D">
+										<Path.Data>
+											<GeometryGroup>
+												<EllipseGeometry
+													Center="16,16"
+													RadiusX="16"
+													RadiusY="16" />
+												<Geometry>M15 21.5L15 24.5L18 24.5L18 21.5L15 21.5ZM15 20L18 20L18 8L15 8L15 20Z</Geometry>
+											</GeometryGroup>
+										</Path.Data>
+									</Path>
+									<Path
+										Name="errorIcon"
+										Grid.Row="1"
+										Grid.Column="1"
+										StrokeThickness="0"
+										Stretch="Uniform"
+										Fill="#F64C4C">
+										<Path.Data>
+											<GeometryGroup>
+												<EllipseGeometry
+													Center="16,16"
+													RadiusX="16"
+													RadiusY="16" />
+												<Geometry>M11.7071 10.2929C11.3166 9.90237 10.6834 9.90237 10.2929 10.2929C9.90237 10.6834 9.90237 11.3166 10.2929 11.7071L14.5858 16L10.2929 20.2929C9.90237 20.6834 9.90237 21.3166 10.2929 21.7071C10.6834 22.0976 11.3166 22.0976 11.7071 21.7071L16 17.4142L20.2929 21.7071C20.6834 22.0976 21.3166 22.0976 21.7071 21.7071C22.0976 21.3166 22.0976 20.6834 21.7071 20.2929L17.4142 16L21.7071 11.7071C22.0976 11.3166 22.0976 10.6834 21.7071 10.2929C21.3166 9.90237 20.6834 9.90237 20.2929 10.2929L16 14.5858L11.7071 10.2929Z</Geometry>
+											</GeometryGroup>
+										</Path.Data>
+									</Path>
+									<TextBlock
+										Name="txtStatus"
+										Grid.Column="3"
+										Grid.Row="1"
+										Visibility="Visible"
+										Text="STATUS TEXT"
+										VerticalAlignment="Center"
+										FontFamily="Montserrat"
+										FontWeight="Medium"
+										FontSize="{DynamicResource FontSizeButtonSmall}"
+										HorizontalAlignment="Left"
+										TextWrapping="Wrap" />
+								</Grid>
+							</Grid>
+						</Grid>
+					</Grid>
+				</Grid>
+				<Grid
+					Name="gridChromaKeySettings"
+					Margin="0,0,0,20"
+					Visibility="Visible"
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.06}">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="213*" />
+						<RowDefinition
+							Height="915*" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="80*" />
+						<ColumnDefinition
+							Width="2354*" />
+						<ColumnDefinition
+							Width="180*" />
+						<ColumnDefinition
+							Width="48*" />
+					</Grid.ColumnDefinitions>
+					<class:SectionTemplate
+						Name="ChromaKeySection"
+						Template="{StaticResource SectionTemplateKey}"
+						Content="Green Screen Settings"
+						Background="#FFFFFFFF"
+						BorderBrush="#BABFC5"
+						Grid.RowSpan="3"
+						Grid.ColumnSpan="5" />
+					<class:SectionTemplate
+						Name="ChromaKeySectionSmall"
+						Template="{StaticResource SectionSmallTemplateKey}"
+						Content="Green Screen Settings"
+						Background="#FFFFFFFF"
+						Grid.RowSpan="3"
+						Grid.ColumnSpan="5"
+						Visibility="Hidden" />
+					<Frame
+						Name="GreenBoxEnabled"
+						VerticalAlignment="Top"
+						HorizontalAlignment="Right"
+						Grid.Row="0"
+						Grid.Column="2"
+						Margin="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=top,0.019}" />
+					<Grid
+						Name="ChromaKeyContentArea"
+						Column="1"
+						Row="1"
+						ColumnSpan="5"
+						Visibility="Visible">
+						<Grid.RowDefinitions>
+							<RowDefinition
+								Height="0*" />
+							<RowDefinition
+								Height="400*" />
+							<RowDefinition
+								Height="40*" />
+						</Grid.RowDefinitions>
+						<Grid
+							Name="GridForChromaKey"
+							Row="1">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="100*" />
+								<ColumnDefinition
+									Width="100*" />
+								<ColumnDefinition
+									Width="100*" />
+								<ColumnDefinition
+									Width="10*" />
+							</Grid.ColumnDefinitions>
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="3*" />
+								<RowDefinition
+									Height="1*" />
+							</Grid.RowDefinitions>
+							<Grid
+								Column="0">
+								<Grid.RowDefinitions>
+									<RowDefinition
+										Height="54*" />
+									<RowDefinition
+										Height="48*" />
+									<RowDefinition
+										Height="457*" />
+									<RowDefinition
+										Height="10*" />
+								</Grid.RowDefinitions>
+								<TextBlock
+									Grid.Row="0"
+									Text="Test Photo"
+									Style="{DynamicResource TextStylePropertyTitle}"
+									VerticalAlignment="Center" />
+								<Grid
+									Row="2">
+									<Grid.RowDefinitions>
+										<RowDefinition
+											Height="189*" />
+										<RowDefinition
+											Height="80*" />
+										<RowDefinition
+											Height="188*" />
+									</Grid.RowDefinitions>
+									<Border
+										Grid.RowSpan="10"
+										Grid.ColumnSpan="10"
+										Background="#F5F5F7"
+										CornerRadius="8"
+										Opacity="1"
+										BorderBrush="#BABFC5"
+										BorderThickness="1" />
+									<Image
+										Name="PhotoBox"
+										Grid.RowSpan="10"
+										Grid.ColumnSpan="10"
+										Stretch="Uniform"
+										MouseDown="PhotoBox_MouseDown" />
+									<Grid
+										Row="1">
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition
+												Width="176*" />
+											<ColumnDefinition
+												Width="461*" />
+											<ColumnDefinition
+												Width="175*" />
+										</Grid.ColumnDefinitions>
+										<Button
+											Name="TestPhotoButton"
+											Grid.Column="1"
+											FontSize="{DynamicResource FontSizeTextSmall}"
+											Foreground="#FFFFFFFF"
+											FontFamily="{StaticResource MontserratBold}"
+											Content="Take Test Photo"
+											HorizontalContentAlignment="Center"
+											Click="TestPhotoButton_Click">
+											<FrameworkElement.Style>
+												<Style
+													TargetType="{x:Type Button}">
+													<Setter
+														Property="Template">
+														<Setter.Value>
+															<ControlTemplate
+																TargetType="{x:Type Button}">
+																<Border
+																	Name="borderCreateButton"
+																	CornerRadius="{DynamicResource UICornerRadius}"
+																	Background="#3B82F6">
+																	<Grid>
+																		<Grid.ColumnDefinitions>
+																			<ColumnDefinition
+																				Width="48*" />
+																			<ColumnDefinition
+																				Width="44*" />
+																			<ColumnDefinition
+																				Width="24*" />
+																			<ColumnDefinition
+																				Width="297*" />
+																			<ColumnDefinition
+																				Width="48*" />
+																		</Grid.ColumnDefinitions>
+																		<Path
+																			Grid.Column="1"
+																			Data="{StaticResource PhotoIcon}"
+																			Stroke="#FFFFFF"
+																			Stretch="Uniform"
+																			StrokeThickness="1"
+																			VerticalAlignment="Center"
+																			HorizontalAlignment="Center" />
+																		<ContentPresenter
+																			Grid.Column="3"
+																			HorizontalAlignment="Left"
+																			VerticalAlignment="Center" />
+																	</Grid>
+																</Border>
+															</ControlTemplate>
+														</Setter.Value>
+													</Setter>
+													<Style.Triggers>
+														<Trigger
+															Property="UIElement.IsMouseOver"
+															Value="True">
+															<Setter
+																Property="UIElement.Opacity"
+																Value="0.7" />
+														</Trigger>
+													</Style.Triggers>
+												</Style>
+											</FrameworkElement.Style>
+										</Button>
+									</Grid>
+								</Grid>
+							</Grid>
+							<Frame
+								Name="GreenBoxTreshOld"
+								Grid.Column="0"
+								Grid.Row="3"
+								Grid.ColumnSpan="5" />
+							<Frame
+								Name="colorGreenScreen"
+								Grid.Column="2"
+								Grid.RowSpan="2" />
+						</Grid>
+					</Grid>
+				</Grid>
+				<Grid
+					Name="gridAIBackgroundSettings"
+					Margin="0,0,0,20"
+					Visibility="Visible"
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.06+1}">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="80*" />
+						<ColumnDefinition
+							Width="2354*" />
+						<ColumnDefinition
+							Width="180*" />
+						<ColumnDefinition
+							Width="48*" />
+					</Grid.ColumnDefinitions>
+					<class:SectionTemplate
+						Name="AIBackgroundSection"
+						Template="{StaticResource SectionTemplateKey}"
+						Content="AI BAckground"
+						Background="#FFFFFFFF"
+						BorderBrush="#BABFC5"
+						Visibility="Hidden"
+						Grid.RowSpan="3"
+						Grid.ColumnSpan="5" />
+					<class:SectionTemplate
+						Name="AIBackgroundSectionSmall"
+						Template="{StaticResource SectionSmallTemplateKey}"
+						Content="AI Background Removal"
+						Background="#FFFFFFFF"
+						Grid.RowSpan="3"
+						Grid.ColumnSpan="5"
+						Visibility="Visible" />
+					<Frame
+						Name="AIBackgroundEnabled"
+						Grid.Column="2"
+						Grid.Row="1"
+						VerticalAlignment="Top"
+						HorizontalAlignment="Center"
+						Margin="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=top,0.019}" />
+				</Grid>
+				<Grid
+					Name="gridCameraSettings"
+					Margin="0,0,0,20"
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.25}">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.065}" />
+						<RowDefinition
+							Height="*" />
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02}" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="80*" />
+						<ColumnDefinition
+							Width="2502*" />
+						<ColumnDefinition
+							Width="80*" />
+					</Grid.ColumnDefinitions>
+					<class:SectionTemplate
+						Template="{StaticResource SectionTemplateKey}"
+						Content="Shooting Settings"
+						Background="#FFFFFFFF"
+						BorderBrush="#BABFC5"
+						Grid.RowSpan="3"
+						Grid.ColumnSpan="3" />
+					<StackPanel
+						Name="panelShootingInner"
+						Grid.Row="1"
+						Grid.Column="1"
+						VerticalAlignment="Top"
+						Height="auto">
+						<UniformGrid
+							Columns="2">
+							<StackPanel>
+								<TextBlock
+									Grid.Row="0"
+									VerticalAlignment="Top"
+									Style="{DynamicResource TextStylePropertyTitle}">Mirror Preview</TextBlock>
+								<Frame
+									Name="MirrorCheckFrame" />
+							</StackPanel>
+							<StackPanel
+								Name="panelDeliveryOptions">
+								<TextBlock
+									Grid.Row="0"
+									VerticalAlignment="Top"
+									Style="{DynamicResource TextStylePropertyTitle}">Background Delivery</TextBlock>
+								<Frame
+									Name="BackgroundDeliveryFrame" />
+							</StackPanel>
+							<Frame
+								Name="VideoWaitLenghtFrame"
+								Grid.Column="0" />
+							<Frame
+								Name="VideoLengthFrame"
+								Grid.Column="1"
+								VerticalAlignment="Top" />
+							<Frame
+								Name="MirrorVideoCheckFrame"
+								Grid.Column="2" />
+							<Frame
+								Name="GifRepeatCountFrame"
+								Grid.Column="0" />
+							<Frame
+								Name="GifFrameRateFrame"
+								Grid.Column="1" />
+						</UniformGrid>
+						<Grid
+							Row="0"
+							VerticalAlignment="Top"
+							Margin="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=bottom,0.01}">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="1251*" />
+								<ColumnDefinition
+									Width="1251*" />
+							</Grid.ColumnDefinitions>
+						</Grid>
+						<Grid
+							Name="gridGifShootingSettings"
+							Row="1"
+							Margin="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=bottom,0.02}">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="1251*" />
+								<ColumnDefinition
+									Width="1251*" />
+							</Grid.ColumnDefinitions>
+						</Grid>
+					</StackPanel>
+				</Grid>
+				<Grid
+					Name="SlowMotionSettingsGrid"
+					Margin="0,0,0,20"
+					ClipToBounds="False"
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.065}">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.065}" />
+						<RowDefinition
+							Height="915*" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="80*" />
+						<ColumnDefinition
+							Width="2354*" />
+						<ColumnDefinition
+							Width="180*" />
+						<ColumnDefinition
+							Width="48*" />
+					</Grid.ColumnDefinitions>
+					<class:SectionTemplate
+						Name="SlowMotionSettingsSection"
+						Template="{StaticResource SectionTemplateKey}"
+						ClipToBounds="False"
+						Content="Slow Motion Settings"
+						Background="#FFFFFFFF"
+						BorderBrush="#BABFC5"
+						Grid.RowSpan="10"
+						Grid.ColumnSpan="10"
+						Visibility="Hidden" />
+					<class:SectionTemplate
+						Name="SlowMotionSettingsSectionSmall"
+						Template="{StaticResource SectionSmallTemplateKey}"
+						Content="Slow Motion Settings"
+						Background="#FFFFFFFF"
+						Grid.RowSpan="3"
+						Grid.ColumnSpan="5"
+						Visibility="Visible" />
+					<Frame
+						Name="SlowMotionCheckFrame"
+						VerticalAlignment="Top"
+						HorizontalAlignment="Right"
+						Grid.Row="0"
+						Grid.Column="2"
+						Margin="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=top,0.019}" />
+					<Grid
+						Row="1"
+						Column="1"
+						ClipToBounds="False"
+						Visibility="Visible">
+						<Grid.RowDefinitions>
+							<RowDefinition
+								Height="1*" />
+							<RowDefinition
+								Height="3*" />
+							<RowDefinition
+								Height="3*" />
+							<RowDefinition
+								Height="5*" />
+						</Grid.RowDefinitions>
+						<Grid
+							Row="1"
+							VerticalAlignment="Top">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="1*" />
+								<ColumnDefinition
+									Width="1*" />
+							</Grid.ColumnDefinitions>
+							<Frame
+								Name="SlowVideoStartFrame"
+								Grid.Column="0"
+								Visibility="Visible"
+								VerticalAlignment="Top" />
+							<Frame
+								Name="SlowVideoEndFrame"
+								Visibility="Visible"
+								Grid.Column="1"
+								VerticalAlignment="Top" />
+						</Grid>
+						<Grid
+							Row="2">
+							<Grid>
+								<Grid.RowDefinitions>
+									<RowDefinition
+										Height="4*" />
+									<RowDefinition
+										Height="10*" />
+									<RowDefinition
+										Height="4*" />
+								</Grid.RowDefinitions>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition
+										Width="1*" />
+									<ColumnDefinition
+										Width="1*" />
+								</Grid.ColumnDefinitions>
+								<Grid
+									Name="TwoSliderGrid"
+									Row="1"
+									Visibility="Collapsed"
+									ColumnSpan="3">
+									<xctk:RangeSlider
+										Name="SliderForSlowMotion"
+										Style="{StaticResource RangeSliderKey}"
+										TickFrequency="0.25"
+										VerticalAlignment="Center"
+										Maximum="10"
+										Minimum="0"
+										LowerValue="2"
+										HigherValue="4"
+										HigherValueChanged="RangeSlider_HigherValueChanged"
+										LowerValueChanged="RangeSlider_LowerValueChanged" />
+									<Ellipse
+										Name="LowerThumbEllipse"
+										Fill="#FFFFFFFF"
+										Stroke="#BABFC5"
+										StrokeThickness="1"
+										Width="{Binding ElementName=TwoSliderGrid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.375+1}"
+										Height="{Binding ElementName=TwoSliderGrid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.375+1}"
+										MouseLeftButtonDown="LowerThumbEllipse_MouseLeftButtonDown"
+										MouseMove="Ellipse_MouseMove"
+										MouseLeftButtonUp="Ellipse_MouseLeftButtonUp">
+										<UIElement.RenderTransform>
+											<TranslateTransform
+												x:Name="LowerEllipseTransform" />
+										</UIElement.RenderTransform>
+									</Ellipse>
+									<Ellipse
+										Name="HigherThumbEllipse"
+										Fill="#FFFFFFFF"
+										Stroke="#BABFC5"
+										StrokeThickness="1"
+										Width="{Binding ElementName=TwoSliderGrid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.375+1}"
+										Height="{Binding ElementName=TwoSliderGrid, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.375+1}"
+										MouseLeftButtonDown="HigherThumbEllipse_MouseLeftButtonDown"
+										MouseMove="Ellipse_MouseMove"
+										MouseLeftButtonUp="Ellipse_MouseLeftButtonUp">
+										<UIElement.RenderTransform>
+											<TranslateTransform
+												x:Name="HigherEllipseTransform" />
+										</UIElement.RenderTransform>
+									</Ellipse>
+									<Grid
+										Name="LowerTextBlockGrid"
+										Width="{DynamicResource SliderTextBoxWidth}"
+										Height="{DynamicResource SliderTextBoxHeight}">
+										<UIElement.RenderTransform>
+											<TranslateTransform
+												x:Name="LowerTextBlockTransform" />
+										</UIElement.RenderTransform>
+										<Path
+											Name="textIconLowerText"
+											StrokeThickness="0"
+											Stretch="Uniform"
+											Fill="{DynamicResource UIBlueButton}">
+											<Path.Data>
+												<GeometryGroup>
+													<Geometry>M9.33333 0C4.17868 0 0 4.37766 0 9.77778V34.2222C0 39.6223 4.17868 44 9.33333 44H19.27L26.4814 52.276C27.3226 53.2413 28.6774 53.2413 29.5186 52.276L36.73 44H46.6667C51.8213 44 56 39.6223 56 34.2222V9.77778C56 4.37766 51.8213 0 46.6667 0H9.33333Z</Geometry>
+												</GeometryGroup>
+											</Path.Data>
+										</Path>
+										<TextBlock
+											Name="LowerTextBlock"
+											FontSize="{DynamicResource FontSizeTextSmall}"
+											FontFamily="{StaticResource MontserratRegular}"
+											Text="10"
+											Foreground="#FFFFFF"
+											VerticalAlignment="Center"
+											HorizontalAlignment="Center"
+											Margin="0,0,0,5" />
+									</Grid>
+									<Grid
+										Name="HigherTextBlockGrid"
+										Width="{DynamicResource SliderTextBoxWidth}"
+										Height="{DynamicResource SliderTextBoxHeight}">
+										<UIElement.RenderTransform>
+											<TranslateTransform
+												x:Name="HigherTextBlockTransform" />
+										</UIElement.RenderTransform>
+										<Path
+											Name="textIconHigherText"
+											StrokeThickness="0"
+											Stretch="Uniform"
+											Fill="{DynamicResource UIBlueButton}">
+											<Path.Data>
+												<GeometryGroup>
+													<Geometry>M9.33333 0C4.17868 0 0 4.37766 0 9.77778V34.2222C0 39.6223 4.17868 44 9.33333 44H19.27L26.4814 52.276C27.3226 53.2413 28.6774 53.2413 29.5186 52.276L36.73 44H46.6667C51.8213 44 56 39.6223 56 34.2222V9.77778C56 4.37766 51.8213 0 46.6667 0H9.33333Z</Geometry>
+												</GeometryGroup>
+											</Path.Data>
+										</Path>
+										<TextBlock
+											Name="HigherTextBlock"
+											Text="10"
+											Foreground="#FFFFFFFF"
+											VerticalAlignment="Center"
+											HorizontalAlignment="Center"
+											FontSize="{DynamicResource FontSizeTextSmall}"
+											FontFamily="{StaticResource MontserratRegular}"
+											Margin="0,0,0,5" />
+									</Grid>
+								</Grid>
+							</Grid>
+						</Grid>
+						<Grid
+							Row="3">
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="1*" />
+								<RowDefinition
+									Height="1*" />
+							</Grid.RowDefinitions>
+							<Frame
+								Name="SlowMotionRateFrame" />
+						</Grid>
+					</Grid>
+				</Grid>
+				<Grid
+					Name="MusicSettingsGrid"
+					Margin="0,0,0,20"
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.065}">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.065}" />
+						<RowDefinition
+							Height="577*" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="80*" />
+						<ColumnDefinition
+							Width="2354*" />
+						<ColumnDefinition
+							Width="180*" />
+						<ColumnDefinition
+							Width="48*" />
+					</Grid.ColumnDefinitions>
+					<class:SectionTemplate
+						Name="MusicSettingSection"
+						Template="{StaticResource SectionTemplateKey}"
+						Content="Music Settings"
+						Background="#FFFFFFFF"
+						BorderBrush="#BABFC5"
+						Grid.RowSpan="5"
+						Grid.ColumnSpan="5" />
+					<class:SectionTemplate
+						Name="MusicSettingSectionSmall"
+						Template="{StaticResource SectionSmallTemplateKey}"
+						Content="Music Settings"
+						Background="#FFFFFFFF"
+						Grid.RowSpan="5"
+						Grid.ColumnSpan="5"
+						Visibility="Hidden" />
+					<Frame
+						Name="MusicSelectCheckFrame"
+						VerticalAlignment="Top"
+						HorizontalAlignment="Right"
+						Grid.Row="0"
+						Grid.Column="2"
+						Margin="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource SpecificMarginConverter}, ConverterParameter=top,0.019}" />
+					<Grid
+						Name="MusicBottomGrid"
+						Row="1"
+						Column="1">
+						<Grid.RowDefinitions>
+							<RowDefinition
+								Height="80*" />
+							<RowDefinition
+								Height="160*" />
+							<RowDefinition
+								Height="146*" />
+						</Grid.RowDefinitions>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition
+								Width="517*" />
+							<ColumnDefinition
+								Width="1650*" />
+						</Grid.ColumnDefinitions>
+						<Grid
+							Column="0"
+							ColumnSpan="2"
+							Row="1">
+							<Frame
+								Name="MusicPathFrame" />
+						</Grid>
+					</Grid>
+				</Grid>
+				<Grid
+					Margin="0,0,0,20"
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.17}">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.065}" />
+						<RowDefinition
+							Height="*" />
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.015}" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="88*" />
+						<ColumnDefinition
+							Width="2574*" />
+						<ColumnDefinition
+							Width="188*" />
+					</Grid.ColumnDefinitions>
+					<class:SectionTemplate
+						Template="{StaticResource SectionTemplateKey}"
+						Content="Output Sharing Folder"
+						Background="#FFFFFFFF"
+						BorderBrush="#BABFC5"
+						Grid.RowSpan="5"
+						Grid.ColumnSpan="5" />
+					<Grid
+						Row="1"
+						Column="1">
+						<Grid
+							Name="SelectFolderGrid"
+							Row="1"
+							Column="1">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition
+									Width="*" />
+								<ColumnDefinition
+									Width="auto" />
+								<ColumnDefinition
+									Width="auto" />
+							</Grid.ColumnDefinitions>
+							<Border
+								Style="{DynamicResource BorderInputStyle}"
+								Margin="0,0,20,0"
+								Height="{Binding ElementName=gridInputField, Path=ActualHeight}"
+								Width="{Binding ElementName=gridInputField, Path=ActualWidth}" />
+							<TextBox
+								Name="SelectedFolderPathTextBox"
+								Style="{DynamicResource TemplateInputStyle}"
+								Margin="10"
+								IsReadOnly="True"
+								FontSize="{DynamicResource FontSizeTextSmall}"
+								Text="No folder selected"
+								Padding="{Binding ElementName=SelectedFolderPathTextBox, Path=ActualHeight, Converter={StaticResource math}, ConverterParameter=x*0.3}"
+								Height="{Binding ElementName=gridInputField, Path=ActualHeight}"
+								Width="{Binding ElementName=gridInputField, Path=ActualWidth}" />
+							<Button
+								Name="SelectFolderButton"
+								Grid.Column="1"
+								VerticalAlignment="Center"
+								HorizontalAlignment="Center"
+								Content="Select Folder"
+								Style="{DynamicResource ButtonStyle}"
+								MaxHeight="{Binding Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.46+1, RelativeSource={RelativeSource Self}}"
+								MinHeight="{Binding Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.4+1, RelativeSource={RelativeSource Self}}"
+								Width="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.09+1}"
+								Click="SelectOutputSharingFolderButton_Click" />
+							<Button
+								Name="SelectFolderClearButton"
+								Grid.Column="2"
+								VerticalAlignment="Center"
+								HorizontalAlignment="Center"
+								Style="{DynamicResource ButtonStyle}"
+								MaxHeight="{Binding Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.4+1, RelativeSource={RelativeSource Self}}"
+								MinHeight="{Binding Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.4+1, RelativeSource={RelativeSource Self}}"
+								Width="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.08+1}"
+								Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02+1}"
+								Click="SelectFolderClearButton_Click">
+								<Control.Background>
+									<ImageBrush
+										x:Name="ExitButtonBrush"
+										ImageSource="/Images/ErrorIcon.png"
+										Stretch="Uniform" />
+								</Control.Background>
+							</Button>
+						</Grid>
+					</Grid>
+				</Grid>
+				<Grid
+					MaxHeight="1550"
+					Margin="0,0,0,20"
+					Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.70}">
+					<Grid.RowDefinitions>
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.065}" />
+						<RowDefinition
+							Height="*" />
+						<RowDefinition
+							Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.015}" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition
+							Width="88*" />
+						<ColumnDefinition
+							Width="2574*" />
+					</Grid.ColumnDefinitions>
+					<class:SectionTemplate
+						Template="{StaticResource SectionTemplateKey}"
+						Content="Self-Service Mode Settings"
+						Background="#FFFFFFFF"
+						BorderBrush="#BABFC5"
+						Grid.RowSpan="5"
+						Grid.ColumnSpan="5"
+						ToolTip="You can set your photo booth to operate automatically."
+						ToolTipService.InitialShowDelay="10000" />
+					<Grid
+						Row="1"
+						Column="1">
+						<ScrollViewer>
+							<StackPanel
+								Orientation="Vertical"
+								Grid.Row="0"
+								Grid.ColumnSpan="10"
+								HorizontalAlignment="Left"
+								VerticalAlignment="Top">
+								<Frame
+									Name="securityPasswordFrame"
+									VerticalAlignment="Top"
+									Margin="0,0,0,20" />
+								<TextBlock
+									Grid.Row="0"
+									VerticalAlignment="Top"
+									Style="{DynamicResource TextStylePropertyTitle}"
+									Margin="0,-0,0,5">Run On Startup</TextBlock>
+								<Frame
+									Name="RunOnStartupFrame"
+									Margin="0,0,0,20" />
+								<TextBlock
+									Grid.Row="0"
+									VerticalAlignment="Top"
+									Style="{DynamicResource TextStylePropertyTitle}"
+									Margin="0,-0,0,5">Payments Options</TextBlock>
+								<Frame
+									Name="PaymentActiveFrame"
+									Margin="0,0,0,20" />
+								<Grid
+									Visibility="Visible">
+									<StackPanel
+										Orientation="Vertical"
+										Grid.Row="0"
+										Grid.ColumnSpan="10"
+										HorizontalAlignment="Left"
+										VerticalAlignment="Top">
+										<Frame
+											Name="PaymentTimeComboboxFrame"
+											Margin="0,0,0,20" />
+										<Frame
+											Name="PaymentOptionComboboxFrame"
+											Margin="0,0,0,20" />
+										<Frame
+											Name="StripeAccountIDFrame" />
+										<Frame
+											Name="StripeSecretKeyFrame" />
+										<UniformGrid
+											Columns="2"
+											Margin="0,0,0,20">
+											<Frame
+												Name="PaymentCapturePriceFrame" />
+											<Frame
+												Name="PaymentPrintPriceFrame" />
+										</UniformGrid>
+									</StackPanel>
+								</Grid>
+							</StackPanel>
+						</ScrollViewer>
+					</Grid>
+				</Grid>
+				<Grid
+					Name="gridFileSettings"
+					Visibility="Collapsed">
+					<Border
+						Grid.RowSpan="10"
+						Grid.ColumnSpan="10"
+						Background="#FFFFFFFF"
+						CornerRadius="15"
+						Opacity="1">
+						<UIElement.Effect>
+							<DropShadowEffect
+								Opacity="0.25"
+								BlurRadius="20"
+								ShadowDepth="10" />
+						</UIElement.Effect>
+						<Border.BorderBrush>
+							<LinearGradientBrush
+								EndPoint="0.5,1"
+								StartPoint="0.5,0">
+								<GradientStop
+									Color="White"
+									Offset="0" />
+								<GradientStop
+									Color="#FFD5D5D5"
+									Offset="1" />
+							</LinearGradientBrush>
+						</Border.BorderBrush>
+					</Border>
+					<Grid>
+						<Grid.RowDefinitions>
+							<RowDefinition
+								Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.05+1}" />
+							<RowDefinition
+								Height="1*" />
+							<RowDefinition
+								Height="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.02+1}" />
+						</Grid.RowDefinitions>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition
+								Width="1*" />
+							<ColumnDefinition
+								Width="26*" />
+							<ColumnDefinition
+								Width="1*" />
+						</Grid.ColumnDefinitions>
+						<Label
+							FontFamily="{StaticResource PromptExtraLight}"
+							Foreground="#707270"
+							Grid.Column="1"
+							Grid.Row="0"
+							VerticalAlignment="Center"
+							FontSize="{Binding ElementName=gridMain, Path=ActualWidth, Converter={StaticResource math}, ConverterParameter=x*0.017+1}">File Settings</Label>
+						<Frame
+							Name="folderBrowser"
+							Grid.Row="1"
+							Grid.Column="1" />
+					</Grid>
+				</Grid>
+			</StackPanel>
+		</Grid>
+	</ScrollViewer>
+</local:SettingsSubPage>

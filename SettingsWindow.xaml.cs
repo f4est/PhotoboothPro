@@ -110,9 +110,6 @@ namespace UnifiedPhotoBooth
             // Загружаем настройки при старте, если они есть
             LoadSettings();
             
-            // Инициализируем UI элементы на основе настроек
-            InitializeUIFromSettings();
-            
             // Подписываемся на события для QR-кода
             InitializeQrCodeEvents();
             
@@ -126,6 +123,12 @@ namespace UnifiedPhotoBooth
             // Инициализация элементов интерфейса значениями из настроек
             InitializeUIFromSettings();
             InitializePrinterUiEvents();
+
+            // Подписываемся на событие изменения FPS
+            if (cbVideoFps != null)
+            {
+                cbVideoFps.SelectionChanged += CbVideoFps_SelectionChanged;
+            }
 
             // Нефиксирующая модальность и подсказка пути
             if (txtSettingsPath != null)
@@ -232,6 +235,8 @@ namespace UnifiedPhotoBooth
         
         private void InitializeUIFromSettings()
         {
+            System.Diagnostics.Debug.WriteLine($"InitializeUIFromSettings: Загружаем настройки - VideoFps = {AppSettings.VideoFps}, UseAutoFps = {AppSettings.UseAutoFps}");
+            
             // Заполняем список камер
             RefreshCameraList();
             
@@ -2365,6 +2370,26 @@ namespace UnifiedPhotoBooth
             MessageBox.Show("Оверлей очищен", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         
+        private void CbVideoFps_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cbVideoFps?.SelectedItem != null && txtManualFps != null)
+            {
+                string fpsTag = ((ComboBoxItem)cbVideoFps.SelectedItem).Tag?.ToString();
+                System.Diagnostics.Debug.WriteLine($"CbVideoFps_SelectionChanged: Выбран тег = {fpsTag}");
+                
+                if (fpsTag == "Manual")
+                {
+                    txtManualFps.IsEnabled = true;
+                    System.Diagnostics.Debug.WriteLine($"CbVideoFps_SelectionChanged: Включен ручной ввод FPS");
+                }
+                else
+                {
+                    txtManualFps.IsEnabled = false;
+                    System.Diagnostics.Debug.WriteLine($"CbVideoFps_SelectionChanged: Отключен ручной ввод FPS");
+                }
+            }
+        }
+        
         // Метод для добавления текстового маркера на канву
         private void AddTextMarker(TextElement textElement, Canvas canvas, List<TextMarker> markers)
         {
@@ -2611,9 +2636,58 @@ namespace UnifiedPhotoBooth
                 }
                 
                 // Сохраняем частоту кадров для видео
-                if (cbVideoFps.SelectedItem != null && double.TryParse(((ComboBoxItem)cbVideoFps.SelectedItem).Tag?.ToString(), out double videoFps))
+                if (cbVideoFps?.SelectedItem != null)
                 {
-                    AppSettings.VideoFps = videoFps;
+                    string fpsTag = ((ComboBoxItem)cbVideoFps.SelectedItem).Tag?.ToString();
+                    System.Diagnostics.Debug.WriteLine($"BtnSave_Click: Обрабатываем FPS тег = '{fpsTag}'");
+                    System.Diagnostics.Debug.WriteLine($"BtnSave_Click: До сохранения - UseAutoFps = {AppSettings.UseAutoFps}, VideoFps = {AppSettings.VideoFps}");
+                    
+                    // Сохраняем оригинальные значения для сравнения
+                    bool originalUseAutoFps = AppSettings.UseAutoFps;
+                    double originalVideoFps = AppSettings.VideoFps;
+                    
+                    if (fpsTag == "Auto")
+                    {
+                        AppSettings.UseAutoFps = true;
+                        AppSettings.VideoFps = 30.0; // Значение по умолчанию для авто режима
+                        System.Diagnostics.Debug.WriteLine($"BtnSave_Click: Установлен Auto режим - UseAutoFps = {AppSettings.UseAutoFps}, VideoFps = {AppSettings.VideoFps}");
+                    }
+                    else if (fpsTag == "Manual")
+                    {
+                        AppSettings.UseAutoFps = false;
+                        if (txtManualFps != null)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"BtnSave_Click: Текст ручного FPS = '{txtManualFps.Text}'");
+                            if (double.TryParse(txtManualFps.Text, out double manualFps))
+                            {
+                                AppSettings.VideoFps = manualFps;
+                                System.Diagnostics.Debug.WriteLine($"BtnSave_Click: Установлен ручной FPS = {manualFps} (тип: {manualFps.GetType()})");
+                                System.Diagnostics.Debug.WriteLine($"BtnSave_Click: Проверка - AppSettings.VideoFps теперь = {AppSettings.VideoFps}");
+                            }
+                            else
+                            {
+                                AppSettings.VideoFps = 30.0; // Значение по умолчанию
+                                System.Diagnostics.Debug.WriteLine($"BtnSave_Click: Не удалось распарсить ручной FPS, установлено 30.0");
+                            }
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"BtnSave_Click: txtManualFps is null!");
+                        }
+                    }
+                    else if (double.TryParse(fpsTag, out double videoFps))
+                    {
+                        AppSettings.UseAutoFps = false;
+                        AppSettings.VideoFps = videoFps;
+                        System.Diagnostics.Debug.WriteLine($"BtnSave_Click: Установлен предустановленный FPS = {videoFps}");
+                    }
+                    
+                    System.Diagnostics.Debug.WriteLine($"BtnSave_Click: После обработки - UseAutoFps = {AppSettings.UseAutoFps}, VideoFps = {AppSettings.VideoFps}");
+                    System.Diagnostics.Debug.WriteLine($"BtnSave_Click: Изменения - UseAutoFps: {originalUseAutoFps} -> {AppSettings.UseAutoFps}, VideoFps: {originalVideoFps} -> {AppSettings.VideoFps}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"BtnSave_Click: cbVideoFps?.SelectedItem is null!");
                 }
                 
                 // Сохраняем кодек для видео
@@ -2842,7 +2916,8 @@ namespace UnifiedPhotoBooth
             try
             {
                 AppSettings = SettingsManager.LoadSettings();
-                System.Diagnostics.Debug.WriteLine($"Настройки загружены успешно. Путь: {SettingsManager.GetSettingsFilePath()}");
+                System.Diagnostics.Debug.WriteLine($"LoadSettings: Настройки загружены успешно. Путь: {SettingsManager.GetSettingsFilePath()}");
+                System.Diagnostics.Debug.WriteLine($"LoadSettings: VideoFps = {AppSettings.VideoFps}, UseAutoFps = {AppSettings.UseAutoFps}");
                 
                 // Инициализируем текстовые элементы, если их нет
                 if (AppSettings.TextElements == null || AppSettings.TextElements.Count == 0)
@@ -2976,21 +3051,74 @@ namespace UnifiedPhotoBooth
                 
                 // Устанавливаем частоту кадров для видео
                 bool videoFpsFound = false;
-                string videoFps = AppSettings.VideoFps.ToString();
-                foreach (ComboBoxItem item in cbVideoFps.Items)
+                if (cbVideoFps != null && txtManualFps != null)
                 {
-                    if (item.Tag?.ToString() == videoFps)
+                    if (AppSettings.UseAutoFps)
                     {
-                        cbVideoFps.SelectedItem = item;
-                        videoFpsFound = true;
-                        break;
+                        // Ищем элемент "Авто"
+                        foreach (ComboBoxItem item in cbVideoFps.Items)
+                        {
+                            if (item.Tag?.ToString() == "Auto")
+                            {
+                                cbVideoFps.SelectedItem = item;
+                                videoFpsFound = true;
+                                break;
+                            }
+                        }
                     }
-                }
-                
-                if (!videoFpsFound)
-                {
-                    cbVideoFps.SelectedIndex = 3; // 30 FPS по умолчанию
-                    AppSettings.VideoFps = 30.0;
+                    else
+                    {
+                        // Ищем конкретное значение FPS среди предустановленных
+                        string videoFps = AppSettings.VideoFps.ToString();
+                        System.Diagnostics.Debug.WriteLine($"InitializeUIFromSettings: Ищем FPS = {videoFps} среди предустановленных");
+                        
+                        // Выводим все доступные теги для отладки
+                        foreach (ComboBoxItem item in cbVideoFps.Items)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"InitializeUIFromSettings: Доступный тег = {item.Tag?.ToString()}");
+                        }
+                        
+                        bool foundExactMatch = false;
+                        foreach (ComboBoxItem item in cbVideoFps.Items)
+                        {
+                            // Сравниваем как строки и как числа
+                            if (item.Tag?.ToString() == videoFps || 
+                                (double.TryParse(item.Tag?.ToString(), out double itemFps) && 
+                                 double.TryParse(videoFps, out double settingFps) && 
+                                 Math.Abs(itemFps - settingFps) < 0.01))
+                            {
+                                cbVideoFps.SelectedItem = item;
+                                videoFpsFound = true;
+                                foundExactMatch = true;
+                                System.Diagnostics.Debug.WriteLine($"InitializeUIFromSettings: Найдено точное совпадение FPS = {videoFps}");
+                                break;
+                            }
+                        }
+                        
+                        // Если не нашли точное совпадение среди предустановленных, используем ручной ввод
+                        if (!foundExactMatch)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"InitializeUIFromSettings: Не найдено точное совпадение для FPS = {videoFps}, используем ручной ввод");
+                            foreach (ComboBoxItem item in cbVideoFps.Items)
+                            {
+                                if (item.Tag?.ToString() == "Manual")
+                                {
+                                    cbVideoFps.SelectedItem = item;
+                                    txtManualFps.Text = AppSettings.VideoFps.ToString("F1");
+                                    videoFpsFound = true;
+                                    System.Diagnostics.Debug.WriteLine($"InitializeUIFromSettings: Установлен ручной ввод FPS = {AppSettings.VideoFps}");
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (!videoFpsFound)
+                    {
+                        cbVideoFps.SelectedIndex = 0; // Авто по умолчанию
+                        AppSettings.UseAutoFps = true;
+                        AppSettings.VideoFps = 30.0;
+                    }
                 }
                 
                 // Устанавливаем кодек для видео
@@ -3121,6 +3249,7 @@ namespace UnifiedPhotoBooth
         public string OverlayImagePath { get; set; }
         public double VideoFps { get; set; } = 30.0; // Частота кадров для записи видео
         public string VideoCodec { get; set; } = "Auto"; // Кодек для записи видео
+        public bool UseAutoFps { get; set; } = true; // Использовать автоматическое определение FPS камеры
         
         // Настройки принтера
         public string PrinterName { get; set; }
