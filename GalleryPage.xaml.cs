@@ -60,8 +60,11 @@ namespace UnifiedPhotoBooth
                     await LoadEventFiles(allMediaFiles);
                 }
                 
-                // Сортируем все файлы по дате создания (сначала новые)
-                var sortedFiles = allMediaFiles.OrderByDescending(f => f.CreationTime).ToList();
+                // Сортируем все файлы по дате и времени создания (сначала новые)
+                var sortedFiles = allMediaFiles
+                    .OrderByDescending(f => f.CreationTime)
+                    .ThenByDescending(f => f.CreationTime.TimeOfDay)
+                    .ToList();
                 
                 // Создаем элементы галереи для каждого файла
                 foreach (var mediaFile in sortedFiles)
@@ -100,6 +103,9 @@ namespace UnifiedPhotoBooth
             {
                 var photoFiles = Directory.GetFiles(PhotosDir, "*.jpg")
                     .Select(f => new FileInfo(f))
+                    .Where(f => !allMediaFiles.Any(existingFile => existingFile.FileName == f.Name)) // Исключаем дубликаты
+                    .OrderByDescending(f => f.CreationTime) // Сортируем по времени создания
+                    .ThenByDescending(f => f.CreationTime.TimeOfDay) // Затем по времени дня
                     .Select(f => new MediaFileInfo
                     {
                         FilePath = f.FullName,
@@ -118,6 +124,9 @@ namespace UnifiedPhotoBooth
                 var videoFiles = Directory.GetFiles(RecordingsDir, "*.mp4")
                     .Concat(Directory.GetFiles(RecordingsDir, "*.avi"))
                     .Select(f => new FileInfo(f))
+                    .Where(f => !allMediaFiles.Any(existingFile => existingFile.FileName == f.Name)) // Исключаем дубликаты
+                    .OrderByDescending(f => f.CreationTime) // Сортируем по времени создания
+                    .ThenByDescending(f => f.CreationTime.TimeOfDay) // Затем по времени дня
                     .Select(f => new MediaFileInfo
                     {
                         FilePath = f.FullName,
@@ -141,8 +150,20 @@ namespace UnifiedPhotoBooth
                 // Загружаем файлы из Google Drive для выбранного события
                 var eventFiles = await driveService.GetEventFilesAsync(_eventFolderId);
                 
-                foreach (var file in eventFiles)
+                // Сортируем файлы по времени создания (сначала новые)
+                var sortedEventFiles = eventFiles
+                    .OrderByDescending(f => f.CreatedTime)
+                    .ThenByDescending(f => f.CreatedTime?.TimeOfDay ?? TimeSpan.Zero)
+                    .ToList();
+                
+                foreach (var file in sortedEventFiles)
                 {
+                    // Проверяем, не добавлен ли уже файл с таким именем
+                    if (allMediaFiles.Any(existingFile => existingFile.FileName == file.Name))
+                    {
+                        continue; // Пропускаем дубликат
+                    }
+                    
                     var mediaFile = new MediaFileInfo
                     {
                         FilePath = file.DownloadUrl, // URL для скачивания
@@ -510,7 +531,7 @@ namespace UnifiedPhotoBooth
             NavigationService.GoBack();
         }
         
-        private void BtnShare_Click(object sender, RoutedEventArgs e)
+        private async void BtnShare_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -518,51 +539,81 @@ namespace UnifiedPhotoBooth
                 ((Button)sender).IsEnabled = false;
                 ((Button)sender).Content = "Загрузка...";
                 
-                if (!string.IsNullOrEmpty(_qrCodePath) && File.Exists(_qrCodePath))
+                // Проверяем, что путь к фото существует
+                if (string.IsNullOrEmpty(_imagePath) || !File.Exists(_imagePath))
                 {
-                    // Показываем страницу с QR-кодом, используя сохраненный файл QR-кода
-                    NavigationService.Navigate(new QRCodePage(_qrCodePath, false, true));
+                    MessageBox.Show("Файл фото не найден.", "Ошибка", 
+                                   MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
-                else
+                
+                string fileName = Path.GetFileName(_imagePath);
+                string fileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+                string imageDirectory = Path.GetDirectoryName(_imagePath);
+                
+                // 1. Сначала ищем QR-код локально рядом с фото
+                string localQrPath = Path.Combine(imageDirectory, fileNameWithoutExt + "_qr.png");
+                
+                if (File.Exists(localQrPath))
                 {
-                    // Создаем QR-код напрямую, ведущий на Google Drive
-                    var driveService = new GoogleDriveService();
-                    string fileName = Path.GetFileName(_imagePath);
-                    
-                    // Создаем QR-код, ведущий на универсальную папку Google Drive
-                    string googleDriveUrl = "https://drive.google.com/drive/folders/1FR92J38OPdLZoCaKKZ6lW7EucdGtG624";
-                    
-                    // Генерируем QR-код
-                    var qrGenerator = new QRCoder.QRCodeGenerator();
-                    var qrCodeData = qrGenerator.CreateQrCode(googleDriveUrl, QRCoder.QRCodeGenerator.ECCLevel.H);
-                    var qrCode = new QRCoder.QRCode(qrCodeData);
-                    
-                    // Получаем настройки QR-кода
-                    var appSettings = SettingsWindow.AppSettings;
-                    System.Drawing.Color qrForeColor = System.Drawing.ColorTranslator.FromHtml(appSettings.QrForegroundColor);
-                    System.Drawing.Color qrBackColor = System.Drawing.ColorTranslator.FromHtml(appSettings.QrBackgroundColor);
-                    
-                    // Создаем QR-код с настраиваемыми цветами
-                    var qrBitmap = qrCode.GetGraphic(20, qrForeColor, qrBackColor, false);
-                    
-                    // Изменяем размер QR-кода
-                    int size = appSettings.QrCodeSize;
-                    var resizedQrBitmap = new System.Drawing.Bitmap(size, size);
-                    using (var g = System.Drawing.Graphics.FromImage(resizedQrBitmap))
+                    // Найден локальный QR-код - показываем его
+                    NavigationService.Navigate(new QRCodePage(localQrPath, false, true));
+                    return;
+                }
+                
+                // 2. Если локальный QR не найден, ищем на Google Drive
+                if (!string.IsNullOrEmpty(_eventFolderId))
+                {
+                    try
                     {
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.DrawImage(qrBitmap, new System.Drawing.Rectangle(0, 0, size, size));
+                        var driveService = new GoogleDriveService();
+                        // Ищем файл на Google Drive по имени с припиской _qr
+                        var driveFiles = driveService.SearchFilesByName(fileNameWithoutExt + "_qr.png", _eventFolderId);
+                        
+                        if (driveFiles != null && driveFiles.Count > 0)
+                        {
+                            // Найден QR на Google Drive - скачиваем и показываем
+                            string downloadedQrPath = driveService.DownloadFile(driveFiles[0].Id, localQrPath);
+                            if (File.Exists(downloadedQrPath))
+                            {
+                                NavigationService.Navigate(new QRCodePage(downloadedQrPath, false, true));
+                                return;
+                            }
+                        }
                     }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Ошибка при поиске QR на Google Drive: {ex.Message}");
+                    }
+                }
+                
+                // 3. Если QR не найден нигде, создаем новый и загружаем фото в событие
+                try
+                {
+                    var driveService = new GoogleDriveService();
+                    string folderName = $"PhotoBooth_{DateTime.Now:yyyyMMdd_HHmmss}";
                     
-                    // Сохраняем QR-код локально
-                    string qrFilePath = Path.Combine(
-                        Path.GetDirectoryName(_imagePath),
-                        Path.GetFileNameWithoutExtension(fileName) + "_qr.png");
+                    // Загружаем фото на Google Drive асинхронно
+                    var result = await driveService.UploadPhotoAsync(_imagePath, folderName, _eventFolderId);
                     
-                    resizedQrBitmap.Save(qrFilePath, System.Drawing.Imaging.ImageFormat.Png);
-                    
-                    // Показываем QR-код
-                    NavigationService.Navigate(new QRCodePage(qrFilePath, false, true));
+                    if (result != null && result.QrCode != null)
+                    {
+                        // Сохраняем QR-код локально
+                        result.QrCode.Save(localQrPath, System.Drawing.Imaging.ImageFormat.Png);
+                        
+                        // Показываем QR-код
+                        NavigationService.Navigate(new QRCodePage(localQrPath, false, true));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Не удалось создать QR-код для этого файла.", "Ошибка", 
+                                       MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при создании QR-кода: {ex.Message}", "Ошибка", 
+                                   MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
@@ -867,16 +918,58 @@ namespace UnifiedPhotoBooth
                 ((Button)sender).IsEnabled = false;
                 ((Button)sender).Content = "Загрузка...";
                 
-                if (!string.IsNullOrEmpty(_qrCodePath) && File.Exists(_qrCodePath))
+                // Проверяем, что путь к видео существует
+                if (string.IsNullOrEmpty(_videoPath) || !File.Exists(_videoPath))
                 {
-                    // Показываем страницу с QR-кодом, используя сохраненный файл QR-кода
-                    NavigationService.Navigate(new QRCodePage(_qrCodePath, true, true));
+                    MessageBox.Show("Файл видео не найден.", "Ошибка", 
+                                   MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
-                else
+                
+                string fileName = Path.GetFileName(_videoPath);
+                string fileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+                string videoDirectory = Path.GetDirectoryName(_videoPath);
+                
+                // 1. Сначала ищем QR-код локально рядом с видео
+                string localQrPath = Path.Combine(videoDirectory, fileNameWithoutExt + "_qr.png");
+                
+                if (File.Exists(localQrPath))
                 {
-                    // Создаем новый QR-код и загружаем файл
+                    // Найден локальный QR-код - показываем его
+                    NavigationService.Navigate(new QRCodePage(localQrPath, true, true));
+                    return;
+                }
+                
+                // 2. Если локальный QR не найден, ищем на Google Drive
+                if (!string.IsNullOrEmpty(_eventFolderId))
+                {
+                    try
+                    {
+                        var driveService = new GoogleDriveService();
+                        // Ищем файл на Google Drive по имени с припиской _qr
+                        var driveFiles = driveService.SearchFilesByName(fileNameWithoutExt + "_qr.png", _eventFolderId);
+                        
+                        if (driveFiles != null && driveFiles.Count > 0)
+                        {
+                            // Найден QR на Google Drive - скачиваем и показываем
+                            string downloadedQrPath = driveService.DownloadFile(driveFiles[0].Id, localQrPath);
+                            if (File.Exists(downloadedQrPath))
+                            {
+                                NavigationService.Navigate(new QRCodePage(downloadedQrPath, true, true));
+                                return;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Ошибка при поиске QR на Google Drive: {ex.Message}");
+                    }
+                }
+                
+                // 3. Если QR не найден нигде, создаем новый и загружаем видео в событие
+                try
+                {
                     var driveService = new GoogleDriveService();
-                    string fileName = Path.GetFileName(_videoPath);
                     string folderName = $"VideoBooth_{DateTime.Now:yyyyMMdd_HHmmss}";
 
                     // Останавливаем воспроизведение, чтобы снять возможные блокировки файла
@@ -897,14 +990,10 @@ namespace UnifiedPhotoBooth
                         if (result != null && result.QrCode != null)
                         {
                             // Сохраняем QR-код локально
-                            string qrFilePath = Path.Combine(
-                                Path.GetDirectoryName(_videoPath),
-                                Path.GetFileNameWithoutExtension(fileName) + "_qr.png");
-                            
-                            result.QrCode.Save(qrFilePath, System.Drawing.Imaging.ImageFormat.Png);
+                            result.QrCode.Save(localQrPath, System.Drawing.Imaging.ImageFormat.Png);
                             
                             // Показываем QR-код
-                            NavigationService.Navigate(new QRCodePage(qrFilePath, true, true));
+                            NavigationService.Navigate(new QRCodePage(localQrPath, true, true));
                         }
                         else
                         {
@@ -916,6 +1005,11 @@ namespace UnifiedPhotoBooth
                     {
                         try { System.IO.File.Delete(tempCopy); } catch { }
                     }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при создании QR-кода: {ex.Message}", "Ошибка", 
+                                   MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
@@ -962,6 +1056,14 @@ namespace UnifiedPhotoBooth
         
         public QRCodePage(string mediaPath, bool isVideo, bool showSavedQR = false)
         {
+            // Проверяем входные параметры
+            if (string.IsNullOrEmpty(mediaPath))
+            {
+                MessageBox.Show("Неверный путь к файлу.", "Ошибка", 
+                               MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            
             _mediaPath = mediaPath;
             _isVideo = isVideo;
             _showSavedQR = showSavedQR;
@@ -990,6 +1092,14 @@ namespace UnifiedPhotoBooth
             {
                 try
                 {
+                    // Проверяем, что файл существует
+                    if (!File.Exists(_mediaPath))
+                    {
+                        MessageBox.Show($"Файл QR-кода не найден: {_mediaPath}", "Ошибка", 
+                                       MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    
                     // Загружаем QR-код из файла
                     BitmapImage bitmap = new BitmapImage();
                     bitmap.BeginInit();
@@ -1012,6 +1122,14 @@ namespace UnifiedPhotoBooth
                 
                 try
                 {
+                    // Проверяем, что файл существует
+                    if (!File.Exists(_mediaPath))
+                    {
+                        MessageBox.Show($"Файл не найден: {_mediaPath}", "Ошибка", 
+                                       MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    
                     // Создаем задачу для загрузки файла
                     Task<UploadResult> uploadTask;
                     if (_isVideo)

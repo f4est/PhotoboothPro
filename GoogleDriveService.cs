@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using System.Linq;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
@@ -307,7 +308,7 @@ namespace UnifiedPhotoBooth
                 // Сохраняем QR-код в локальный файл
                 string qrFilePath = SaveQrCodeToFile(qrCode, filePath, fileName);
                 
-                // Загружаем QR-код в ту же папку Google Drive
+                // Загружаем QR-код в универсальную папку Google Drive
                 var qrFileMetadata = new Google.Apis.Drive.v3.Data.File()
                 {
                     Name = Path.GetFileName(qrFilePath),
@@ -318,6 +319,22 @@ namespace UnifiedPhotoBooth
                 {
                     var qrUploadRequest = _driveService.Files.Create(qrFileMetadata, stream, "image/png");
                     await Task.Run(() => qrUploadRequest.Upload());
+                }
+                
+                // Также загружаем QR-код в папку события, если она задана
+                if (!string.IsNullOrEmpty(eventFolderId))
+                {
+                    var eventQrFileMetadata = new Google.Apis.Drive.v3.Data.File()
+                    {
+                        Name = Path.GetFileName(qrFilePath),
+                        Parents = new List<string> { eventFolderId }
+                    };
+                    
+                    using (var stream = new FileStream(qrFilePath, FileMode.Open))
+                    {
+                        var eventQrUploadRequest = _driveService.Files.Create(eventQrFileMetadata, stream, "image/png");
+                        await Task.Run(() => eventQrUploadRequest.Upload());
+                    }
                 }
                 
                 return new UploadResult
@@ -433,7 +450,7 @@ namespace UnifiedPhotoBooth
                 // Сохраняем QR-код в локальный файл
                 string qrFilePath = SaveQrCodeToFile(qrCode, filePath, fileName);
                 
-                // Загружаем QR-код в ту же папку Google Drive
+                // Загружаем QR-код в универсальную папку Google Drive
                 var qrFileMetadata = new Google.Apis.Drive.v3.Data.File()
                 {
                     Name = Path.GetFileName(qrFilePath),
@@ -444,6 +461,22 @@ namespace UnifiedPhotoBooth
                 {
                     var qrUploadRequest = _driveService.Files.Create(qrFileMetadata, stream, "image/png");
                     await Task.Run(() => qrUploadRequest.Upload());
+                }
+                
+                // Также загружаем QR-код в папку события, если она задана
+                if (!string.IsNullOrEmpty(eventFolderId))
+                {
+                    var eventQrFileMetadata = new Google.Apis.Drive.v3.Data.File()
+                    {
+                        Name = Path.GetFileName(qrFilePath),
+                        Parents = new List<string> { eventFolderId }
+                    };
+                    
+                    using (var stream = new FileStream(qrFilePath, FileMode.Open))
+                    {
+                        var eventQrUploadRequest = _driveService.Files.Create(eventQrFileMetadata, stream, "image/png");
+                        await Task.Run(() => eventQrUploadRequest.Upload());
+                    }
                 }
                 
                 return new UploadResult
@@ -773,6 +806,62 @@ namespace UnifiedPhotoBooth
             string extension = Path.GetExtension(fileName).ToLower();
             return extension == ".jpg" || extension == ".jpeg" || extension == ".png" || 
                    extension == ".mp4" || extension == ".avi" || extension == ".mov";
+        }
+        
+        // Поиск файлов по имени в папке Google Drive
+        public List<Google.Apis.Drive.v3.Data.File> SearchFilesByName(string fileName, string folderId)
+        {
+            if (!_isOnline || _driveService == null)
+            {
+                return new List<Google.Apis.Drive.v3.Data.File>();
+            }
+            
+            try
+            {
+                var listRequest = _driveService.Files.List();
+                listRequest.Q = $"'{folderId}' in parents and name='{fileName}' and trashed=false";
+                listRequest.Fields = "files(id,name,mimeType)";
+                
+                var fileList = listRequest.Execute();
+                return fileList.Files.ToList();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при поиске файлов: {ex.Message}");
+                return new List<Google.Apis.Drive.v3.Data.File>();
+            }
+        }
+        
+        // Скачивание файла с Google Drive
+        public string DownloadFile(string fileId, string localPath)
+        {
+            if (!_isOnline || _driveService == null)
+            {
+                return null;
+            }
+            
+            try
+            {
+                // Создаем директорию, если её нет
+                string directory = Path.GetDirectoryName(localPath);
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+                
+                // Скачиваем файл
+                using (var stream = new FileStream(localPath, FileMode.Create))
+                {
+                    _driveService.Files.Get(fileId).Download(stream);
+                }
+                
+                return localPath;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при скачивании файла: {ex.Message}");
+                return null;
+            }
         }
     }
 
